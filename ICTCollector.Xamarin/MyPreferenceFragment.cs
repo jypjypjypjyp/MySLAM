@@ -12,16 +12,6 @@ using System;
 
 namespace ICTCollector.Xamarin
 {
-    [Activity(Label = "SettingActivity")]
-    public class SettingsActivity : PreferenceActivity
-    {
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-            FragmentManager.BeginTransaction().Replace(Resource.Id.container, new MyPreferenceFragment()).Commit();
-        }
-    }
-
     public class MyPreferenceFragment : PreferenceFragment, ISharedPreferencesOnSharedPreferenceChangeListener
     {
         private CameraManager manager;
@@ -39,7 +29,7 @@ namespace ICTCollector.Xamarin
             PreferenceManager.FindPreference("exitlink")
                 .PreferenceClick += (a, arg) =>
                 {
-                    Activity.Finish();
+                    FragmentManager.BeginTransaction().Replace(Resource.Id.container, CameraFragment.Instance).Commit();
                 };
             // Init cameraList
             manager = HelperManager.CameraHelper.Manager;

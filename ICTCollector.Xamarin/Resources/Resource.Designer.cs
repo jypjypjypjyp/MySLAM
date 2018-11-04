@@ -3290,6 +3290,15 @@ namespace ICTCollector.Xamarin
 			// aapt resource value: 0x7f09001f
 			public const int bottom_sheet_behavior = 2131296287;
 			
+			// aapt resource value: 0x7f09002b
+			public const int button_mark = 2131296299;
+			
+			// aapt resource value: 0x7f09002c
+			public const int button_start_recording = 2131296300;
+			
+			// aapt resource value: 0x7f09002d
+			public const int button_stop_recording = 2131296301;
+			
 			// aapt resource value: 0x7f09002a
 			public const int camera_error = 2131296298;
 			

@@ -19,12 +19,12 @@
 			android:layout_width="wrap_content"
 			android:layout_height="60dp"
 			android:layout_weight="1"
-			android:text="Mark!!!" />
+			android:text="@string/button_mark" />
 		<Button
 			android:id="@+id/button_record"
 			android:layout_width="wrap_content"
 			android:layout_height="60dp"
 			android:layout_weight="1"
-			android:text="Start Recording"/>
+			android:text="@string/button_start_recording"/>
 	</LinearLayout>
 </RelativeLayout>

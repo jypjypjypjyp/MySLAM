@@ -4,6 +4,7 @@ using Android.Hardware.Camera2;
 using Android.Media;
 using Android.OS;
 using Android.Views;
+using Android.Widget;
 using ICTCollector.Xamarin.Helper;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,8 @@ namespace ICTCollector.Xamarin
         }
 
         public AutoFitTextureView TextureView { get; set; }
+        private Button markButton;
+        private Button recordButton;
         private ImageReader imageReader;
         private Handler backgroundHandler;
         private HandlerThread backgroundThread;
@@ -40,12 +43,27 @@ namespace ICTCollector.Xamarin
         {
             base.OnCreate(savedInstanceState);
             HelperManager.CameraHelper = new MyCameraHelper(Activity);
+        }
+
+        private void StartThread()
+        {
             backgroundThread = new HandlerThread("ReaptingCapture");
             backgroundThread.Start();
             backgroundHandler = new Handler(backgroundThread.Looper);
             saveImageThread = new HandlerThread("SaveImage");
             saveImageThread.Start();
             saveImageHandler = new Handler(saveImageThread.Looper);
+        }
+        private void StopThread()
+        {
+            backgroundThread.QuitSafely();
+            backgroundThread.Join();
+            backgroundThread = null;
+            backgroundHandler = null;
+            saveImageThread.QuitSafely();
+            saveImageThread.Join();
+            saveImageThread = null;
+            saveImageThread = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -56,8 +74,8 @@ namespace ICTCollector.Xamarin
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             TextureView = (AutoFitTextureView)view.FindViewById(Resource.Id.texture);
-            view.FindViewById(Resource.Id.button_record).Click += Record;
-            view.FindViewById(Resource.Id.button_mark).Click += Mark;
+            (markButton = view.FindViewById<Button>(Resource.Id.button_record)).Click += Record;
+            (recordButton = view.FindViewById<Button>(Resource.Id.button_mark)).Click += Mark;
         }
 
         private void Mark(object sender, EventArgs e)
@@ -71,8 +89,9 @@ namespace ICTCollector.Xamarin
         {
             if (HelperManager.CameraHelper.State == CameraState.Off)
             {
+                recordButton.Text = Context.Resources.GetString(Resource.String.button_stop_recording);
                 markedTimestampList = "";
-                ImageSaver.Path = 
+                ImageSaver.Path =
                     Android.OS.Environment.ExternalStorageDirectory.AbsolutePath
                     + "/ICTCollector/"
                     + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "/";
@@ -85,6 +104,7 @@ namespace ICTCollector.Xamarin
             }
             else
             {
+                recordButton.Text = Context.Resources.GetString(Resource.String.button_start_recording);
                 HelperManager.CameraHelper.CaptureSession.StopRepeating();
                 requestBuilder.RemoveTarget(imageReader.Surface);
                 HelperManager.CameraHelper.CaptureSession
@@ -99,6 +119,7 @@ namespace ICTCollector.Xamarin
         public override void OnResume()
         {
             base.OnResume();
+            StartThread();
             if (TextureView.IsAvailable)
             {
                 OpenCamera();
@@ -111,12 +132,12 @@ namespace ICTCollector.Xamarin
                     OpenCamera();
                 };
             }
-
         }
 
         public override void OnPause()
         {
             CloseCamera();
+            StopThread();
             base.OnPause();
         }
 

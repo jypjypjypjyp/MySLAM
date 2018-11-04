@@ -65,9 +65,9 @@
     <Compile Include="Helper\HelperManager.cs" />
     <Compile Include="Helper\MyCameraHelper.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="MyPreferenceFragment.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

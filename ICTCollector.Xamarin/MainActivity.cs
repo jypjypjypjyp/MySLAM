@@ -1,5 +1,4 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Views;
@@ -15,10 +14,7 @@ namespace ICTCollector.Xamarin
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
-            if (savedInstanceState == null)
-            {
-                FragmentManager.BeginTransaction().Replace(Resource.Id.container, CameraFragment.Instance).Commit();
-            }
+            FragmentManager.BeginTransaction().Replace(Resource.Id.container, CameraFragment.Instance).Commit();
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -34,7 +30,7 @@ namespace ICTCollector.Xamarin
                 case Resource.Id.action_settings:
                     {
                         HelperManager.CameraHelper.State = CameraState.Close;
-                        Intent i = new Intent(this, typeof(SettingsActivity));
+                        FragmentManager.BeginTransaction().Replace(Resource.Id.container, new MyPreferenceFragment()).Commit();
                         break;
                     }
                 default: break;

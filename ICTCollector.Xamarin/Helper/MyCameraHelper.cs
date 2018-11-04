@@ -76,22 +76,31 @@ namespace ICTCollector.Xamarin.Helper
 
         public void OpenCamera(CameraSetting cameraSetting)
         {
-            if (ContextCompat.CheckSelfPermission(owner, Manifest.Permission.Camera) != Permission.Granted)
+            if (HelperManager.CameraHelper.State == CameraState.Close
+                || HelperManager.CameraHelper.State == CameraState.Ready
+                || HelperManager.CameraHelper.State == CameraState.Unavailable)
             {
-                return;
+                if (ContextCompat.CheckSelfPermission(owner, Manifest.Permission.Camera) != Permission.Granted)
+                {
+                    return;
+                }
+                HelperManager.CameraHelper.State = CameraState.Ready;
+                HelperManager.CameraHelper.Manager.OpenCamera(
+                    cameraSetting.CameraId,
+                    CameraStateCallback,
+                    null);
             }
-            HelperManager.CameraHelper.State = CameraState.Ready;
-            HelperManager.CameraHelper.Manager.OpenCamera(
-                cameraSetting.CameraId,
-                CameraStateCallback,
-                null);
         }
         public void CloseCamera()
         {
-            CaptureSession.Close();
-            CaptureSession = null;
-            CameraDevice.Close();
-            CameraDevice = null;
+            if (HelperManager.CameraHelper.State != CameraState.Unavailable
+                || HelperManager.CameraHelper.State != CameraState.Close)
+            {
+                CaptureSession.Close();
+                CaptureSession = null;
+                CameraDevice.Close();
+                CameraDevice = null;
+            }
         }
 
         public class MyStateCallback : CameraDevice.StateCallback
