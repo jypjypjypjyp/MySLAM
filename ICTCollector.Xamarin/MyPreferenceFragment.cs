@@ -1,10 +1,11 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.Hardware.Camera2;
 using Android.Hardware.Camera2.Params;
+using Android.Media;
 using Android.OS;
 using Android.Preferences;
+using Android.Transitions;
 using Android.Util;
 using Android.Widget;
 using ICTCollector.Xamarin.Helper;
@@ -102,7 +103,7 @@ namespace ICTCollector.Xamarin
             StreamConfigurationMap streamConfigurationMap =
                 (StreamConfigurationMap)characteristics.Get(CameraCharacteristics.ScalerStreamConfigurationMap);
             Size[] sizes = streamConfigurationMap
-                .GetOutputSizes((int)ImageFormatType.Jpeg);
+                .GetOutputSizes(Java.Lang.Class.FromType(typeof(MediaRecorder)));
             int rezSize = sizes.Length;
             string[] rez = new string[rezSize];
             string[] rezValues = new string[rezSize];

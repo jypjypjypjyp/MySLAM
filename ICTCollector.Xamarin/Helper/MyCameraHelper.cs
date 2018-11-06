@@ -26,6 +26,7 @@ namespace ICTCollector.Xamarin.Helper
         public string CameraId { get; private set; }
         public Size Size { get; private set; }
         public float Focus { get; private set; }
+
         public static CameraSetting GetCameraSetting(Context context)
         {
             ISharedPreferences preferences = PreferenceManager.GetDefaultSharedPreferences(context);
@@ -46,6 +47,7 @@ namespace ICTCollector.Xamarin.Helper
     public class MyCameraHelper
     {
         public delegate void Callback();
+        public delegate void FpsCallback(int fps);
 
         public CameraState State { get; set; }
         public CameraManager Manager { get; set; }
@@ -53,6 +55,7 @@ namespace ICTCollector.Xamarin.Helper
         public CameraCaptureSession CaptureSession { get; set; }
         public MyStateCallback CameraStateCallback { get; private set; }
         public MySessionCallback CameraSessionCallback { get; private set; }
+        public MyCaptureCallback CaptureCallback { get; private set; }
 
         private readonly Activity owner;
 
@@ -63,6 +66,7 @@ namespace ICTCollector.Xamarin.Helper
             State = CameraState.Unavailable;
             CameraStateCallback = new MyStateCallback(this);
             CameraSessionCallback = new MySessionCallback(this);
+            CaptureCallback = new MyCaptureCallback(this);
         }
         ~MyCameraHelper()
         {
@@ -74,7 +78,7 @@ namespace ICTCollector.Xamarin.Helper
             HelperManager.CameraHelper = null;
         }
 
-        public void OpenCamera(CameraSetting cameraSetting)
+        public void OpenCamera(CameraSetting setting)
         {
             if (HelperManager.CameraHelper.State == CameraState.Close
                 || HelperManager.CameraHelper.State == CameraState.Ready
@@ -86,7 +90,7 @@ namespace ICTCollector.Xamarin.Helper
                 }
                 HelperManager.CameraHelper.State = CameraState.Ready;
                 HelperManager.CameraHelper.Manager.OpenCamera(
-                    cameraSetting.CameraId,
+                    setting.CameraId,
                     CameraStateCallback,
                     null);
             }
@@ -159,6 +163,38 @@ namespace ICTCollector.Xamarin.Helper
                 outer.CaptureSession = session;
                 StartCapture();
                 outer.State = CameraState.Off;
+            }
+        }
+
+        public class MyCaptureCallback : CameraCaptureSession.CaptureCallback
+        {
+            private readonly MyCameraHelper outer;
+            private int fps = 0;
+            private int frames = 0;
+            private long lastUpdate = 0;
+            public event FpsCallback UpdateFps;
+
+            public MyCaptureCallback(MyCameraHelper outer)
+            {
+                this.outer = outer;
+            }
+
+            public override void OnCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result)
+            {
+                base.OnCaptureCompleted(session, request, result);
+                frames++;
+                long timestamp = (long)result.Get(CaptureResult.SensorTimestamp);
+                if (lastUpdate==0)
+                {
+                    lastUpdate = timestamp;
+                }
+                else if (timestamp - lastUpdate >= 1e9)
+                {
+                    lastUpdate = timestamp;
+                    fps = frames;
+                    frames = 0;
+                    outer.owner.RunOnUiThread(()=>UpdateFps(fps));
+                }
             }
         }
     }

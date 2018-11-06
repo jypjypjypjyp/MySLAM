@@ -9,7 +9,6 @@ using ICTCollector.Xamarin.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 
 namespace ICTCollector.Xamarin
 {
@@ -29,11 +28,10 @@ namespace ICTCollector.Xamarin
         public AutoFitTextureView TextureView { get; set; }
         private Button markButton;
         private Button recordButton;
+        private TextView fpsTextView;
         private ImageReader imageReader;
         private Handler backgroundHandler;
         private HandlerThread backgroundThread;
-        private Handler saveImageHandler;
-        private HandlerThread saveImageThread;
         private CaptureRequest.Builder requestBuilder;
 
         private string markedTimestampList;
@@ -50,9 +48,6 @@ namespace ICTCollector.Xamarin
             backgroundThread = new HandlerThread("ReaptingCapture");
             backgroundThread.Start();
             backgroundHandler = new Handler(backgroundThread.Looper);
-            saveImageThread = new HandlerThread("SaveImage");
-            saveImageThread.Start();
-            saveImageHandler = new Handler(saveImageThread.Looper);
         }
         private void StopThread()
         {
@@ -60,10 +55,6 @@ namespace ICTCollector.Xamarin
             backgroundThread.Join();
             backgroundThread = null;
             backgroundHandler = null;
-            saveImageThread.QuitSafely();
-            saveImageThread.Join();
-            saveImageThread = null;
-            saveImageThread = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -74,8 +65,18 @@ namespace ICTCollector.Xamarin
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             TextureView = (AutoFitTextureView)view.FindViewById(Resource.Id.texture);
-            (markButton = view.FindViewById<Button>(Resource.Id.button_record)).Click += Record;
-            (recordButton = view.FindViewById<Button>(Resource.Id.button_mark)).Click += Mark;
+            (recordButton = view.FindViewById<Button>(Resource.Id.button_record)).Click += Record;
+            (markButton = view.FindViewById<Button>(Resource.Id.button_mark)).Click += Mark;
+            fpsTextView = view.FindViewById<TextView>(Resource.Id.fpsTextView);
+            //Init Event
+            TextureView.SurfaceTextureAvailable +=
+                (object sender, TextureView.SurfaceTextureAvailableEventArgs e) =>
+                {
+                    OpenCamera();
+                };
+            HelperManager.CameraHelper.CameraSessionCallback.StartCapture += StartCapture;
+            HelperManager.CameraHelper.CameraStateCallback.CreateSession += CreateSession;
+            HelperManager.CameraHelper.CaptureCallback.UpdateFps += UpdateFps;
         }
 
         private void Mark(object sender, EventArgs e)
@@ -91,15 +92,16 @@ namespace ICTCollector.Xamarin
             {
                 recordButton.Text = Context.Resources.GetString(Resource.String.button_stop_recording);
                 markedTimestampList = "";
-                ImageSaver.Path =
+                FileSaver.Path =
                     Android.OS.Environment.ExternalStorageDirectory.AbsolutePath
                     + "/ICTCollector/"
                     + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "/";
-                Directory.CreateDirectory(ImageSaver.Path);
+                Directory.CreateDirectory(FileSaver.Path);
                 HelperManager.CameraHelper.CaptureSession.StopRepeating();
+
                 requestBuilder.AddTarget(imageReader.Surface);
                 HelperManager.CameraHelper.CaptureSession
-                    .SetRepeatingRequest(requestBuilder.Build(), null, backgroundHandler);
+                    .SetRepeatingRequest(requestBuilder.Build(), HelperManager.CameraHelper.CaptureCallback, backgroundHandler);
                 HelperManager.CameraHelper.State = CameraState.Record;
             }
             else
@@ -107,10 +109,10 @@ namespace ICTCollector.Xamarin
                 recordButton.Text = Context.Resources.GetString(Resource.String.button_start_recording);
                 HelperManager.CameraHelper.CaptureSession.StopRepeating();
                 requestBuilder.RemoveTarget(imageReader.Surface);
-                HelperManager.CameraHelper.CaptureSession
-                    .SetRepeatingRequest(requestBuilder.Build(), null, backgroundHandler);
                 HelperManager.CameraHelper.State = CameraState.Off;
-                File.WriteAllText(ImageSaver.Path + "marked.txt", markedTimestampList);
+                HelperManager.CameraHelper.CaptureSession
+                    .SetRepeatingRequest(requestBuilder.Build(), HelperManager.CameraHelper.CaptureCallback, backgroundHandler);
+                File.WriteAllText(FileSaver.Path + "marked.txt", markedTimestampList);
                 markedTimestampList = "";
                 curTimestamp = null;
             }
@@ -120,18 +122,6 @@ namespace ICTCollector.Xamarin
         {
             base.OnResume();
             StartThread();
-            if (TextureView.IsAvailable)
-            {
-                OpenCamera();
-            }
-            else
-            {
-                TextureView.SurfaceTextureAvailable +=
-                (object sender, TextureView.SurfaceTextureAvailableEventArgs e) =>
-                {
-                    OpenCamera();
-                };
-            }
         }
 
         public override void OnPause()
@@ -145,36 +135,33 @@ namespace ICTCollector.Xamarin
         {
             CameraSetting cameraSetting = CameraSetting.GetCameraSetting(Activity);
             TextureView.SetAspectRatio(cameraSetting.Size.Width, cameraSetting.Size.Height);
-            HelperManager.CameraHelper.CameraStateCallback.CreateSession
-                += CreateSession;
             HelperManager.CameraHelper.OpenCamera(cameraSetting);
-
-            imageReader = ImageReader.NewInstance(cameraSetting.Size.Width, cameraSetting.Size.Height, ImageFormatType.Jpeg, 3);
-            imageReader.SetOnImageAvailableListener(this, saveImageHandler);
+            imageReader = ImageReader.NewInstance(cameraSetting.Size.Width, cameraSetting.Size.Height, ImageFormatType.Jpeg, 20);
+            imageReader.SetOnImageAvailableListener(this, backgroundHandler);
         }
 
         public void CreateSession()
         {
+            CameraSetting cameraSetting = CameraSetting.GetCameraSetting(Activity);
             SurfaceTexture texture = TextureView.SurfaceTexture;
             if (texture == null)
             {
                 throw new Exception("texture is null");
             }
-
             texture.SetDefaultBufferSize(TextureView.Width, TextureView.Height);
             Surface surface = new Surface(texture);
-
             requestBuilder =
                 HelperManager.CameraHelper.CameraDevice.CreateCaptureRequest(CameraTemplate.Record);
             requestBuilder.AddTarget(surface);
-            requestBuilder.Set(CaptureRequest.ControlAfMode, (int)ControlAFMode.ContinuousPicture);
+            requestBuilder.Set(CaptureRequest.ControlAfMode, (int)ControlAFMode.Off);
+            requestBuilder.Set(CaptureRequest.LensFocalLength, cameraSetting.Focus);
 
             List<Surface> surfaces = new List<Surface>
             {
                 surface,
                 imageReader.Surface
             };
-            HelperManager.CameraHelper.CameraSessionCallback.StartCapture += StartCapture;
+
             HelperManager.CameraHelper.CameraDevice.CreateCaptureSession(
                     surfaces,
                     HelperManager.CameraHelper.CameraSessionCallback,
@@ -184,7 +171,7 @@ namespace ICTCollector.Xamarin
         private void StartCapture()
         {
             HelperManager.CameraHelper.CaptureSession
-                .SetRepeatingRequest(requestBuilder.Build(), null, backgroundHandler);
+                .SetRepeatingRequest(requestBuilder.Build(), HelperManager.CameraHelper.CaptureCallback, backgroundHandler);
         }
 
         public void CloseCamera()
@@ -196,12 +183,30 @@ namespace ICTCollector.Xamarin
 
         public void OnImageAvailable(ImageReader reader)
         {
-            Image image = reader.AcquireNextImage();
-            curTimestamp = image.Timestamp.ToString();
-            ThreadPool.QueueUserWorkItem((o) =>
-            {
-                ImageSaver.SaveImage(image, image.Timestamp.ToString() + ".png");
-            });
+            //Image image = reader.AcquireNextImage();
+            //string timestamp = image.Timestamp.ToString();
+            //curTimestamp = timestamp;
+            //ThreadPool.QueueUserWorkItem((o) =>
+            //{
+            //    Java.Nio.ByteBuffer buffer = image.GetPlanes()[0].Buffer;
+            //    byte[] bytes = new byte[buffer.Remaining()];
+            //    buffer.Get(bytes);
+            //    Bitmap graySclaeBitmap = BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length).ToGraySacle();
+            //    FileStream file = File.Create(FileSaver.Path + timestamp + ".png");
+            //    graySclaeBitmap.Compress(Bitmap.CompressFormat.Png, 80, file);
+            //    file.Close();
+            //    if (HelperManager.CameraHelper.State != CameraState.Record
+            //    && timestamp == curTimestamp)
+            //    {
+            //        Activity.RunOnUiThread(() => Toast.MakeText(Activity, "Complete", ToastLength.Short).Show());
+            //    }
+            //    image.Close();
+            //});
+        }
+
+        public void UpdateFps(int fps)
+        {
+            fpsTextView.Text = fps + " fps";
         }
 
     }

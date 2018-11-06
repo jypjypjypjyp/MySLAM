@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.OS;
+using Android.Runtime;
 using Android.Support.V7.App;
 using Android.Views;
 using ICTCollector.Xamarin.Helper;
@@ -9,6 +10,7 @@ namespace ICTCollector.Xamarin
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
+        private Fragment curFragment;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -30,7 +32,8 @@ namespace ICTCollector.Xamarin
                 case Resource.Id.action_settings:
                     {
                         HelperManager.CameraHelper.State = CameraState.Close;
-                        FragmentManager.BeginTransaction().Replace(Resource.Id.container, new MyPreferenceFragment()).Commit();
+                        curFragment = new MyPreferenceFragment();
+                        FragmentManager.BeginTransaction().Replace(Resource.Id.container, curFragment).Commit();
                         break;
                     }
                 default: break;
@@ -38,5 +41,14 @@ namespace ICTCollector.Xamarin
             return base.OnOptionsItemSelected(item);
         }
 
+        public override bool OnKeyDown([GeneratedEnum] Keycode keyCode, KeyEvent e)
+        {
+            if (keyCode == Keycode.Back && curFragment is MyPreferenceFragment)
+            {
+                FragmentManager.BeginTransaction().Replace(Resource.Id.container, CameraFragment.Instance).Commit();
+                return true;
+            }
+            return base.OnKeyDown(keyCode, e);
+        }
     }
 }
