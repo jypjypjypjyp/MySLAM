@@ -28,7 +28,7 @@ namespace MySLAM.Xamarin
             PreferenceManager.FindPreference("exitlink")
                 .PreferenceClick += (a, arg) =>
                 {
-                    FragmentManager.BeginTransaction().Replace(Resource.Id.container, MyCameraFragment.Instance).Commit();
+                    ((MainActivity)Activity).CurFragment = new MyRecorderFragment();
                 };
             // Init cameraList
             manager = HelperManager.CameraHelper.Manager;

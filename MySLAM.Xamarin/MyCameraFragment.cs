@@ -14,22 +14,11 @@ using System.Threading;
 namespace MySLAM.Xamarin
 {
 
-    public class MyCameraFragment : Fragment
+    public class MyRecorderFragment : Fragment
     {
-        //Singelton
-        private static MyCameraFragment _instance;
-        public static MyCameraFragment Instance
-        {
-            get
-            {
-                _instance = _instance ?? new MyCameraFragment();
-                return _instance;
-            }
-        }
-
         public FrameLayout PreviewLayout { get; set; }
         public TextureView PreviewView { get; set; }
-        private Button markButton; 
+        private Button markButton;
         private Button recordButton;
         private TextView fpsTextView;
         private Handler captureHandler;
@@ -50,11 +39,13 @@ namespace MySLAM.Xamarin
             HelperManager.IMUHelper = new MyIMUHelper(Activity);
             //Getting Bitmap form TextureView has some bug, need to GC manually
             var timer = new Timer(
-                (o)=> 
+                (o) =>
                 {
                     if ((CameraState)o == CameraState.Record)
+                    {
                         GC.Collect();
-                },HelperManager.CameraHelper.State,0,1000);
+                    }
+                }, HelperManager.CameraHelper.State, 0, 1000);
         }
 
         private void StartThread()
@@ -88,7 +79,7 @@ namespace MySLAM.Xamarin
             PreviewLayout = view.FindViewById<FrameLayout>(Resource.Id.preview_layout);
             (recordButton = view.FindViewById<Button>(Resource.Id.button_record)).Click += Record;
             (markButton = view.FindViewById<Button>(Resource.Id.button_mark)).Click += Mark;
-            fpsTextView = view.FindViewById<TextView>(Resource.Id.fpsTextView);
+            fpsTextView = Activity.FindViewById<TextView>(Resource.Id.fpsTextView);
         }
 
         private void Mark(object sender, EventArgs e)
@@ -102,6 +93,7 @@ namespace MySLAM.Xamarin
         {
             if (HelperManager.CameraHelper.State == CameraState.Off)
             {
+                ((MainActivity)Activity).NavigationMenu.FindItem(Resource.Id.action_settings).SetEnabled(false);
                 recordButton.Text = Context.Resources.GetString(Resource.String.button_stop_recording);
                 HelperManager.CameraHelper.State = CameraState.Record;
                 markedTimestampList = "";
@@ -119,6 +111,7 @@ namespace MySLAM.Xamarin
             }
             else
             {
+                ((MainActivity)Activity).NavigationMenu.FindItem(Resource.Id.action_settings).SetEnabled(true);
                 recordButton.Text = Context.Resources.GetString(Resource.String.button_start_recording);
                 HelperManager.CameraHelper.State = CameraState.Off;
                 PreviewView.SurfaceTextureUpdated -= ProcessFrame;
@@ -137,11 +130,15 @@ namespace MySLAM.Xamarin
 
         public override void OnPause()
         {
+            if (HelperManager.CameraHelper.State == CameraState.Record)
+            {
+                Record(null, null);
+            }
             CloseCamera();
             StopThread();
             base.OnPause();
         }
-        
+
         private void OpenCamera()
         {
             HelperManager.CameraHelper.OpenCamera(AppSetting.CameraId, PrepareSession);
@@ -163,12 +160,15 @@ namespace MySLAM.Xamarin
             }
             // Update View
             if (PreviewView != null)
+            {
                 PreviewLayout.RemoveView(PreviewView);
+            }
+
             PreviewView = new TextureView(Activity);
             PreviewLayout.AddView(PreviewView,
                 new FrameLayout.LayoutParams(imageSize.Width, imageSize.Height, GravityFlags.Center));
 
-            PreviewView.SurfaceTextureAvailable += 
+            PreviewView.SurfaceTextureAvailable +=
                 (object sender, TextureView.SurfaceTextureAvailableEventArgs e) =>
                 {
                     CreateSession();
@@ -215,26 +215,41 @@ namespace MySLAM.Xamarin
             HelperManager.CameraHelper.CloseCamera();
         }
 
-        private void ProcessFrame(object sender, TextureView.SurfaceTextureUpdatedEventArgs e)
+        public void ProcessFrame(object sender, TextureView.SurfaceTextureUpdatedEventArgs e)
         {
             long timestamp = e.Surface.Timestamp;
             if (curTimestamp >= timestamp) return;
             curTimestamp = timestamp;
-            var bitmap = PreviewView.Bitmap;
             ThreadPool.QueueUserWorkItem((o) =>
             {
-                var file = File.Create(path + "cam0/" + timestamp + ".jpg");
-                bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, file);
-                file.Close();
-                if (HelperManager.CameraHelper.State != CameraState.Record
-                && timestamp == curTimestamp)
+                (long timestamp, Bitmap bitmap) state = ((long, Bitmap))o;
+                FileStream file = null;
+                try
+                {   //Sometimes it will get a exception "win32 IO returned 997". I have no idea
+                    file = File.Create(path + "cam0/" + state.timestamp + ".jpg");
+                    state.bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, file);
+                    if (HelperManager.CameraHelper.State != CameraState.Record
+                        && state.timestamp == curTimestamp)
+                    {
+                        Activity.RunOnUiThread(() =>
+                        {
+                            Toast.MakeText(Activity, "Complete", ToastLength.Short).Show();
+                        });
+                    }
+                }
+                catch (Exception)
                 {
+                    File.Delete(path + "cam0/" + state.timestamp + ".jpg");
                     Activity.RunOnUiThread(() =>
                     {
-                        Toast.MakeText(Activity, "Complete", ToastLength.Short).Show();
+                        Toast.MakeText(Activity, "Error, Skip", ToastLength.Short).Show();
                     });
                 }
-            });
+                finally
+                {
+                    file?.Close();
+                }
+            }, (timestamp, PreviewView.Bitmap));
         }
 
         public void ProcessIMUData(string data)
