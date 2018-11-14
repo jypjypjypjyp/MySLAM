@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+  <PreferenceCategory android:title="Camera Settings" >
+
+    <ListPreference
+        android:key="prefCamera"
+        android:title="Live Camera"
+        android:summary="Choose what camera to use" />
+
+    <ListPreference
+        android:key="prefSizeRaw"
+        android:title="Raw Image Size"
+        android:summary="Set the incoming image size" />
+
+    <ListPreference
+        android:key="prefFocusLength"
+        android:title="Focus Lengths"
+        android:summary="Set what focus length should be used (mm)" />
+
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="Additional Sensors" >
+
+    <ListPreference
+        android:key="perfImuFreq"
+        android:title="IMU Frequency"
+        android:summary="Frequency the IMU should collect at"
+        android:entries="@array/imuFreq"
+        android:entryValues="@array/imuFreqValues"
+        android:defaultValue="1" />
+
+  </PreferenceCategory>
+
+  <PreferenceCategory android:title="Finished" >
+
+    <Preference
+        android:key="exitlink"
+        android:title="Click Here to Exit"
+        android:summary="Start the recorder" />
+
+  </PreferenceCategory>
+
+</PreferenceScreen>
