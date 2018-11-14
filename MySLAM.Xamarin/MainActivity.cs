@@ -57,6 +57,7 @@ namespace MySLAM.Xamarin
 
             CurFragment = new MyInfoFragment();
 
+            HelperManager.Init(this);
             AppSetting.Init(this);
             HelperManager.PermissionHelper = new MyPermissionHelper(this);
             if (!HelperManager.PermissionHelper.ConfirmPermissions(

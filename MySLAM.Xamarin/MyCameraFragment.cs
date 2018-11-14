@@ -35,8 +35,6 @@ namespace MySLAM.Xamarin
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            HelperManager.CameraHelper = new MyCameraHelper(Activity);
-            HelperManager.IMUHelper = new MyIMUHelper(Activity);
             //Getting Bitmap form TextureView has some bug, need to GC manually
             var timer = new Timer(
                 (o) =>
