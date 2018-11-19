@@ -35,36 +35,6 @@ namespace MySLAM.Xamarin
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            //Getting Bitmap form TextureView has some bug, need to GC manually
-            var timer = new Timer(
-                (o) =>
-                {
-                    if ((CameraState)o == CameraState.Record)
-                    {
-                        GC.Collect();
-                    }
-                }, HelperManager.CameraHelper.State, 0, 1000);
-        }
-
-        private void StartThread()
-        {
-            captureThread = new HandlerThread("IMUThread");
-            captureThread.Start();
-            captureHandler = new Handler(captureThread.Looper);
-            imuThread = new HandlerThread("IMUThread");
-            imuThread.Start();
-            imuHandler = new Handler(imuThread.Looper);
-        }
-        private void StopThread()
-        {
-            captureThread.QuitSafely();
-            captureThread.Join();
-            captureThread = null;
-            captureHandler = null;
-            imuThread.QuitSafely();
-            imuThread.Join();
-            imuThread = null;
-            imuHandler = null;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -117,6 +87,27 @@ namespace MySLAM.Xamarin
                 File.WriteAllText(path + "marked.txt", markedTimestampList);
                 markedTimestampList = "";
             }
+        }
+
+        private void StartThread()
+        {
+            captureThread = new HandlerThread("IMUThread");
+            captureThread.Start();
+            captureHandler = new Handler(captureThread.Looper);
+            imuThread = new HandlerThread("IMUThread");
+            imuThread.Start();
+            imuHandler = new Handler(imuThread.Looper);
+        }
+        private void StopThread()
+        {
+            captureThread.QuitSafely();
+            captureThread.Join();
+            captureThread = null;
+            captureHandler = null;
+            imuThread.QuitSafely();
+            imuThread.Join();
+            imuThread = null;
+            imuHandler = null;
         }
 
         public override void OnResume()

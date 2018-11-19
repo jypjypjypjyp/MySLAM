@@ -62,14 +62,13 @@ namespace MySLAM.Xamarin.MyHelper
             Manager = (CameraManager)owner.GetSystemService(Context.CameraService);
             State = CameraState.Unavailable;
         }
+
         ~MyCameraHelper()
         {
             if (State != CameraState.Close)
             {
                 CloseCamera();
             }
-
-            HelperManager.CameraHelper = null;
         }
 
         public T CreateCallBack<T>(Callback callback) where T : IMyCallback, new()
@@ -104,6 +103,7 @@ namespace MySLAM.Xamarin.MyHelper
             if (HelperManager.CameraHelper.State != CameraState.Unavailable
                 || HelperManager.CameraHelper.State != CameraState.Close)
             {
+                HelperManager.CameraHelper.State = CameraState.Close;
                 CaptureSession.Close();
                 CaptureSession = null;
                 CameraDevice.Close();

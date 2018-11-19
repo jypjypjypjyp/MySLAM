@@ -4,14 +4,53 @@ namespace MySLAM.Xamarin.MyHelper
 {
     public static class HelperManager
     {
-        public static void Init(Activity context)
-        {
-            if (CameraHelper == null) CameraHelper = new MyCameraHelper(context);
-            if (PermissionHelper == null) PermissionHelper = new MyPermissionHelper(context);
-            if (IMUHelper == null) IMUHelper = new MyIMUHelper(context);
+        public static Activity MainActivity {
+            set
+            {
+                if (value == _mainActivity) return;
+                _mainActivity = value;
+                _cameraHelper = null;
+                _permissionHelper = null;
+                _IMUHelper = null;
+            }
         }
-        public static MyCameraHelper CameraHelper;
-        public static MyPermissionHelper PermissionHelper;
-        public static MyIMUHelper IMUHelper;
+        public static MyCameraHelper CameraHelper
+        {
+            get
+            {
+                if (_cameraHelper == null)
+                {
+                    _cameraHelper = new MyCameraHelper(_mainActivity);
+                }
+                return _cameraHelper;
+            }
+        }
+        public static MyPermissionHelper PermissionHelper
+        {
+            get
+            {
+                if (_permissionHelper == null)
+                {
+                    _permissionHelper = new MyPermissionHelper(_mainActivity);
+                }
+                return _permissionHelper;
+            }
+        }
+        public static MyIMUHelper IMUHelper
+        {
+            get
+            {
+                if(_IMUHelper == null)
+                {
+                    _IMUHelper = new MyIMUHelper(_mainActivity);
+                }
+                return _IMUHelper;
+            }
+        }
+
+        public static Activity _mainActivity;
+        public static MyCameraHelper _cameraHelper;
+        public static MyPermissionHelper _permissionHelper;
+        public static MyIMUHelper _IMUHelper;
     }
 }

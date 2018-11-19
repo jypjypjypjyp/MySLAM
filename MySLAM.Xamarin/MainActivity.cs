@@ -12,6 +12,7 @@ using Android.Views;
 using MySLAM.Xamarin.MyHelper;
 using MySLAM.Xamarin.MyView;
 using System;
+using System.Threading;
 using ActionBarDrawerToggle = Android.Support.V7.App.ActionBarDrawerToggle;
 using Fragment = Android.App.Fragment;
 
@@ -57,9 +58,8 @@ namespace MySLAM.Xamarin
 
             CurFragment = new MyInfoFragment();
 
-            HelperManager.Init(this);
+            HelperManager.MainActivity = this;
             AppSetting.Init(this);
-            HelperManager.PermissionHelper = new MyPermissionHelper(this);
             if (!HelperManager.PermissionHelper.ConfirmPermissions(
                     new string[]{
                         Manifest.Permission.WriteExternalStorage,
@@ -69,6 +69,12 @@ namespace MySLAM.Xamarin
                 NavigationMenu.FindItem(Resource.Id.action_recorder).SetEnabled(false);
                 NavigationMenu.FindItem(Resource.Id.action_ar).SetEnabled(false);
             }
+            //Getting Bitmap form TextureView has some bug, need to GC manually
+            var timer = new Timer(
+                (o) =>
+                {
+                    GC.Collect();
+                }, null, 0, 1000);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -123,7 +129,7 @@ namespace MySLAM.Xamarin
                     CurFragment = new MyRecorderFragment();
                     break;
                 case Resource.Id.action_ar:
-                    CurFragment = new MyInfoFragment();
+                    CurFragment = new MyARFragment();
                     break;
                 default: break;
 

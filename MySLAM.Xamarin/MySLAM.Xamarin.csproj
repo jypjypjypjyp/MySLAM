@@ -34,10 +34,11 @@
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
     <AndroidLinkMode>None</AndroidLinkMode>
-    <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
-    <AotAssemblies>false</AotAssemblies>
-    <EnableLLVM>false</EnableLLVM>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AotAssemblies>true</AotAssemblies>
+    <EnableLLVM>true</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
+    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -53,6 +54,9 @@
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenCVAndroid">
+      <HintPath>..\OpenCVAndroid\obj\Debug\OpenCVAndroid.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -60,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\MyIMUHelper.cs" />
+    <Compile Include="MyARFragment.cs" />
     <Compile Include="MyCameraFragment.cs" />
     <Compile Include="Helpers\BitmapExtension.cs" />
     <Compile Include="Helpers\HelperManager.cs" />
@@ -124,14 +129,6 @@
     <AndroidResource Include="Resources\values\array.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ORB_SLAM\ORB_SLAM.vcxproj">
-      <Project>{cc47dd57-726c-402e-8ee2-3ea992651e5a}</Project>
-      <Name>ORB_SLAM</Name>
-      <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\app_bar_main.axml" />
   </ItemGroup>
   <ItemGroup>
@@ -165,6 +162,11 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\mipmap-xxxhdpi\myslam_info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\ar_fragment.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
