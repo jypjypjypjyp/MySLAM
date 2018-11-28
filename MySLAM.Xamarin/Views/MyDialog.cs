@@ -8,7 +8,7 @@ namespace MySLAM.Xamarin.MyView
 
     public enum DialogType
     {
-        Confirmation, Error
+        Confirmation, Error, Progress
     }
 
     public class MyDialog : DialogFragment
@@ -23,6 +23,7 @@ namespace MySLAM.Xamarin.MyView
         {
             this.type = type;
             this.message = message;
+            
         }
 
         public override Dialog OnCreateDialog(Bundle savedInstanceState)
@@ -40,6 +41,13 @@ namespace MySLAM.Xamarin.MyView
                             .SetMessage(message)
                             .SetPositiveButton(Resource.String.ok, PositiveHandler)
                             .Create();
+                case DialogType.Progress:
+                    var dialog = new ProgressDialog(Activity);
+                    dialog.SetTitle(Resource.String.progress);
+                    dialog.SetMessage(message);
+                    dialog.SetCancelable(false);
+                    dialog.Indeterminate = true;
+                    return dialog;
                 default:
                     return base.OnCreateDialog(savedInstanceState);
             }

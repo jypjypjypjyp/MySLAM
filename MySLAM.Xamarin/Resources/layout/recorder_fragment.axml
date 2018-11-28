@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<FrameLayout
+		android:id="@+id/preview_layout"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="15dp"
+		android:layout_gravity="center">
+	</FrameLayout>
+
+	<TextView
+	android:id="@+id/fpsTextView"
+	android:layout_width="50dp"
+	android:layout_height="wrap_content"
+	android:textColor="#00ff00"
+	android:text="30 fps"
+	android:layout_gravity="top|end"/>
+
+	<LinearLayout
+		android:layout_gravity="bottom"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+		<Button
+			android:id="@+id/button_mark"
+			android:layout_width="wrap_content"
+			android:layout_height="60dp"
+			android:layout_weight="1"
+			android:text="@string/button_mark" />
+		<Button
+			android:id="@+id/button_record"
+			android:layout_width="wrap_content"
+			android:layout_height="60dp"
+			android:layout_weight="1"
+			android:text="@string/button_start_recording"/>
+	</LinearLayout>
+</FrameLayout>

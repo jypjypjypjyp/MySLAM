@@ -9,6 +9,7 @@ using Android.Runtime;
 using Android.Support.V4.Content;
 using Android.Util;
 using System;
+using System.Threading;
 
 namespace MySLAM.Xamarin.MyHelper
 {
@@ -49,6 +50,7 @@ namespace MySLAM.Xamarin.MyHelper
     {
         public delegate void Callback(int i = 0);
 
+        public Semaphore CameraLock = new Semaphore(1, 1);
         public CameraState State { get; set; }
         public CameraManager Manager { get; set; }
         public CameraDevice CameraDevice { get; set; }
@@ -91,6 +93,7 @@ namespace MySLAM.Xamarin.MyHelper
                 {
                     return;
                 }
+                CameraLock.WaitOne();
                 HelperManager.CameraHelper.State = CameraState.Ready;
                 HelperManager.CameraHelper.Manager.OpenCamera(
                     cameraId,
@@ -108,6 +111,20 @@ namespace MySLAM.Xamarin.MyHelper
                 CaptureSession = null;
                 CameraDevice.Close();
                 CameraDevice = null;
+                CameraLock.Release();
+            }
+        }
+        
+        public void TryGetCalibration(string cameraId, out float[] intrinsic, out float[] distortion)
+        {
+            intrinsic = null; distortion = null;
+            if ((int)Build.VERSION.SdkInt >= 23)
+            {
+                var characteristics = Manager.GetCameraCharacteristics(cameraId);
+                intrinsic = 
+                    (float[])characteristics.Get(CameraCharacteristics.LensIntrinsicCalibration);
+                distortion = 
+                    (float[])characteristics.Get(CameraCharacteristics.LensRadialDistortion);
             }
         }
 

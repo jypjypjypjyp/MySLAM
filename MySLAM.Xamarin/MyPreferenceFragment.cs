@@ -1,5 +1,4 @@
-﻿using Android.App;
-using Android.Content;
+﻿using Android.Content;
 using Android.Graphics;
 using Android.Hardware.Camera2;
 using Android.Hardware.Camera2.Params;

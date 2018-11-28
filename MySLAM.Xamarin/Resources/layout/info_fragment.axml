@@ -5,11 +5,11 @@
 	android:layout_height="match_parent">
 	<ImageView
 		android:src="@mipmap/myslam_info"
-		android:layout_marginTop="80dp"
+		android:layout_marginTop="10dp"
 		android:layout_width="match_parent"
-		android:layout_height="240dp"/>
+		android:layout_height="210dp"/>
 	<TextView
-		android:text="@string/app_name"
+		android:text="1.00000"
 		android:textSize="30dp"
 		android:gravity="center_horizontal"
 		android:layout_width="match_parent"

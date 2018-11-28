@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+  <item android:id="@+id/action_add_model"
+          android:title="@string/add_model">
+    <group android:id="@+id/mode_ar">
+      <menu>
+        <group  android:id="@+id/model_group"
+                android:showAsAction="always">
+          <item android:id="@+id/model_ball"
+                android:title="@string/earth"/>
+          <item android:id="@+id/model_download1"
+                android:title="@string/download" />
+          <item android:id="@+id/model_download1"
+                android:title="@string/download" />
+        </group>
+      </menu>
+    </group>
+  </item>
+  <group android:id="@+id/mode_calibrate"
+         android:showAsAction="always">
+    <item android:id="@+id/action_calibrate"
+          android:title="@string/action_calibrate"
+          android:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/action_change_mode"
+          android:title="@string/preview_mode">
+      <menu>
+        <group  android:id="@+id/render_group"
+          android:checkableBehavior="single">
+          <item android:id="@+id/render_none"
+                android:title="@string/original"
+                android:checked="true" />
+          <item android:id="@+id/render_undistortion"
+                android:title="@string/undistortion" />
+          <item android:id="@+id/render_comparison"
+                android:title="@string/comparison" />
+          <item android:id="@+id/render_ar"
+                android:title="@string/ar" />
+        </group>
+      </menu>
+    </item>
+  </group>
+</menu>

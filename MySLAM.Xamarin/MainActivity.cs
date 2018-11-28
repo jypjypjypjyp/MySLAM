@@ -11,15 +11,13 @@ using Android.Support.V7.App;
 using Android.Views;
 using MySLAM.Xamarin.MyHelper;
 using MySLAM.Xamarin.MyView;
-using System;
-using System.Threading;
 using ActionBarDrawerToggle = Android.Support.V7.App.ActionBarDrawerToggle;
 using Fragment = Android.App.Fragment;
 
 namespace MySLAM.Xamarin
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true,
-        ScreenOrientation = ScreenOrientation.Portrait)]
+        ScreenOrientation = ScreenOrientation.Landscape)]
     public class MainActivity : AppCompatActivity, NavigationView.IOnNavigationItemSelectedListener
     {
         public Fragment CurFragment
@@ -30,12 +28,15 @@ namespace MySLAM.Xamarin
                 if (!(curFragment?.GetType() == value.GetType()))
                 {
                     curFragment = value;
+                    if (curFragment is MyARFragment) FindViewById(Resource.Id.toolbar_layout).Visibility = ViewStates.Gone;
+                    else FindViewById(Resource.Id.toolbar_layout).Visibility = ViewStates.Visible;
                     FragmentManager.BeginTransaction().Replace(Resource.Id.container, curFragment).Commit();
                 }
             }
         }
         private Fragment curFragment;
         public IMenu NavigationMenu { get; set; }
+        public IMenu ToolBarMenu { get; set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -43,9 +44,6 @@ namespace MySLAM.Xamarin
             SetContentView(Resource.Layout.activity_main);
             var toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
-
-            var fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
-            fab.Click += FabOnClick;
 
             var drawer = FindViewById<DrawerLayout>(Resource.Id.drawer_layout);
             var toggle = new ActionBarDrawerToggle(this, drawer, toolbar, Resource.String.navigation_drawer_open, Resource.String.navigation_drawer_close);
@@ -66,26 +64,19 @@ namespace MySLAM.Xamarin
                         Manifest.Permission.Camera
                     }, 1))
             {
-                NavigationMenu.FindItem(Resource.Id.action_recorder).SetEnabled(false);
-                NavigationMenu.FindItem(Resource.Id.action_ar).SetEnabled(false);
+                NavigationMenu.FindItem(Resource.Id.frag_recorder).SetEnabled(false);
+                NavigationMenu.FindItem(Resource.Id.frag_ar).SetEnabled(false);
             }
-            //Getting Bitmap form TextureView has some bug, need to GC manually
-            var timer = new Timer(
-                (o) =>
-                {
-                    GC.Collect();
-                }, null, 0, 1000);
-        }
-
-        public override bool OnCreateOptionsMenu(IMenu menu)
-        {
-            MenuInflater.Inflate(Resource.Menu.main_menu, menu);
-            return true;
-        }
-
-        public override bool OnOptionsItemSelected(IMenuItem item)
-        {
-            return base.OnOptionsItemSelected(item);
+            else
+            {
+                AppConst.Init();
+            }
+            ////Getting Bitmap form TextureView has some bug, need to GC manually
+            //var timer = new Timer(
+            //    (o) =>
+            //    {
+            //        GC.Collect();
+            //    }, null, 0, 1000);
         }
 
         public override void OnBackPressed()
@@ -97,9 +88,21 @@ namespace MySLAM.Xamarin
             }
             else
             {
-                if (!(CurFragment is MyInfoFragment))
+                if (CurFragment is MyPreferenceFragment)
                 {
                     CurFragment = new MyRecorderFragment();
+                }
+                else if (CurFragment is MyRecorderFragment)
+                {
+                    CurFragment = new MyInfoFragment();
+                }
+                else if (CurFragment is MyARFragment)
+                {
+                    CurFragment = new MyInfoFragment();
+                }
+                else if (CurFragment is MyInfoFragment)
+                {
+                    Finish();
                 }
                 else
                 {
@@ -108,27 +111,20 @@ namespace MySLAM.Xamarin
             }
         }
 
-        private void FabOnClick(object sender, EventArgs eventArgs)
-        {
-            var view = (View)sender;
-            Snackbar.Make(view, "Replace with your own action", Snackbar.LengthLong)
-                .SetAction("Action", (View.IOnClickListener)null).Show();
-        }
-
         public bool OnNavigationItemSelected(IMenuItem item)
         {
             switch (item.ItemId)
             {
-                case Resource.Id.action_info:
+                case Resource.Id.frag_info:
                     CurFragment = new MyInfoFragment();
                     break;
-                case Resource.Id.action_settings:
+                case Resource.Id.frag_settings:
                     CurFragment = new MyPreferenceFragment();
                     break;
-                case Resource.Id.action_recorder:
+                case Resource.Id.frag_recorder:
                     CurFragment = new MyRecorderFragment();
                     break;
-                case Resource.Id.action_ar:
+                case Resource.Id.frag_ar:
                     CurFragment = new MyARFragment();
                     break;
                 default: break;
@@ -149,18 +145,19 @@ namespace MySLAM.Xamarin
             {
                 if (i != (int)Permission.Granted)
                 {
-                    new MyDialog(DialogType.Error, "Get permission Failed!!")
+                    new MyDialog(DialogType.Error, Resources.GetString(Resource.String.permission_failed))
                     {
                         PositiveHandler = (o, e) =>
                         {
                             Finish();
                         }
-                    }.Show(FragmentManager, "Error!!!");
+                    }.Show(FragmentManager, null);
                     return;
                 }
             }
-            NavigationMenu.FindItem(Resource.Id.action_recorder).SetEnabled(true);
-            NavigationMenu.FindItem(Resource.Id.action_ar).SetEnabled(true);
+            AppConst.Init();
+            NavigationMenu.FindItem(Resource.Id.frag_recorder).SetEnabled(true);
+            NavigationMenu.FindItem(Resource.Id.frag_ar).SetEnabled(true);
         }
     }
 }
