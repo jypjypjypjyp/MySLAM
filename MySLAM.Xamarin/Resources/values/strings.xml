@@ -39,6 +39,7 @@
   
   <!--AR UI-->
   <string name="progress">Progressing...</string>
+  <string name="loading_voc">Loading Vocabulary...</string>
   <string name="not_calibrate">Please calibrate first!</string>
   <string name="add_corners">Add Corners</string>
 

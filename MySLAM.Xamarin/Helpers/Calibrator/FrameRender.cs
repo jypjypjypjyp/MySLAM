@@ -1,11 +1,9 @@
 ﻿using Android.Content.Res;
-using Android.Runtime;
 using Org.Opencv.Android;
 using Org.Opencv.Core;
 using Org.Opencv.Imgproc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace MySLAM.Xamarin.MyHelper
@@ -27,47 +25,44 @@ namespace MySLAM.Xamarin.MyHelper
 
     internal class ARFrameRender : FrameRender , IDisposable
     {
-        #region NativeFunction
-        [DllImport("MySLAM_AR", EntryPoint = "MySLAM_Native_AR_InitSystem")]
-        public static extern bool InitSystem(IntPtr jnienv);
-        [DllImport("MySLAM_AR", EntryPoint = "MySLAM_Native_AR_GetPose")]
-        public static extern float[] GetPose(IntPtr jnienv, long mataddress, long timestamp);
-        [DllImport("MySLAM_AR", EntryPoint = "MySLAM_Native_AR_ReleaseMap")]
-        public static extern bool ReleaseMap(IntPtr jnienv);
+        #region Native
+        [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_AR_InitSystem")]
+        private static extern void InitSystem();
+        [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_AR_GetPose")]
+        private static extern bool GetPose(long mataddress, long timestamp, [In,Out] float[] pose);
+        [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_AR_ReleaseMap")]
+        private static extern void ReleaseMap();
         #endregion
 
+        public delegate void CallBack(float[] pose);
+        public event CallBack UpdatePose;
+        
         private readonly int width;
         private readonly int height;
+        private readonly DateTime fromSystemInit;
+        private readonly float[] pose = new float[4 * 4];
 
         public ARFrameRender(int width, int height)
         {
-            if (!InitSystem(IntPtr.Zero))
-                throw new Exception("Init failed!!!");
+            InitSystem();
+            fromSystemInit = DateTime.Now;
             this.width = width;
             this.height = height;
         }
 
         public void Dispose()
         {
-            ReleaseMap(IntPtr.Zero);
+            ReleaseMap();
         }
 
         public override Mat Render(CameraBridgeViewBase.ICvCameraViewFrame inputFrame)
         {
             var rgbaFrame = inputFrame.Rgba();
-            float[] poseArr = GetPose(JNIEnv.Handle, rgbaFrame.NativeObjAddr, Java.Lang.JavaSystem.CurrentTimeMillis() * 1000);
-            if(poseArr.Count() != 0)
+            if (GetPose(rgbaFrame.NativeObjAddr,
+                        (long)(DateTime.Now - fromSystemInit).TotalMilliseconds * 1000,
+                        pose))
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    Imgproc.PutText(
-                            rgbaFrame,
-                            string.Join(' ', poseArr.Skip(i * 4).Take(4).Select(a => a.ToString("F"))),
-                            new Point(width * 0.1, height * 0.1),
-                            Core.FontHersheySimplex, 
-                            0.5, 
-                            new Scalar(255, 255, 0));
-                }
+                UpdatePose(pose);
             }
             return rgbaFrame;
         }

@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
     <DebugType>portable</DebugType>
-    <Optimize>False</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -39,8 +39,10 @@
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <AndroidSupportedAbis>armeabi-v7a</AndroidSupportedAbis>
-    <Debugger>Xamarin</Debugger>
+    <AndroidSupportedAbis>armeabi-v7a;x86</AndroidSupportedAbis>
+    <Debugger>Native</Debugger>
+    <EnableProguard>false</EnableProguard>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -62,7 +64,6 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\Calibrator\CalibrationResult.cs" />
     <Compile Include="Helpers\Calibrator\CameraCalibrator.cs" />
     <Compile Include="Helpers\Calibrator\FrameRender.cs" />
     <Compile Include="Helpers\Extension.cs" />
@@ -82,7 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\orb_slam2_template.yaml" />
-    <AndroidAsset Include="Assets\ORBvoc.bin" />
+    <None Include="Assets\ORBvoc.bin" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />

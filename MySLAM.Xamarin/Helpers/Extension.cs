@@ -18,19 +18,20 @@ namespace MySLAM.Xamarin.MyHelper
 
     public static class YamlExtension
     {
+        private static int MAX_BUFFE_SIZE = 100000;
         public static bool CopyWholeFile(this Stream src, Stream dist)
         {
             try
             {
                 if (src.CanRead && dist.CanWrite)
                 {
-                    using (var reader = new StreamReader(src))
-                    using (var writer = new StreamWriter(dist))
+                    byte[] buffer = new byte[MAX_BUFFE_SIZE];
+                    int len = 0;
+                    while ((len = src.Read(buffer, 0, MAX_BUFFE_SIZE)) > 0)
                     {
-
-                        writer.Write(reader.ReadToEnd());
-                        writer.Flush();
+                        dist.Write(buffer, 0, len);
                     }
+                    dist.Flush();
                     return true;
                 }
             }
@@ -42,24 +43,18 @@ namespace MySLAM.Xamarin.MyHelper
             return false;
         }
 
-        public static bool Edit(this FileStream file, string key, string value)
+        public static string Edit(this string s, string key, string value)
         {
-            if (file.CanRead && file.CanWrite)
+            int index;
+            if ((index = s.IndexOf(key)) != -1)
             {
-                using (var reader = new StreamReader(file))
-                using (var writer = new StreamWriter(file))
-                {
-                    string allText = reader.ReadToEnd();
-                    int index = allText.IndexOf(':', allText.IndexOf(key)) + 1;
-                    allText = allText.Remove(index, allText.IndexOf('\n', index) - index);
-                    allText = allText.Insert(index, " " + value);
-                    file.Seek(0, SeekOrigin.Begin);
-                    writer.Write(allText);
-                    writer.Flush();
-                }
-                return true;
+                index = s.IndexOf(':', index) + 1;
+                s = s.Remove(index, s.IndexOf('\n', index) - index);
+                s = s.Insert(index, " " + value);
+                return s;
             }
-            return false;
+            else
+                return null;
         }
     }
 

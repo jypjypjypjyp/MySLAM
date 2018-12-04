@@ -53,7 +53,7 @@ public:
    * @param scoring scoring type
    */
   TemplatedVocabulary(int k = 10, int L = 5, 
-    WeightingType weighting = TF_IDF, ScoringType scoring = L1_NORM);
+	WeightingType weighting = TF_IDF, ScoringType scoring = L1_NORM);
   
   /**
    * Creates the vocabulary by loading a file
@@ -85,7 +85,7 @@ public:
    * @return reference to this vocabulary
    */
   TemplatedVocabulary<TDescriptor, F>& operator=(
-    const TemplatedVocabulary<TDescriptor, F> &voc);
+	const TemplatedVocabulary<TDescriptor, F> &voc);
   
   /** 
    * Creates a vocabulary from the training features with the already
@@ -93,7 +93,7 @@ public:
    * @param training_features
    */
   virtual void create
-    (const std::vector<std::vector<TDescriptor> > &training_features);
+	(const std::vector<std::vector<TDescriptor> > &training_features);
   
   /**
    * Creates a vocabulary from the training features, setting the branching
@@ -103,8 +103,8 @@ public:
    * @param L depth levels
    */
   virtual void create
-    (const std::vector<std::vector<TDescriptor> > &training_features, 
-      int k, int L);
+	(const std::vector<std::vector<TDescriptor> > &training_features, 
+	  int k, int L);
 
   /**
    * Creates a vocabulary from the training features, setting the branching
@@ -112,8 +112,8 @@ public:
    * schemes
    */
   virtual void create
-    (const std::vector<std::vector<TDescriptor> > &training_features,
-      int k, int L, WeightingType weighting, ScoringType scoring);
+	(const std::vector<std::vector<TDescriptor> > &training_features,
+	  int k, int L, WeightingType weighting, ScoringType scoring);
 
   /**
    * Returns the number of words in the vocabulary
@@ -133,7 +133,7 @@ public:
    * @param v (out) bow vector of weighted words
    */
   virtual void transform(const std::vector<TDescriptor>& features, BowVector &v) 
-    const;
+	const;
   
   /**
    * Transform a set of descriptors into a bow vector and a feature vector
@@ -143,7 +143,7 @@ public:
    * @param levelsup levels to go up the vocabulary tree to get the node index
    */
   virtual void transform(const std::vector<TDescriptor>& features,
-    BowVector &v, FeatureVector &fv, int levelsup) const;
+	BowVector &v, FeatureVector &fv, int levelsup) const;
 
   /**
    * Transforms a single feature into a word (without weight)
@@ -263,7 +263,7 @@ public:
    * @param fn node in file storage
    */
   virtual void save(cv::FileStorage &fs, 
-    const std::string &name = "vocabulary") const;
+	const std::string &name = "vocabulary") const;
   
   /**
    * Loads the vocabulary from a file storage node
@@ -272,7 +272,7 @@ public:
    *   If not given, the fn node is used instead
    */  
   virtual void load(const cv::FileStorage &fs, 
-    const std::string &name = "vocabulary");
+	const std::string &name = "vocabulary");
   
   /** 
    * Stops those words whose weight is below minWeight.
@@ -296,36 +296,36 @@ protected:
   /// Tree node
   struct Node 
   {
-    /// Node id
-    NodeId id;
-    /// Weight if the node is a word
-    WordValue weight;
-    /// Children 
-    vector<NodeId> children;
-    /// Parent node (undefined in case of root)
-    NodeId parent;
-    /// Node descriptor
-    TDescriptor descriptor;
+	/// Node id
+	NodeId id;
+	/// Weight if the node is a word
+	WordValue weight;
+	/// Children 
+	vector<NodeId> children;
+	/// Parent node (undefined in case of root)
+	NodeId parent;
+	/// Node descriptor
+	TDescriptor descriptor;
 
-    /// Word id if the node is a word
-    WordId word_id;
+	/// Word id if the node is a word
+	WordId word_id;
 
-    /**
-     * Empty constructor
-     */
-    Node(): id(0), weight(0), parent(0), word_id(0){}
-    
-    /**
-     * Constructor
-     * @param _id node id
-     */
-    Node(NodeId _id): id(_id), weight(0), parent(0), word_id(0){}
+	/**
+	 * Empty constructor
+	 */
+	Node(): id(0), weight(0), parent(0), word_id(0){}
+	
+	/**
+	 * Constructor
+	 * @param _id node id
+	 */
+	Node(NodeId _id): id(_id), weight(0), parent(0), word_id(0){}
 
-    /**
-     * Returns whether the node is a leaf node
-     * @return true iff the node is a leaf
-     */
-    inline bool isLeaf() const { return children.empty(); }
+	/**
+	 * Returns whether the node is a leaf node
+	 * @return true iff the node is a leaf
+	 */
+	inline bool isLeaf() const { return children.empty(); }
   };
 
 protected:
@@ -341,8 +341,8 @@ protected:
    * @param features (out) pointers to the training features
    */
   void getFeatures(
-    const vector<vector<TDescriptor> > &training_features, 
-    vector<pDescriptor> &features) const;
+	const vector<vector<TDescriptor> > &training_features, 
+	vector<pDescriptor> &features) const;
 
   /**
    * Returns the word id associated to a feature
@@ -353,7 +353,7 @@ protected:
    * @param levelsup
    */
   virtual void transform(const TDescriptor &feature, 
-    WordId &id, WordValue &weight, NodeId* nid = NULL, int levelsup = 0) const;
+	WordId &id, WordValue &weight, NodeId* nid = NULL, int levelsup = 0) const;
 
   /**
    * Returns the word id associated to a feature
@@ -361,7 +361,7 @@ protected:
    * @param id (out) word id
    */
   virtual void transform(const TDescriptor &feature, WordId &id) const;
-      
+	  
   /**
    * Creates a level in the tree, under the parent, by running kmeans with
    * a descriptor set, and recursively creates the subsequent levels too
@@ -370,7 +370,7 @@ protected:
    * @param current_level current level in the tree
    */
   void HKmeansStep(NodeId parent_id, const vector<pDescriptor> &descriptors, 
-    int current_level);
+	int current_level);
 
   /**
    * Creates k clusters from the given descriptors with some seeding algorithm.
@@ -378,7 +378,7 @@ protected:
    *   overriden by inherited classes.
    */
   virtual void initiateClusters(const vector<pDescriptor> &descriptors,
-    vector<TDescriptor> &clusters) const;
+	vector<TDescriptor> &clusters) const;
   
   /**
    * Creates k clusters from the given descriptor sets by running the
@@ -387,7 +387,7 @@ protected:
    * @param clusters resulting clusters
    */
   void initiateClustersKMpp(const vector<pDescriptor> &descriptors, 
-    vector<TDescriptor> &clusters) const;
+	vector<TDescriptor> &clusters) const;
   
   /**
    * Create the words of the vocabulary once the tree has been built
@@ -467,30 +467,30 @@ void TemplatedVocabulary<TDescriptor,F>::createScoringObject()
   
   switch(m_scoring)
   {
-    case L1_NORM: 
-      m_scoring_object = new L1Scoring;
-      break;
-      
-    case L2_NORM:
-      m_scoring_object = new L2Scoring;
-      break;
-    
-    case CHI_SQUARE:
-      m_scoring_object = new ChiSquareScoring;
-      break;
-      
-    case KL:
-      m_scoring_object = new KLScoring;
-      break;
-      
-    case BHATTACHARYYA:
-      m_scoring_object = new BhattacharyyaScoring;
-      break;
-      
-    case DOT_PRODUCT:
-      m_scoring_object = new DotProductScoring;
-      break;
-    
+	case L1_NORM: 
+	  m_scoring_object = new L1Scoring;
+	  break;
+	  
+	case L2_NORM:
+	  m_scoring_object = new L2Scoring;
+	  break;
+	
+	case CHI_SQUARE:
+	  m_scoring_object = new ChiSquareScoring;
+	  break;
+	  
+	case KL:
+	  m_scoring_object = new KLScoring;
+	  break;
+	  
+	case BHATTACHARYYA:
+	  m_scoring_object = new BhattacharyyaScoring;
+	  break;
+	  
+	case DOT_PRODUCT:
+	  m_scoring_object = new DotProductScoring;
+	  break;
+	
   }
 }
 
@@ -628,11 +628,11 @@ void TemplatedVocabulary<TDescriptor,F>::getFeatures(
   typename vector<TDescriptor>::const_iterator vit;
   for(vvit = training_features.begin(); vvit != training_features.end(); ++vvit)
   {
-    features.reserve(features.size() + vvit->size());
-    for(vit = vvit->begin(); vit != vvit->end(); ++vit)
-    {
-      features.push_back(&(*vit));
-    }
+	features.reserve(features.size() + vvit->size());
+	for(vit = vvit->begin(); vit != vvit->end(); ++vit)
+	{
+	  features.push_back(&(*vit));
+	}
   }
 }
 
@@ -643,7 +643,7 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
   const vector<pDescriptor> &descriptors, int current_level)
 {
   if(descriptors.empty()) return;
-        
+		
   // features associated to each cluster
   vector<TDescriptor> clusters;
 	vector<vector<unsigned int> > groups; // groups[i] = [j1, j2, ...]
@@ -659,117 +659,117 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
   
   if((int)descriptors.size() <= m_k)
   {
-    // trivial case: one cluster per feature
-    groups.resize(descriptors.size());
+	// trivial case: one cluster per feature
+	groups.resize(descriptors.size());
 
-    for(unsigned int i = 0; i < descriptors.size(); i++)
-    {
-      groups[i].push_back(i);
-      clusters.push_back(*descriptors[i]);
-    }
+	for(unsigned int i = 0; i < descriptors.size(); i++)
+	{
+	  groups[i].push_back(i);
+	  clusters.push_back(*descriptors[i]);
+	}
   }
   else
   {
-    // select clusters and groups with kmeans
-    
-    bool first_time = true;
-    bool goon = true;
-    
-    // to check if clusters move after iterations
-    vector<int> last_association, current_association;
+	// select clusters and groups with kmeans
+	
+	bool first_time = true;
+	bool goon = true;
+	
+	// to check if clusters move after iterations
+	vector<int> last_association, current_association;
 
-    while(goon)
-    {
-      // 1. Calculate clusters
+	while(goon)
+	{
+	  // 1. Calculate clusters
 
 			if(first_time)
 			{
-        // random sample 
-        initiateClusters(descriptors, clusters);
-      }
-      else
-      {
-        // calculate cluster centres
+		// random sample 
+		initiateClusters(descriptors, clusters);
+	  }
+	  else
+	  {
+		// calculate cluster centres
 
-        for(unsigned int c = 0; c < clusters.size(); ++c)
-        {
-          vector<pDescriptor> cluster_descriptors;
-          cluster_descriptors.reserve(groups[c].size());
-          
-          /*
-          for(unsigned int d = 0; d < descriptors.size(); ++d)
-          {
-            if( assoc.find<unsigned char>(c, d) )
-            {
-              cluster_descriptors.push_back(descriptors[d]);
-            }
-          }
-          */
-          
-          vector<unsigned int>::const_iterator vit;
-          for(vit = groups[c].begin(); vit != groups[c].end(); ++vit)
-          {
-            cluster_descriptors.push_back(descriptors[*vit]);
-          }
-          
-          
-          F::meanValue(cluster_descriptors, clusters[c]);
-        }
-        
-      } // if(!first_time)
+		for(unsigned int c = 0; c < clusters.size(); ++c)
+		{
+		  vector<pDescriptor> cluster_descriptors;
+		  cluster_descriptors.reserve(groups[c].size());
+		  
+		  /*
+		  for(unsigned int d = 0; d < descriptors.size(); ++d)
+		  {
+			if( assoc.find<unsigned char>(c, d) )
+			{
+			  cluster_descriptors.push_back(descriptors[d]);
+			}
+		  }
+		  */
+		  
+		  vector<unsigned int>::const_iterator vit;
+		  for(vit = groups[c].begin(); vit != groups[c].end(); ++vit)
+		  {
+			cluster_descriptors.push_back(descriptors[*vit]);
+		  }
+		  
+		  
+		  F::meanValue(cluster_descriptors, clusters[c]);
+		}
+		
+	  } // if(!first_time)
 
-      // 2. Associate features with clusters
+	  // 2. Associate features with clusters
 
-      // calculate distances to cluster centers
-      groups.clear();
-      groups.resize(clusters.size(), vector<unsigned int>());
-      current_association.resize(descriptors.size());
+	  // calculate distances to cluster centers
+	  groups.clear();
+	  groups.resize(clusters.size(), vector<unsigned int>());
+	  current_association.resize(descriptors.size());
 
-      //assoc.clear();
+	  //assoc.clear();
 
-      typename vector<pDescriptor>::const_iterator fit;
-      //unsigned int d = 0;
-      for(fit = descriptors.begin(); fit != descriptors.end(); ++fit)//, ++d)
-      {
-        double best_dist = F::distance(*(*fit), clusters[0]);
-        unsigned int icluster = 0;
-        
-        for(unsigned int c = 1; c < clusters.size(); ++c)
-        {
-          double dist = F::distance(*(*fit), clusters[c]);
-          if(dist < best_dist)
-          {
-            best_dist = dist;
-            icluster = c;
-          }
-        }
+	  typename vector<pDescriptor>::const_iterator fit;
+	  //unsigned int d = 0;
+	  for(fit = descriptors.begin(); fit != descriptors.end(); ++fit)//, ++d)
+	  {
+		double best_dist = F::distance(*(*fit), clusters[0]);
+		unsigned int icluster = 0;
+		
+		for(unsigned int c = 1; c < clusters.size(); ++c)
+		{
+		  double dist = F::distance(*(*fit), clusters[c]);
+		  if(dist < best_dist)
+		  {
+			best_dist = dist;
+			icluster = c;
+		  }
+		}
 
-        //assoc.ref<unsigned char>(icluster, d) = 1;
+		//assoc.ref<unsigned char>(icluster, d) = 1;
 
-        groups[icluster].push_back(fit - descriptors.begin());
-        current_association[ fit - descriptors.begin() ] = icluster;
-      }
-      
-      // kmeans++ ensures all the clusters has any feature associated with them
+		groups[icluster].push_back(fit - descriptors.begin());
+		current_association[ fit - descriptors.begin() ] = icluster;
+	  }
+	  
+	  // kmeans++ ensures all the clusters has any feature associated with them
 
-      // 3. check convergence
-      if(first_time)
-      {
-        first_time = false;
-      }
-      else
-      {
-        //goon = !eqUChar(last_assoc, assoc);
-        
-        goon = false;
-        for(unsigned int i = 0; i < current_association.size(); i++)
-        {
-          if(current_association[i] != last_association[i]){
-            goon = true;
-            break;
-          }
-        }
-      }
+	  // 3. check convergence
+	  if(first_time)
+	  {
+		first_time = false;
+	  }
+	  else
+	  {
+		//goon = !eqUChar(last_assoc, assoc);
+		
+		goon = false;
+		for(unsigned int i = 0; i < current_association.size(); i++)
+		{
+		  if(current_association[i] != last_association[i]){
+			goon = true;
+			break;
+		  }
+		}
+	  }
 
 			if(goon)
 			{
@@ -779,42 +779,42 @@ void TemplatedVocabulary<TDescriptor,F>::HKmeansStep(NodeId parent_id,
 			}
 			
 		} // while(goon)
-    
+	
   } // if must run kmeans
   
   // create nodes
   for(unsigned int i = 0; i < clusters.size(); ++i)
   {
-    NodeId id = m_nodes.size();
-    m_nodes.push_back(Node(id));
-    m_nodes.back().descriptor = clusters[i];
-    m_nodes.back().parent = parent_id;
-    m_nodes[parent_id].children.push_back(id);
+	NodeId id = m_nodes.size();
+	m_nodes.push_back(Node(id));
+	m_nodes.back().descriptor = clusters[i];
+	m_nodes.back().parent = parent_id;
+	m_nodes[parent_id].children.push_back(id);
   }
   
   // go on with the next level
   if(current_level < m_L)
   {
-    // iterate again with the resulting clusters
-    const vector<NodeId> &children_ids = m_nodes[parent_id].children;
-    for(unsigned int i = 0; i < clusters.size(); ++i)
-    {
-      NodeId id = children_ids[i];
+	// iterate again with the resulting clusters
+	const vector<NodeId> &children_ids = m_nodes[parent_id].children;
+	for(unsigned int i = 0; i < clusters.size(); ++i)
+	{
+	  NodeId id = children_ids[i];
 
-      vector<pDescriptor> child_features;
-      child_features.reserve(groups[i].size());
+	  vector<pDescriptor> child_features;
+	  child_features.reserve(groups[i].size());
 
-      vector<unsigned int>::const_iterator vit;
-      for(vit = groups[i].begin(); vit != groups[i].end(); ++vit)
-      {
-        child_features.push_back(descriptors[*vit]);
-      }
+	  vector<unsigned int>::const_iterator vit;
+	  for(vit = groups[i].begin(); vit != groups[i].end(); ++vit)
+	  {
+		child_features.push_back(descriptors[*vit]);
+	  }
 
-      if(child_features.size() > 1)
-      {
-        HKmeansStep(id, child_features, current_level + 1);
-      }
-    }
+	  if(child_features.size() > 1)
+	  {
+		HKmeansStep(id, child_features, current_level + 1);
+	  }
+	}
   }
 }
 
@@ -863,51 +863,51 @@ void TemplatedVocabulary<TDescriptor,F>::initiateClustersKMpp(
   dit = min_dists.begin();
   for(fit = pfeatures.begin(); fit != pfeatures.end(); ++fit, ++dit)
   {
-    *dit = F::distance(*(*fit), clusters.back());
+	*dit = F::distance(*(*fit), clusters.back());
   }  
 
   while((int)clusters.size() < m_k)
   {
-    // 2.
-    dit = min_dists.begin();
-    for(fit = pfeatures.begin(); fit != pfeatures.end(); ++fit, ++dit)
-    {
-      if(*dit > 0)
-      {
-        double dist = F::distance(*(*fit), clusters.back());
-        if(dist < *dit) *dit = dist;
-      }
-    }
-    
-    // 3.
-    double dist_sum = std::accumulate(min_dists.begin(), min_dists.end(), 0.0);
+	// 2.
+	dit = min_dists.begin();
+	for(fit = pfeatures.begin(); fit != pfeatures.end(); ++fit, ++dit)
+	{
+	  if(*dit > 0)
+	  {
+		double dist = F::distance(*(*fit), clusters.back());
+		if(dist < *dit) *dit = dist;
+	  }
+	}
+	
+	// 3.
+	double dist_sum = std::accumulate(min_dists.begin(), min_dists.end(), 0.0);
 
-    if(dist_sum > 0)
-    {
-      double cut_d;
-      do
-      {
-        cut_d = DUtils::Random::RandomValue<double>(0, dist_sum);
-      } while(cut_d == 0.0);
+	if(dist_sum > 0)
+	{
+	  double cut_d;
+	  do
+	  {
+		cut_d = DUtils::Random::RandomValue<double>(0, dist_sum);
+	  } while(cut_d == 0.0);
 
-      double d_up_now = 0;
-      for(dit = min_dists.begin(); dit != min_dists.end(); ++dit)
-      {
-        d_up_now += *dit;
-        if(d_up_now >= cut_d) break;
-      }
-      
-      if(dit == min_dists.end()) 
-        ifeature = pfeatures.size()-1;
-      else
-        ifeature = dit - min_dists.begin();
-      
-      clusters.push_back(*pfeatures[ifeature]);
+	  double d_up_now = 0;
+	  for(dit = min_dists.begin(); dit != min_dists.end(); ++dit)
+	  {
+		d_up_now += *dit;
+		if(d_up_now >= cut_d) break;
+	  }
+	  
+	  if(dit == min_dists.end()) 
+		ifeature = pfeatures.size()-1;
+	  else
+		ifeature = dit - min_dists.begin();
+	  
+	  clusters.push_back(*pfeatures[ifeature]);
 
-    } // if dist_sum > 0
-    else
-      break;
-      
+	} // if dist_sum > 0
+	else
+	  break;
+	  
   } // while(used_clusters < m_k)
 
 }
@@ -921,19 +921,19 @@ void TemplatedVocabulary<TDescriptor,F>::createWords()
   
   if(!m_nodes.empty())
   {
-    m_words.reserve( (int)pow((double)m_k, (double)m_L) );
+	m_words.reserve( (int)pow((double)m_k, (double)m_L) );
 
-    typename vector<Node>::iterator nit;
-    
-    nit = m_nodes.begin(); // ignore root
-    for(++nit; nit != m_nodes.end(); ++nit)
-    {
-      if(nit->isLeaf())
-      {
-        nit->word_id = m_words.size();
-        m_words.push_back( &(*nit) );
-      }
-    }
+	typename vector<Node>::iterator nit;
+	
+	nit = m_nodes.begin(); // ignore root
+	for(++nit; nit != m_nodes.end(); ++nit)
+	{
+	  if(nit->isLeaf())
+	  {
+		nit->word_id = m_words.size();
+		m_words.push_back( &(*nit) );
+	  }
+	}
   }
 }
 
@@ -948,48 +948,48 @@ void TemplatedVocabulary<TDescriptor,F>::setNodeWeights
 
   if(m_weighting == TF || m_weighting == BINARY)
   {
-    // idf part must be 1 always
-    for(unsigned int i = 0; i < NWords; i++)
-      m_words[i]->weight = 1;
+	// idf part must be 1 always
+	for(unsigned int i = 0; i < NWords; i++)
+	  m_words[i]->weight = 1;
   }
   else if(m_weighting == IDF || m_weighting == TF_IDF)
   {
-    // IDF and TF-IDF: we calculte the idf path now
+	// IDF and TF-IDF: we calculte the idf path now
 
-    // Note: this actually calculates the idf part of the tf-idf score.
-    // The complete tf-idf score is calculated in ::transform
+	// Note: this actually calculates the idf part of the tf-idf score.
+	// The complete tf-idf score is calculated in ::transform
 
-    vector<unsigned int> Ni(NWords, 0);
-    vector<bool> counted(NWords, false);
-    
-    typename vector<vector<TDescriptor> >::const_iterator mit;
-    typename vector<TDescriptor>::const_iterator fit;
+	vector<unsigned int> Ni(NWords, 0);
+	vector<bool> counted(NWords, false);
+	
+	typename vector<vector<TDescriptor> >::const_iterator mit;
+	typename vector<TDescriptor>::const_iterator fit;
 
-    for(mit = training_features.begin(); mit != training_features.end(); ++mit)
-    {
-      fill(counted.begin(), counted.end(), false);
+	for(mit = training_features.begin(); mit != training_features.end(); ++mit)
+	{
+	  fill(counted.begin(), counted.end(), false);
 
-      for(fit = mit->begin(); fit < mit->end(); ++fit)
-      {
-        WordId word_id;
-        transform(*fit, word_id);
+	  for(fit = mit->begin(); fit < mit->end(); ++fit)
+	  {
+		WordId word_id;
+		transform(*fit, word_id);
 
-        if(!counted[word_id])
-        {
-          Ni[word_id]++;
-          counted[word_id] = true;
-        }
-      }
-    }
+		if(!counted[word_id])
+		{
+		  Ni[word_id]++;
+		  counted[word_id] = true;
+		}
+	  }
+	}
 
-    // set ln(N/Ni)
-    for(unsigned int i = 0; i < NWords; i++)
-    {
-      if(Ni[i] > 0)
-      {
-        m_words[i]->weight = log((double)NDocs / (double)Ni[i]);
-      }// else // This cannot occur if using kmeans++
-    }
+	// set ln(N/Ni)
+	for(unsigned int i = 0; i < NWords; i++)
+	{
+	  if(Ni[i] > 0)
+	  {
+		m_words[i]->weight = log((double)NDocs / (double)Ni[i]);
+	  }// else // This cannot occur if using kmeans++
+	}
   
   }
 
@@ -1020,9 +1020,9 @@ float TemplatedVocabulary<TDescriptor,F>::getEffectiveLevels() const
   typename std::vector<Node*>::const_iterator wit;
   for(wit = m_words.begin(); wit != m_words.end(); ++wit)
   {
-    const Node *p = *wit;
-    
-    for(; p->id != 0; sum++) p = &m_nodes[p->parent];
+	const Node *p = *wit;
+	
+	for(; p->id != 0; sum++) p = &m_nodes[p->parent];
   }
   
   return (float)((double)sum / (double)m_words.size());
@@ -1052,7 +1052,7 @@ WordId TemplatedVocabulary<TDescriptor, F>::transform
 {
   if(empty())
   {
-    return 0;
+	return 0;
   }
   
   WordId wid;
@@ -1070,7 +1070,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
   
   if(empty())
   {
-    return;
+	return;
   }
 
   // normalize 
@@ -1081,41 +1081,41 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
 
   if(m_weighting == TF || m_weighting == TF_IDF)
   {
-    for(fit = features.begin(); fit < features.end(); ++fit)
-    {
-      WordId id;
-      WordValue w; 
-      // w is the idf value if TF_IDF, 1 if TF
-      
-      transform(*fit, id, w);
-      
-      // not stopped
-      if(w > 0) v.addWeight(id, w);
-    }
-    
-    if(!v.empty() && !must)
-    {
-      // unnecessary when normalizing
-      const double nd = v.size();
-      for(BowVector::iterator vit = v.begin(); vit != v.end(); vit++) 
-        vit->second /= nd;
-    }
-    
+	for(fit = features.begin(); fit < features.end(); ++fit)
+	{
+	  WordId id;
+	  WordValue w; 
+	  // w is the idf value if TF_IDF, 1 if TF
+	  
+	  transform(*fit, id, w);
+	  
+	  // not stopped
+	  if(w > 0) v.addWeight(id, w);
+	}
+	
+	if(!v.empty() && !must)
+	{
+	  // unnecessary when normalizing
+	  const double nd = v.size();
+	  for(BowVector::iterator vit = v.begin(); vit != v.end(); vit++) 
+		vit->second /= nd;
+	}
+	
   }
   else // IDF || BINARY
   {
-    for(fit = features.begin(); fit < features.end(); ++fit)
-    {
-      WordId id;
-      WordValue w;
-      // w is idf if IDF, or 1 if BINARY
-      
-      transform(*fit, id, w);
-      
-      // not stopped
-      if(w > 0) v.addIfNotExist(id, w);
-      
-    } // if add_features
+	for(fit = features.begin(); fit < features.end(); ++fit)
+	{
+	  WordId id;
+	  WordValue w;
+	  // w is idf if IDF, or 1 if BINARY
+	  
+	  transform(*fit, id, w);
+	  
+	  // not stopped
+	  if(w > 0) v.addIfNotExist(id, w);
+	  
+	} // if add_features
   } // if m_weighting == ...
   
   if(must) v.normalize(norm);
@@ -1133,7 +1133,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
   
   if(empty()) // safe for subclasses
   {
-    return;
+	return;
   }
   
   // normalize 
@@ -1144,50 +1144,50 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
   
   if(m_weighting == TF || m_weighting == TF_IDF)
   {
-    unsigned int i_feature = 0;
-    for(fit = features.begin(); fit < features.end(); ++fit, ++i_feature)
-    {
-      WordId id;
-      NodeId nid;
-      WordValue w; 
-      // w is the idf value if TF_IDF, 1 if TF
-      
-      transform(*fit, id, w, &nid, levelsup);
-      
-      if(w > 0) // not stopped
-      { 
-        v.addWeight(id, w);
-        fv.addFeature(nid, i_feature);
-      }
-    }
-    
-    if(!v.empty() && !must)
-    {
-      // unnecessary when normalizing
-      const double nd = v.size();
-      for(BowVector::iterator vit = v.begin(); vit != v.end(); vit++) 
-        vit->second /= nd;
-    }
+	unsigned int i_feature = 0;
+	for(fit = features.begin(); fit < features.end(); ++fit, ++i_feature)
+	{
+	  WordId id;
+	  NodeId nid;
+	  WordValue w; 
+	  // w is the idf value if TF_IDF, 1 if TF
+	  
+	  transform(*fit, id, w, &nid, levelsup);
+	  
+	  if(w > 0) // not stopped
+	  { 
+		v.addWeight(id, w);
+		fv.addFeature(nid, i_feature);
+	  }
+	}
+	
+	if(!v.empty() && !must)
+	{
+	  // unnecessary when normalizing
+	  const double nd = v.size();
+	  for(BowVector::iterator vit = v.begin(); vit != v.end(); vit++) 
+		vit->second /= nd;
+	}
   
   }
   else // IDF || BINARY
   {
-    unsigned int i_feature = 0;
-    for(fit = features.begin(); fit < features.end(); ++fit, ++i_feature)
-    {
-      WordId id;
-      NodeId nid;
-      WordValue w;
-      // w is idf if IDF, or 1 if BINARY
-      
-      transform(*fit, id, w, &nid, levelsup);
-      
-      if(w > 0) // not stopped
-      {
-        v.addIfNotExist(id, w);
-        fv.addFeature(nid, i_feature);
-      }
-    }
+	unsigned int i_feature = 0;
+	for(fit = features.begin(); fit < features.end(); ++fit, ++i_feature)
+	{
+	  WordId id;
+	  NodeId nid;
+	  WordValue w;
+	  // w is idf if IDF, or 1 if BINARY
+	  
+	  transform(*fit, id, w, &nid, levelsup);
+	  
+	  if(w > 0) // not stopped
+	  {
+		v.addIfNotExist(id, w);
+		fv.addFeature(nid, i_feature);
+	  }
+	}
   } // if m_weighting == ...
   
   if(must) v.normalize(norm);
@@ -1231,26 +1231,26 @@ void TemplatedVocabulary<TDescriptor,F>::transform(const TDescriptor &feature,
 
   do
   {
-    ++current_level;
-    nodes = m_nodes[final_id].children;
-    final_id = nodes[0];
+	++current_level;
+	nodes = m_nodes[final_id].children;
+	final_id = nodes[0];
  
-    double best_d = F::distance(feature, m_nodes[final_id].descriptor);
+	double best_d = F::distance(feature, m_nodes[final_id].descriptor);
 
-    for(nit = nodes.begin() + 1; nit != nodes.end(); ++nit)
-    {
-      NodeId id = *nit;
-      double d = F::distance(feature, m_nodes[id].descriptor);
-      if(d < best_d)
-      {
-        best_d = d;
-        final_id = id;
-      }
-    }
-    
-    if(nid != NULL && current_level == nid_level)
-      *nid = final_id;
-    
+	for(nit = nodes.begin() + 1; nit != nodes.end(); ++nit)
+	{
+	  NodeId id = *nit;
+	  double d = F::distance(feature, m_nodes[id].descriptor);
+	  if(d < best_d)
+	  {
+		best_d = d;
+		final_id = id;
+	  }
+	}
+	
+	if(nid != NULL && current_level == nid_level)
+	  *nid = final_id;
+	
   } while( !m_nodes[final_id].isLeaf() );
 
   // turn node id into word id
@@ -1267,8 +1267,8 @@ NodeId TemplatedVocabulary<TDescriptor,F>::getParentNode
   NodeId ret = m_words[wid]->id; // node id
   while(levelsup > 0 && ret != 0) // ret == 0 --> root
   {
-    --levelsup;
-    ret = m_nodes[ret].parent;
+	--levelsup;
+	ret = m_nodes[ret].parent;
   }
   return ret;
 }
@@ -1283,34 +1283,34 @@ void TemplatedVocabulary<TDescriptor,F>::getWordsFromNode
   
   if(m_nodes[nid].isLeaf())
   {
-    words.push_back(m_nodes[nid].word_id);
+	words.push_back(m_nodes[nid].word_id);
   }
   else
   {
-    words.reserve(m_k); // ^1, ^2, ...
-    
-    vector<NodeId> parents;
-    parents.push_back(nid);
-    
-    while(!parents.empty())
-    {
-      NodeId parentid = parents.back();
-      parents.pop_back();
-      
-      const vector<NodeId> &child_ids = m_nodes[parentid].children;
-      vector<NodeId>::const_iterator cit;
-      
-      for(cit = child_ids.begin(); cit != child_ids.end(); ++cit)
-      {
-        const Node &child_node = m_nodes[*cit];
-        
-        if(child_node.isLeaf())
-          words.push_back(child_node.word_id);
-        else
-          parents.push_back(*cit);
-        
-      } // for each child
-    } // while !parents.empty
+	words.reserve(m_k); // ^1, ^2, ...
+	
+	vector<NodeId> parents;
+	parents.push_back(nid);
+	
+	while(!parents.empty())
+	{
+	  NodeId parentid = parents.back();
+	  parents.pop_back();
+	  
+	  const vector<NodeId> &child_ids = m_nodes[parentid].children;
+	  vector<NodeId>::const_iterator cit;
+	  
+	  for(cit = child_ids.begin(); cit != child_ids.end(); ++cit)
+	  {
+		const Node &child_node = m_nodes[*cit];
+		
+		if(child_node.isLeaf())
+		  words.push_back(child_node.word_id);
+		else
+		  parents.push_back(*cit);
+		
+	  } // for each child
+	} // while !parents.empty
   }
 }
 
@@ -1323,11 +1323,11 @@ int TemplatedVocabulary<TDescriptor,F>::stopWords(double minWeight)
   typename vector<Node*>::iterator wit;
   for(wit = m_words.begin(); wit != m_words.end(); ++wit)
   {
-    if((*wit)->weight < minWeight)
-    {
-      ++c;
-      (*wit)->weight = 0;
-    }
+	if((*wit)->weight < minWeight)
+	{
+	  ++c;
+	  (*wit)->weight = 0;
+	}
   }
   return c;
 }
@@ -1337,89 +1337,89 @@ int TemplatedVocabulary<TDescriptor,F>::stopWords(double minWeight)
 template<class TDescriptor, class F>
 bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &filename)
 {
-    ifstream f;
-    f.open(filename.c_str());
+	ifstream f;
+	f.open(filename.c_str());
 	
-    if(f.eof())
+	if(f.eof())
 	return false;
 
-    m_words.clear();
-    m_nodes.clear();
+	m_words.clear();
+	m_nodes.clear();
 
-    string s;
-    getline(f,s);
-    stringstream ss;
-    ss << s;
-    ss >> m_k;
-    ss >> m_L;
-    int n1, n2;
-    ss >> n1;
-    ss >> n2;
+	string s;
+	getline(f,s);
+	stringstream ss;
+	ss << s;
+	ss >> m_k;
+	ss >> m_L;
+	int n1, n2;
+	ss >> n1;
+	ss >> n2;
 
-    if(m_k<0 || m_k>20 || m_L<1 || m_L>10 || n1<0 || n1>5 || n2<0 || n2>3)
-    {
-        std::cerr << "Vocabulary loading failure: This is not a correct text file!" << endl;
+	if(m_k<0 || m_k>20 || m_L<1 || m_L>10 || n1<0 || n1>5 || n2<0 || n2>3)
+	{
+		std::cerr << "Vocabulary loading failure: This is not a correct text file!" << endl;
 	return false;
-    }
-    
-    m_scoring = (ScoringType)n1;
-    m_weighting = (WeightingType)n2;
-    createScoringObject();
+	}
+	
+	m_scoring = (ScoringType)n1;
+	m_weighting = (WeightingType)n2;
+	createScoringObject();
 
-    // nodes
-    int expected_nodes =
-    (int)((pow((double)m_k, (double)m_L + 1) - 1)/(m_k - 1));
-    m_nodes.reserve(expected_nodes);
+	// nodes
+	int expected_nodes =
+	(int)((pow((double)m_k, (double)m_L + 1) - 1)/(m_k - 1));
+	m_nodes.reserve(expected_nodes);
 
-    m_words.reserve(pow((double)m_k, (double)m_L + 1));
+	m_words.reserve(pow((double)m_k, (double)m_L + 1));
 
-    m_nodes.resize(1);
-    m_nodes[0].id = 0;
-    while(!f.eof())
-    {
-        string snode;
-        getline(f,snode);
-        stringstream ssnode;
-        ssnode << snode;
+	m_nodes.resize(1);
+	m_nodes[0].id = 0;
+	while(!f.eof())
+	{
+		string snode;
+		getline(f,snode);
+		stringstream ssnode;
+		ssnode << snode;
 
-        int nid = m_nodes.size();
-        m_nodes.resize(m_nodes.size()+1);
+		int nid = m_nodes.size();
+		m_nodes.resize(m_nodes.size()+1);
 	m_nodes[nid].id = nid;
 	
-        int pid ;
-        ssnode >> pid;
-        m_nodes[nid].parent = pid;
-        m_nodes[pid].children.push_back(nid);
+		int pid ;
+		ssnode >> pid;
+		m_nodes[nid].parent = pid;
+		m_nodes[pid].children.push_back(nid);
 
-        int nIsLeaf;
-        ssnode >> nIsLeaf;
+		int nIsLeaf;
+		ssnode >> nIsLeaf;
 
-        stringstream ssd;
-        for(int iD=0;iD<F::L;iD++)
-        {
-            string sElement;
-            ssnode >> sElement;
-            ssd << sElement << " ";
+		stringstream ssd;
+		for(int iD=0;iD<F::L;iD++)
+		{
+			string sElement;
+			ssnode >> sElement;
+			ssd << sElement << " ";
 	}
-        F::fromString(m_nodes[nid].descriptor, ssd.str());
+		F::fromString(m_nodes[nid].descriptor, ssd.str());
 
-        ssnode >> m_nodes[nid].weight;
+		ssnode >> m_nodes[nid].weight;
 
-        if(nIsLeaf>0)
-        {
-            int wid = m_words.size();
-            m_words.resize(wid+1);
+		if(nIsLeaf>0)
+		{
+			int wid = m_words.size();
+			m_words.resize(wid+1);
 
-            m_nodes[nid].word_id = wid;
-            m_words[wid] = &m_nodes[nid];
-        }
-        else
-        {
-            m_nodes[nid].children.reserve(m_k);
-        }
-    }
+			m_nodes[nid].word_id = wid;
+			m_words[wid] = &m_nodes[nid];
+		}
+		else
+		{
+			m_nodes[nid].children.reserve(m_k);
+		}
+	}
 
-    return true;
+	return true;
 
 }
 
@@ -1428,24 +1428,24 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
 template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::saveToTextFile(const std::string &filename) const
 {
-    fstream f;
-    f.open(filename.c_str(),ios_base::out);
-    f << m_k << " " << m_L << " " << " " << m_scoring << " " << m_weighting << endl;
+	fstream f;
+	f.open(filename.c_str(),ios_base::out);
+	f << m_k << " " << m_L << " " << " " << m_scoring << " " << m_weighting << endl;
 
-    for(size_t i=1; i<m_nodes.size();i++)
-    {
-        const Node& node = m_nodes[i];
+	for(size_t i=1; i<m_nodes.size();i++)
+	{
+		const Node& node = m_nodes[i];
 
-        f << node.parent << " ";
-        if(node.isLeaf())
-            f << 1 << " ";
-        else
-            f << 0 << " ";
+		f << node.parent << " ";
+		if(node.isLeaf())
+			f << 1 << " ";
+		else
+			f << 0 << " ";
 
-        f << F::toString(node.descriptor) << " " << (double)node.weight << endl;
-    }
+		f << F::toString(node.descriptor) << " " << (double)node.weight << endl;
+	}
 
-    f.close();
+	f.close();
 }
 
 // --------------------------------------------------------------------------
@@ -1520,30 +1520,30 @@ void TemplatedVocabulary<TDescriptor,F>::save(cv::FileStorage &f,
 
   while(!parents.empty())
   {
-    NodeId pid = parents.back();
-    parents.pop_back();
+	NodeId pid = parents.back();
+	parents.pop_back();
 
-    const Node& parent = m_nodes[pid];
-    children = parent.children;
+	const Node& parent = m_nodes[pid];
+	children = parent.children;
 
-    for(pit = children.begin(); pit != children.end(); pit++)
-    {
-      const Node& child = m_nodes[*pit];
+	for(pit = children.begin(); pit != children.end(); pit++)
+	{
+	  const Node& child = m_nodes[*pit];
 
-      // save node data
-      f << "{:";
-      f << "nodeId" << (int)child.id;
-      f << "parentId" << (int)pid;
-      f << "weight" << (double)child.weight;
-      f << "descriptor" << F::toString(child.descriptor);
-      f << "}";
-      
-      // add to parent list
-      if(!child.isLeaf())
-      {
-        parents.push_back(*pit);
-      }
-    }
+	  // save node data
+	  f << "{:";
+	  f << "nodeId" << (int)child.id;
+	  f << "parentId" << (int)pid;
+	  f << "weight" << (double)child.weight;
+	  f << "descriptor" << F::toString(child.descriptor);
+	  f << "}";
+	  
+	  // add to parent list
+	  if(!child.isLeaf())
+	  {
+		parents.push_back(*pit);
+	  }
+	}
   }
   
   f << "]"; // nodes
@@ -1554,11 +1554,11 @@ void TemplatedVocabulary<TDescriptor,F>::save(cv::FileStorage &f,
   typename vector<Node*>::const_iterator wit;
   for(wit = m_words.begin(); wit != m_words.end(); wit++)
   {
-    WordId id = wit - m_words.begin();
-    f << "{:";
-    f << "wordId" << (int)id;
-    f << "nodeId" << (int)(*wit)->id;
-    f << "}";
+	WordId id = wit - m_words.begin();
+	f << "{:";
+	f << "wordId" << (int)id;
+	f << "nodeId" << (int)(*wit)->id;
+	f << "}";
   }
   
   f << "]"; // words
@@ -1593,17 +1593,17 @@ void TemplatedVocabulary<TDescriptor,F>::load(const cv::FileStorage &fs,
 
   for(unsigned int i = 0; i < fn.size(); ++i)
   {
-    NodeId nid = (int)fn[i]["nodeId"];
-    NodeId pid = (int)fn[i]["parentId"];
-    WordValue weight = (WordValue)fn[i]["weight"];
-    string d = (string)fn[i]["descriptor"];
-    
-    m_nodes[nid].id = nid;
-    m_nodes[nid].parent = pid;
-    m_nodes[nid].weight = weight;
-    m_nodes[pid].children.push_back(nid);
-    
-    F::fromString(m_nodes[nid].descriptor, d);
+	NodeId nid = (int)fn[i]["nodeId"];
+	NodeId pid = (int)fn[i]["parentId"];
+	WordValue weight = (WordValue)fn[i]["weight"];
+	string d = (string)fn[i]["descriptor"];
+	
+	m_nodes[nid].id = nid;
+	m_nodes[nid].parent = pid;
+	m_nodes[nid].weight = weight;
+	m_nodes[pid].children.push_back(nid);
+	
+	F::fromString(m_nodes[nid].descriptor, d);
   }
   
   // words
@@ -1613,11 +1613,11 @@ void TemplatedVocabulary<TDescriptor,F>::load(const cv::FileStorage &fs,
 
   for(unsigned int i = 0; i < fn.size(); ++i)
   {
-    NodeId wid = (int)fn[i]["wordId"];
-    NodeId nid = (int)fn[i]["nodeId"];
-    
-    m_nodes[nid].word_id = wid;
-    m_words[wid] = &m_nodes[nid];
+	NodeId wid = (int)fn[i]["wordId"];
+	NodeId nid = (int)fn[i]["nodeId"];
+	
+	m_nodes[nid].word_id = wid;
+	m_words[wid] = &m_nodes[nid];
   }
 }
 
@@ -1633,26 +1633,26 @@ std::ostream& operator<<(std::ostream &os,
   const TemplatedVocabulary<TDescriptor,F> &voc)
 {
   os << "Vocabulary: k = " << voc.getBranchingFactor() 
-    << ", L = " << voc.getDepthLevels()
-    << ", Weighting = ";
+	<< ", L = " << voc.getDepthLevels()
+	<< ", Weighting = ";
 
   switch(voc.getWeightingType())
   {
-    case TF_IDF: os << "tf-idf"; break;
-    case TF: os << "tf"; break;
-    case IDF: os << "idf"; break;
-    case BINARY: os << "binary"; break;
+	case TF_IDF: os << "tf-idf"; break;
+	case TF: os << "tf"; break;
+	case IDF: os << "idf"; break;
+	case BINARY: os << "binary"; break;
   }
 
   os << ", Scoring = ";
   switch(voc.getScoringType())
   {
-    case L1_NORM: os << "L1-norm"; break;
-    case L2_NORM: os << "L2-norm"; break;
-    case CHI_SQUARE: os << "Chi square distance"; break;
-    case KL: os << "KL-divergence"; break;
-    case BHATTACHARYYA: os << "Bhattacharyya coefficient"; break;
-    case DOT_PRODUCT: os << "Dot product"; break;
+	case L1_NORM: os << "L1-norm"; break;
+	case L2_NORM: os << "L2-norm"; break;
+	case CHI_SQUARE: os << "Chi square distance"; break;
+	case KL: os << "KL-divergence"; break;
+	case BHATTACHARYYA: os << "Bhattacharyya coefficient"; break;
+	case DOT_PRODUCT: os << "Dot product"; break;
   }
   
   os << ", Number of words = " << voc.size();

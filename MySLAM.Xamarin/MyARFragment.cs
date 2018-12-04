@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace MySLAM.Xamarin
 {
+
     public class MyARFragment : Fragment,
                                 ILoaderCallbackInterface,
                                 CameraBridgeViewBase.ICvCameraViewListener2
@@ -19,6 +20,8 @@ namespace MySLAM.Xamarin
         public JavaCameraView CameraView;
 
         public MyCalibratorHelper CalibratorHelper { get; set; }
+
+        private TextView textView;
 
         private Android.Util.Size frameSize;
 
@@ -32,6 +35,7 @@ namespace MySLAM.Xamarin
         }
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
+            textView = view.FindViewById<TextView>(Resource.Id.pose_textview);
             view.FindViewById<FloatingActionButton>(Resource.Id.fab).Click +=
                 (o, e) =>
                 {
@@ -52,6 +56,7 @@ namespace MySLAM.Xamarin
         {
             if (CalibratorHelper == null)
                 return;
+            menu.SetGroupVisible(Resource.Id.mode_ar, false);
             if (CalibratorHelper.CameraCalibrator.IsCalibrated)
             {
                 menu.FindItem(Resource.Id.action_change_mode).SetVisible(true);
@@ -72,16 +77,8 @@ namespace MySLAM.Xamarin
                 case Resource.Id.action_calibrate:
                     Calibrate();
                     break;
-                case Resource.Id.render_comparison:
-                    CalibratorHelper.ChangeRenderMode<ComparisonFrameRender>();
-                    item.SetChecked(true);
-                    break;
-                case Resource.Id.render_undistortion:
-                    CalibratorHelper.ChangeRenderMode<UndistortionFrameRender>();
-                    item.SetChecked(true);
-                    break;
                 case Resource.Id.render_ar:
-                    CalibratorHelper.ChangeRenderMode<ARFrameRender>();
+                    StartAR();
                     item.SetChecked(true);
                     break;
                 case Resource.Id.render_none:
@@ -92,6 +89,15 @@ namespace MySLAM.Xamarin
             return true;
         }
         #endregion
+
+        private async void StartAR()
+        {
+            new MyDialog(DialogType.Progress, Resources.GetString(Resource.String.loading_voc))
+                        .Show(FragmentManager, "Progress Dialog");
+            await Task.Run(() => CalibratorHelper.ChangeRenderMode<ARFrameRender>());
+            ((ARFrameRender)CalibratorHelper.FrameRender).UpdatePose += UpdatePose;
+            FragmentManager.FindFragmentByTag<DialogFragment>("Progress Dialog").Dismiss();
+        }
 
         private void Calibrate()
         {
@@ -128,8 +134,7 @@ namespace MySLAM.Xamarin
                     {
                         resultMessage = Resources.GetString(Resource.String.calibration_successful)
                                             + CalibratorHelper.CameraCalibrator.AvgReprojectionError;
-                        CalibrationResult.Save(Activity,
-                                            CalibratorHelper.CameraCalibrator.CameraMatrix);
+                        CalibratorHelper.Save(CalibratorHelper.CameraCalibrator.CameraMatrix);
                         CalibratorHelper.CameraCalibrator.IsCalibrated = true;
                     }
                     else
@@ -139,6 +144,20 @@ namespace MySLAM.Xamarin
                     }
                     Toast.MakeText(Activity, resultMessage, ToastLength.Short).Show();
                 }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        public void UpdatePose(float[] pose)
+        {
+            string text = "";
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    text += pose[4 * i + j].ToString("F") + " ";
+                }
+                text += '\n';
+            }
+            Activity.RunOnUiThread(() => textView.Text = text);
         }
 
         private void OnClick(object sender, System.EventArgs e)
@@ -179,15 +198,20 @@ namespace MySLAM.Xamarin
         #region ICvCameraViewListener2
         public Mat OnCameraFrame(CameraBridgeViewBase.ICvCameraViewFrame p0)
         {
-            var mat = CalibratorHelper.FrameRender.Render(p0);
+            var mat = CalibratorHelper?.FrameRender.Render(p0);
             return mat;
         }
-        public void OnCameraViewStarted(int width, int height)
+        public async void OnCameraViewStarted(int width, int height)
         {
             if (frameSize == null || frameSize.Width != width || frameSize.Height != height)
             {
                 frameSize = new Android.Util.Size(width, height);
-                CalibratorHelper = new MyCalibratorHelper(Activity, width, height);
+                //Creating a calibratorHelper may take long time. So I make it async, and add a progress dialog.
+                new MyDialog(DialogType.Progress, Resources.GetString(Resource.String.please_wait))
+                .Show(FragmentManager, "Progress Dialog");
+                CalibratorHelper = await MyCalibratorHelper.Builder(Activity, width, height);
+                FragmentManager.FindFragmentByTag<DialogFragment>("Progress Dialog").Dismiss();
+
                 if (!CalibratorHelper.CameraCalibrator.IsCalibrated)
                 {
                     new MyDialog(DialogType.Error, Resources.GetString(Resource.String.not_calibrate))
@@ -224,6 +248,6 @@ namespace MySLAM.Xamarin
         {
         }
         #endregion
-        
+
     }
 }

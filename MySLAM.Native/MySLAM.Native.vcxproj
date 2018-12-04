@@ -77,7 +77,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>Clang_3_8</PlatformToolset>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <AndroidAPILevel>android-21</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -94,6 +95,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
   </PropertyGroup>
@@ -120,9 +122,18 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <ExceptionHandling>Enabled</ExceptionHandling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(ProjectDir)OpenCV\include;$(ProjectDir)ORB_SLAM2\include;$(ProjectDir)ORB_SLAM2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++11</CppLanguageStandard>
+      <AdditionalOptions>-fvisibility=hidden %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <Link>
+      <LibraryDependencies>m;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <ClCompile>
@@ -151,6 +162,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CppLanguageStandard>c++11</CppLanguageStandard>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <AdditionalOptions>-fvisibility=hidden %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <LibraryDependencies>m;%(LibraryDependencies)</LibraryDependencies>
@@ -162,63 +174,6 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="ORB_SLAM2\src\Converter.cc" />
-    <ClCompile Include="ORB_SLAM2\src\Frame.cc" />
-    <ClCompile Include="ORB_SLAM2\src\FrameDrawer.cc" />
-    <ClCompile Include="ORB_SLAM2\src\Initializer.cc" />
-    <ClCompile Include="ORB_SLAM2\src\KeyFrame.cc" />
-    <ClCompile Include="ORB_SLAM2\src\KeyFrameDatabase.cc" />
-    <ClCompile Include="ORB_SLAM2\src\LocalMapping.cc" />
-    <ClCompile Include="ORB_SLAM2\src\LoopClosing.cc" />
-    <ClCompile Include="ORB_SLAM2\src\Map.cc" />
-    <ClCompile Include="ORB_SLAM2\src\MapPoint.cc" />
-    <ClCompile Include="ORB_SLAM2\src\Optimizer.cc" />
-    <ClCompile Include="ORB_SLAM2\src\ORBextractor.cc" />
-    <ClCompile Include="ORB_SLAM2\src\ORBmatcher.cc" />
-    <ClCompile Include="ORB_SLAM2\src\PnPsolver.cc" />
-    <ClCompile Include="ORB_SLAM2\src\Sim3Solver.cc" />
-    <ClCompile Include="ORB_SLAM2\src\System.cc" />
-    <ClCompile Include="ORB_SLAM2\src\Tracking.cc" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\BowVector.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\FeatureVector.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\FORB.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\ScoringObject.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DUtils\Random.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DUtils\Timestamp.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\batch_stats.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\cache.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\estimate_propagator.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\factory.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\hyper_dijkstra.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\hyper_graph.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\hyper_graph_action.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\jacobian_workspace.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\marginal_covariance_cholesky.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\matrix_structure.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimizable_graph.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_dogleg.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_factory.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_gauss_newton.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_levenberg.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_with_hessian.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\parameter.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\parameter_container.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\robust_kernel.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\robust_kernel_factory.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\robust_kernel_impl.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\solver.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\sparse_block_matrix_test.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\sparse_optimizer.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\os_specific.c" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\property.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\string_tools.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\timeutil.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_sba.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.cpp" />
-    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.cpp" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Eigen\src\Cholesky\LDLT.h" />
     <ClInclude Include="Eigen\src\Cholesky\LLT.h" />
@@ -824,8 +779,62 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="libs\armeabi-v7a\libopencv_java3.so" />
-    <Library Include="libs\armeabi\libopencv_java3.so" />
+    <ClCompile Include="MySLAM_Native.cpp" />
+    <ClCompile Include="ORB_SLAM2\src\Converter.cc" />
+    <ClCompile Include="ORB_SLAM2\src\Frame.cc" />
+    <ClCompile Include="ORB_SLAM2\src\FrameDrawer.cc" />
+    <ClCompile Include="ORB_SLAM2\src\Initializer.cc" />
+    <ClCompile Include="ORB_SLAM2\src\KeyFrame.cc" />
+    <ClCompile Include="ORB_SLAM2\src\KeyFrameDatabase.cc" />
+    <ClCompile Include="ORB_SLAM2\src\LocalMapping.cc" />
+    <ClCompile Include="ORB_SLAM2\src\LoopClosing.cc" />
+    <ClCompile Include="ORB_SLAM2\src\Map.cc" />
+    <ClCompile Include="ORB_SLAM2\src\MapPoint.cc" />
+    <ClCompile Include="ORB_SLAM2\src\Optimizer.cc" />
+    <ClCompile Include="ORB_SLAM2\src\ORBextractor.cc" />
+    <ClCompile Include="ORB_SLAM2\src\ORBmatcher.cc" />
+    <ClCompile Include="ORB_SLAM2\src\PnPsolver.cc" />
+    <ClCompile Include="ORB_SLAM2\src\Sim3Solver.cc" />
+    <ClCompile Include="ORB_SLAM2\src\System.cc" />
+    <ClCompile Include="ORB_SLAM2\src\Tracking.cc" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\BowVector.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\FeatureVector.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\FORB.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DBoW2\ScoringObject.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DUtils\Random.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\DBoW2\DUtils\Timestamp.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\batch_stats.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\cache.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\estimate_propagator.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\factory.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\hyper_dijkstra.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\hyper_graph.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\hyper_graph_action.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\jacobian_workspace.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\marginal_covariance_cholesky.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\matrix_structure.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimizable_graph.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_dogleg.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_factory.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_gauss_newton.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_levenberg.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\optimization_algorithm_with_hessian.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\parameter.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\parameter_container.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\robust_kernel.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\robust_kernel_factory.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\robust_kernel_impl.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\solver.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\sparse_block_matrix_test.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\core\sparse_optimizer.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\os_specific.c" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\property.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\string_tools.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\stuff\timeutil.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_sba.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.cpp" />
+    <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Eigen\Cholesky" />
@@ -857,6 +866,9 @@
     <None Include="Eigen\SuperLUSupport" />
     <None Include="Eigen\SVD" />
     <None Include="Eigen\UmfPackSupport" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libs\x86\libopencv_java3.so" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

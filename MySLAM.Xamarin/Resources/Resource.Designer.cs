@@ -2776,7 +2776,7 @@ namespace MySLAM.Xamarin
 			public const int pin = 2131230797;
 			
 			// aapt resource value: 0x7f080094
-			public const int poseTextView = 2131230868;
+			public const int pose_textview = 2131230868;
 			
 			// aapt resource value: 0x7f0800b8
 			public const int preview_layout = 2131230904;
@@ -2790,20 +2790,14 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f080078
 			public const int radio = 2131230840;
 			
-			// aapt resource value: 0x7f0800cf
-			public const int render_ar = 2131230927;
-			
-			// aapt resource value: 0x7f0800ce
-			public const int render_comparison = 2131230926;
+			// aapt resource value: 0x7f0800cd
+			public const int render_ar = 2131230925;
 			
 			// aapt resource value: 0x7f0800cb
 			public const int render_group = 2131230923;
 			
 			// aapt resource value: 0x7f0800cc
 			public const int render_none = 2131230924;
-			
-			// aapt resource value: 0x7f0800cd
-			public const int render_undistortion = 2131230925;
 			
 			// aapt resource value: 0x7f08004a
 			public const int right = 2131230794;
@@ -3425,8 +3419,8 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f090036
 			public const int action_calibrate = 2131296310;
 			
-			// aapt resource value: 0x7f090046
-			public const int add_corners = 2131296326;
+			// aapt resource value: 0x7f090047
+			public const int add_corners = 2131296327;
 			
 			// aapt resource value: 0x7f090040
 			public const int add_model = 2131296320;
@@ -3488,6 +3482,9 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f09002c
 			public const int frag_settings = 2131296300;
 			
+			// aapt resource value: 0x7f090045
+			public const int loading_voc = 2131296325;
+			
 			// aapt resource value: 0x7f09003c
 			public const int more_samples = 2131296316;
 			
@@ -3497,8 +3494,8 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f090029
 			public const int navigation_drawer_open = 2131296297;
 			
-			// aapt resource value: 0x7f090045
-			public const int not_calibrate = 2131296325;
+			// aapt resource value: 0x7f090046
+			public const int not_calibrate = 2131296326;
 			
 			// aapt resource value: 0x7f090032
 			public const int ok = 2131296306;
