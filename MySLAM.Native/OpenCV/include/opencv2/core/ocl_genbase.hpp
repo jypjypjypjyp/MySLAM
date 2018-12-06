@@ -42,28 +42,23 @@
 #ifndef OPENCV_OPENCL_GENBASE_HPP
 #define OPENCV_OPENCL_GENBASE_HPP
 
+namespace cv
+{
+namespace ocl
+{
+
 //! @cond IGNORED
 
-namespace cv {
-namespace ocl {
-
-class ProgramSource;
-
-namespace internal {
-
-struct CV_EXPORTS ProgramEntry
+struct ProgramEntry
 {
-    const char* module;
     const char* name;
-    const char* programCode;
+    const char* programStr;
     const char* programHash;
-    ProgramSource* pProgramSource;
-
-    operator ProgramSource& () const;
 };
 
-} } } // namespace
-
 //! @endcond
+
+}
+}
 
 #endif
