@@ -3,7 +3,7 @@ using Android.Content;
 using Android.OS;
 using System;
 
-namespace MySLAM.Xamarin.MyView
+namespace MySLAM.Xamarin.Views
 {
 
     public enum DialogType

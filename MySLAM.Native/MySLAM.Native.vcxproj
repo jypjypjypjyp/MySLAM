@@ -163,6 +163,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MySLAM_Native.cpp" />
     <ClCompile Include="ORB_SLAM2\src\Converter.cc" />
     <ClCompile Include="ORB_SLAM2\src\Frame.cc" />
     <ClCompile Include="ORB_SLAM2\src\FrameDrawer.cc" />

@@ -1,15 +1,14 @@
 ﻿using Android.App;
-using Org.Opencv.Core;
 using System.IO;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers.Calibrator
 {
     public abstract class CalibrationResult
     {
 
         public static void Save(Activity activity, Mat cameraMatrix)
         {
-            if(!File.Exists(AppConst.RootPath + "orb_slam2.yaml"))
+            if (!File.Exists(AppConst.RootPath + "orb_slam2.yaml"))
             {
                 try
                 {
@@ -22,7 +21,7 @@ namespace MySLAM.Xamarin.MyHelper
                     throw;
                 }
             }
-            using (var file = File.Open(AppConst.RootPath + "orb_slam2.yaml",FileMode.Open))
+            using (var file = File.Open(AppConst.RootPath + "orb_slam2.yaml", FileMode.Open))
             {
                 double[] cameraMatrixArray = new double[3 * 3];
                 cameraMatrix.Get(0, 0, cameraMatrixArray);

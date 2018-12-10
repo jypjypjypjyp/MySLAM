@@ -1,12 +1,9 @@
 ﻿using Android.Util;
-using Org.Opencv.Calib3d;
-using Org.Opencv.Core;
-using Org.Opencv.Imgproc;
 using System;
 using System.Collections.Generic;
 using Size = Org.Opencv.Core.Size;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers.Calibrator
 {
     public class CameraCalibrator
     {

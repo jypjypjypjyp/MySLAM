@@ -5,7 +5,7 @@ using Android.OS;
 using Android.Runtime;
 using System.Collections.Generic;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers
 {
     public class MyIMUHelper : Java.Lang.Object, ISensorEventListener
     {

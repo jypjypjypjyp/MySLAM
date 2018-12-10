@@ -56,6 +56,7 @@
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_sba.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.cpp" />
+    <ClCompile Include="MySLAM_Native.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

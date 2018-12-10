@@ -1,14 +1,11 @@
 ﻿using Android.Content.Res;
 using Android.Runtime;
-using Org.Opencv.Android;
-using Org.Opencv.Core;
-using Org.Opencv.Imgproc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers.Calibrator
 {
     public abstract class FrameRender
     {
@@ -25,7 +22,7 @@ namespace MySLAM.Xamarin.MyHelper
         }
     }
 
-    internal class ARFrameRender : FrameRender , IDisposable
+    internal class ARFrameRender : FrameRender, IDisposable
     {
         #region NativeFunction
         [DllImport("MySLAM_AR", EntryPoint = "MySLAM_Native_AR_InitSystem")]
@@ -56,7 +53,7 @@ namespace MySLAM.Xamarin.MyHelper
         {
             var rgbaFrame = inputFrame.Rgba();
             float[] poseArr = GetPose(JNIEnv.Handle, rgbaFrame.NativeObjAddr, Java.Lang.JavaSystem.CurrentTimeMillis() * 1000);
-            if(poseArr.Count() != 0)
+            if (poseArr.Count() != 0)
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -64,8 +61,8 @@ namespace MySLAM.Xamarin.MyHelper
                             rgbaFrame,
                             string.Join(' ', poseArr.Skip(i * 4).Take(4).Select(a => a.ToString("F"))),
                             new Point(width * 0.1, height * 0.1),
-                            Core.FontHersheySimplex, 
-                            0.5, 
+                            Core.FontHersheySimplex,
+                            0.5,
                             new Scalar(255, 255, 0));
                 }
             }

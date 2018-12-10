@@ -2658,6 +2658,9 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f08000a
 			public const int ghost_view = 2131230730;
 			
+			// aapt resource value: 0x7f080094
+			public const int gl_view = 2131230868;
+			
 			// aapt resource value: 0x7f080005
 			public const int home = 2131230725;
 			
@@ -2774,9 +2777,6 @@ namespace MySLAM.Xamarin
 			
 			// aapt resource value: 0x7f08004d
 			public const int pin = 2131230797;
-			
-			// aapt resource value: 0x7f080094
-			public const int poseTextView = 2131230868;
 			
 			// aapt resource value: 0x7f0800b8
 			public const int preview_layout = 2131230904;

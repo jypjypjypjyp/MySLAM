@@ -4,7 +4,7 @@ using Android.Hardware.Camera2;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
-using MySLAM.Xamarin.MyHelper;
+using MySLAM.Xamarin.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;

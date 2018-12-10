@@ -11,7 +11,7 @@ using Android.Util;
 using System;
 using System.Threading;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers
 {
     public enum CameraState
     {

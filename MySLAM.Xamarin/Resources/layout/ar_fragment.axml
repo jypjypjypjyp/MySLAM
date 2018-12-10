@@ -12,13 +12,10 @@
 		android:id="@+id/ar_view"
 		opencv:show_fps="true"
 		opencv:camera_id="any"/>
-	<TextView
-		android:id="@+id/poseTextView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:textColor="#00ff00"
-		android:text=""
-		android:layout_gravity="top|start"/>
+	<android.opengl.GLSurfaceView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:id="@+id/gl_view"/>
 	<android.support.design.widget.FloatingActionButton
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
