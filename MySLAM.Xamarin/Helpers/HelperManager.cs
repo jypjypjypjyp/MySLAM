@@ -1,6 +1,6 @@
 ﻿using Android.App;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers
 {
     public static class HelperManager
     {

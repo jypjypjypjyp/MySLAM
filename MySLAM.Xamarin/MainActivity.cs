@@ -9,8 +9,8 @@ using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Views;
-using MySLAM.Xamarin.MyHelper;
-using MySLAM.Xamarin.MyView;
+using MySLAM.Xamarin.Helpers;
+using MySLAM.Xamarin.Views;
 using ActionBarDrawerToggle = Android.Support.V7.App.ActionBarDrawerToggle;
 using Fragment = Android.App.Fragment;
 

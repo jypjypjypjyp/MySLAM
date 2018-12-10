@@ -3,7 +3,7 @@ using Org.Opencv.Core;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers
 {
     public class MyCalibratorHelper
     {

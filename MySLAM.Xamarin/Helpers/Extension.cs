@@ -1,7 +1,7 @@
 ﻿using Android.Graphics;
 using System.IO;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers
 {
     public static class AppConst
     {

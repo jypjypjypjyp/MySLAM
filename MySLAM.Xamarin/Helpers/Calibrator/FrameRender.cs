@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers.Calibrator
 {
     public abstract class FrameRender
     {
@@ -23,7 +23,7 @@ namespace MySLAM.Xamarin.MyHelper
         }
     }
 
-    internal class ARFrameRender : FrameRender , IDisposable
+    internal class ARFrameRender : FrameRender, IDisposable
     {
         #region Native
         [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_AR_InitSystem")]

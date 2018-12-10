@@ -3,7 +3,7 @@ using Android.Content.PM;
 using Android.Support.V4.App;
 using System.Linq;
 
-namespace MySLAM.Xamarin.MyHelper
+namespace MySLAM.Xamarin.Helpers
 {
     public class MyPermissionHelper
     {

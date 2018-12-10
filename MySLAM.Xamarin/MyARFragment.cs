@@ -1,13 +1,13 @@
 ﻿using Android.App;
+using Android.Opengl;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using MySLAM.Xamarin.MyHelper;
-using MySLAM.Xamarin.MyView;
-using Org.Opencv.Android;
-using Org.Opencv.Core;
+using MySLAM.Xamarin.Helpers.AR;
+using MySLAM.Xamarin.Helpers.Calibrator;
+using MySLAM.Xamarin.Views;
 using System.Threading.Tasks;
 
 namespace MySLAM.Xamarin
@@ -18,6 +18,7 @@ namespace MySLAM.Xamarin
                                 CameraBridgeViewBase.ICvCameraViewListener2
     {
         public JavaCameraView CameraView;
+        public GLSurfaceView GLSurfaceView;
 
         public MyCalibratorHelper CalibratorHelper { get; set; }
 
@@ -45,6 +46,20 @@ namespace MySLAM.Xamarin
             CameraView.SetMaxFrameSize(1280, 800);
             CameraView.SetCvCameraViewListener2(this);
             CameraView.Click += OnClick;
+
+            //OpenGL 
+            GLSurfaceView = view.FindViewById<GLSurfaceView>(Resource.Id.gl_view);
+            GLSurfaceView.SetEGLContextClientVersion(3);
+            GLSurfaceView.SetEGLConfigChooser(8, 8, 8, 8, 16, 0); //Set Transparent
+            GLSurfaceView.Holder.SetFormat(Android.Graphics.Format.Translucent);
+            var renderer = new MyARRenderer();
+            renderer.ManageEntitys((e) =>
+            {
+                e["rolling square 1"] = new RollingSquare(2, 0.5f, 0.01f);
+            });
+            GLSurfaceView.SetRenderer(renderer);
+            GLSurfaceView.RenderMode = Rendermode.Continuously;
+            GLSurfaceView.SetZOrderOnTop(true);
         }
 
         #region OptionMenu

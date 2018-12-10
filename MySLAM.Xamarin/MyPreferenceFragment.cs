@@ -5,7 +5,7 @@ using Android.Hardware.Camera2.Params;
 using Android.OS;
 using Android.Preferences;
 using Android.Widget;
-using MySLAM.Xamarin.MyHelper;
+using MySLAM.Xamarin.Helpers;
 using System;
 
 namespace MySLAM.Xamarin

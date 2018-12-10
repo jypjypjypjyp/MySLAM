@@ -64,6 +64,11 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\AR\Geometry\RollingSquare.cs" />
+    <Compile Include="Helpers\AR\GLEntity.cs" />
+    <Compile Include="Helpers\AR\MyRenderer.cs" />
+    <Compile Include="Helpers\AR\Shader.cs" />
+    <Compile Include="Helpers\Calibrator\CalibrationResult.cs" />
     <Compile Include="Helpers\Calibrator\CameraCalibrator.cs" />
     <Compile Include="Helpers\Calibrator\FrameRender.cs" />
     <Compile Include="Helpers\Extension.cs" />
@@ -183,6 +188,7 @@
       <Name>OpenCVAndroid</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
     Other similar extension points exist, see Microsoft.Common.targets.
