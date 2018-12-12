@@ -5,9 +5,12 @@ using Android.Support.Design.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using MySLAM.Xamarin.Helpers;
 using MySLAM.Xamarin.Helpers.AR;
 using MySLAM.Xamarin.Helpers.Calibrator;
 using MySLAM.Xamarin.Views;
+using Org.Opencv.Android;
+using Org.Opencv.Core;
 using System.Threading.Tasks;
 
 namespace MySLAM.Xamarin
@@ -23,8 +26,6 @@ namespace MySLAM.Xamarin
         public MyCalibratorHelper CalibratorHelper { get; set; }
 
         private TextView textView;
-
-        private Android.Util.Size frameSize;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -60,6 +61,35 @@ namespace MySLAM.Xamarin
             GLSurfaceView.SetRenderer(renderer);
             GLSurfaceView.RenderMode = Rendermode.Continuously;
             GLSurfaceView.SetZOrderOnTop(true);
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if (!OpenCVLoader.InitDebug())
+            {
+                Log.Debug("OpenCV4Android", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+                OpenCVLoader.InitAsync(OpenCVLoader.OpencvVersion300, Activity, this);
+            }
+            else
+            {
+                Log.Debug("OpenCV4Android", "OpenCV library found inside package. Using it!");
+                OnManagerConnected(LoaderCallbackInterface.Success);
+            }
+        }
+        public override void OnPause()
+        {
+            base.OnPause();
+            if (CameraView != null)
+            {
+                CameraView.DisableView();
+                HelperManager.CameraHelper.CameraLock.Release();
+            }
+        }
+        public override void OnDestroy()
+        {
+            (CalibratorHelper.FrameRender as ARFrameRender)?.Release();
+            base.OnDestroy();
         }
 
         #region OptionMenu
@@ -186,30 +216,6 @@ namespace MySLAM.Xamarin
             }
         }
 
-        public override void OnResume()
-        {
-            base.OnResume();
-            if (!OpenCVLoader.InitDebug())
-            {
-                Log.Debug("OpenCV4Android", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-                OpenCVLoader.InitAsync(OpenCVLoader.OpencvVersion300, Activity, this);
-            }
-            else
-            {
-                Log.Debug("OpenCV4Android", "OpenCV library found inside package. Using it!");
-                OnManagerConnected(LoaderCallbackInterface.Success);
-            }
-        }
-        public override void OnPause()
-        {
-            base.OnPause();
-            if (CameraView != null)
-            {
-                CameraView.DisableView();
-                HelperManager.CameraHelper.CameraLock.Release();
-            }
-        }
-
         #region ICvCameraViewListener2
         public Mat OnCameraFrame(CameraBridgeViewBase.ICvCameraViewFrame p0)
         {
@@ -218,9 +224,8 @@ namespace MySLAM.Xamarin
         }
         public async void OnCameraViewStarted(int width, int height)
         {
-            if (frameSize == null || frameSize.Width != width || frameSize.Height != height)
+            if (CalibratorHelper == null)
             {
-                frameSize = new Android.Util.Size(width, height);
                 //Creating a calibratorHelper may take long time. So I make it async, and add a progress dialog.
                 new MyDialog(DialogType.Progress, Resources.GetString(Resource.String.please_wait))
                 .Show(FragmentManager, "Progress Dialog");
@@ -238,6 +243,7 @@ namespace MySLAM.Xamarin
                     }.Show(FragmentManager, null);
                 }
             }
+
             SetHasOptionsMenu(true);
         }
         public void OnCameraViewStopped()

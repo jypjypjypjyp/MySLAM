@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using MySLAM.Xamarin.Helpers.Calibrator;
 using Org.Opencv.Core;
 using System.IO;
 using System.Threading.Tasks;
@@ -39,7 +40,7 @@ namespace MySLAM.Xamarin.Helpers
             if (FrameRender.GetType() == mode) return;
 
             if (FrameRender is ARFrameRender)
-                ((ARFrameRender)FrameRender).Dispose();
+                ((ARFrameRender)FrameRender).Release();
 
             if (mode == typeof(CalibrationFrameRender))
                 FrameRender = new CalibrationFrameRender(CameraCalibrator);
@@ -48,7 +49,7 @@ namespace MySLAM.Xamarin.Helpers
             else if (mode == typeof(UndistortionFrameRender))
                 FrameRender = new UndistortionFrameRender(CameraCalibrator);
             else if (mode == typeof(ARFrameRender))
-                FrameRender = new ARFrameRender(width, height);
+                FrameRender = new ARFrameRender();
             else FrameRender = new PreviewFrameRender();
         }
 
@@ -75,10 +76,10 @@ namespace MySLAM.Xamarin.Helpers
 
         public bool TryLoad()
         {
-            if (!File.Exists(AppConst.RootPath + "ORBvoc.bin"))
+            if (!File.Exists(AppConst.RootPath + "ORBvoc.txt"))
             {
-                owner.Assets.Open("ORBvoc.bin")
-                    .CopyWholeFile(File.Create(AppConst.RootPath + "ORBvoc.bin"));
+                owner.Assets.Open("ORBvoc.txt")
+                    .CopyWholeFile(File.Create(AppConst.RootPath + "ORBvoc.txt"));
             }
             if (File.Exists(AppConst.RootPath + "orb_slam2.yaml"))
             {

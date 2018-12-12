@@ -68,7 +68,6 @@
     <Compile Include="Helpers\AR\GLEntity.cs" />
     <Compile Include="Helpers\AR\MyRenderer.cs" />
     <Compile Include="Helpers\AR\Shader.cs" />
-    <Compile Include="Helpers\Calibrator\CalibrationResult.cs" />
     <Compile Include="Helpers\Calibrator\CameraCalibrator.cs" />
     <Compile Include="Helpers\Calibrator\FrameRender.cs" />
     <Compile Include="Helpers\Extension.cs" />
@@ -88,7 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\orb_slam2_template.yaml" />
-    <None Include="Assets\ORBvoc.bin" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
@@ -188,7 +186,9 @@
       <Name>OpenCVAndroid</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidAsset Include="Assets\ORBvoc.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
     Other similar extension points exist, see Microsoft.Common.targets.

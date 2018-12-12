@@ -23,34 +23,34 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
         }
     }
 
-    internal class ARFrameRender : FrameRender, IDisposable
+    internal class ARFrameRender : FrameRender
     {
         #region Native
         [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_AR_InitSystem")]
         private static extern void InitSystem();
         [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_AR_GetPose")]
-        private static extern bool GetPose(long mataddress, long timestamp, [In,Out] float[] pose);
+        private static extern bool GetPose(long mataddress, long timestamp, [In, Out] float[] pose);
         [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_AR_ReleaseMap")]
         private static extern void ReleaseMap();
         #endregion
 
         public delegate void CallBack(float[] pose);
         public event CallBack UpdatePose;
-        
-        private readonly int width;
-        private readonly int height;
+
         private readonly DateTime fromSystemInit;
         private readonly float[] pose = new float[4 * 4];
 
-        public ARFrameRender(int width, int height)
+        public ARFrameRender()
         {
             InitSystem();
             fromSystemInit = DateTime.Now;
-            this.width = width;
-            this.height = height;
         }
 
-        public void Dispose()
+        public void Init()
+        {
+            InitSystem();
+        }
+        public void Release()
         {
             ReleaseMap();
         }

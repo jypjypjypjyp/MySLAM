@@ -1,4 +1,7 @@
 ﻿using Android.Util;
+using Org.Opencv.Calib3d;
+using Org.Opencv.Core;
+using Org.Opencv.Imgproc;
 using System;
 using System.Collections.Generic;
 using Size = Org.Opencv.Core.Size;
@@ -154,7 +157,6 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
         private void RenderFrame(Mat rgbaFrame)
         {
             DrawPoints(rgbaFrame);
-
             Imgproc.PutText(rgbaFrame, "Captured: " + cornersBuffer.Count, new Point(rgbaFrame.Cols() / 3 * 2, rgbaFrame.Rows() * 0.1),
                     Core.FontHersheySimplex, 1.0, new Scalar(255, 255, 0));
         }
