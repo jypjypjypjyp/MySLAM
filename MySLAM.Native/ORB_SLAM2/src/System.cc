@@ -33,43 +33,22 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 	:mSensor(sensor), mbReset(false),mbActivateLocalizationMode(false),
 		mbDeactivateLocalizationMode(false)
 {
-	// Output welcome message
-	cout << endl <<
-	"ORB-SLAM2 Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza." << endl <<
-	"This program comes with ABSOLUTELY NO WARRANTY;" << endl  <<
-	"This is free software, and you are welcome to redistribute it" << endl <<
-	"under certain conditions. See LICENSE.txt." << endl << endl;
-
-	cout << "Input sensor was set to: ";
-
-	if(mSensor==MONOCULAR)
-		cout << "Monocular" << endl;
-	else if(mSensor==STEREO)
-		cout << "Stereo" << endl;
-	else if(mSensor==RGBD)
-		cout << "RGB-D" << endl;
-
 	//Check settings file
 	cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
 	if(!fsSettings.isOpened())
 	{
-	   cerr << "Failed to open settings file at: " << strSettingsFile << endl;
 	   exit(-1);
 	}
 
 
 	//Load ORB Vocabulary
-	cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 
 	mpVocabulary = new ORBVocabulary();
 	bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
 	if(!bVocLoad)
 	{
-		cerr << "Wrong path to vocabulary. " << endl;
-		cerr << "Falied to open at: " << strVocFile << endl;
 		exit(-1);
 	}
-	cout << "Vocabulary loaded!" << endl << endl;
 
 	//Create KeyFrame Database
 	mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
@@ -77,12 +56,9 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 	//Create the Map
 	mpMap = new Map();
 
-	//Create Drawers. These are used by the Viewer
-	mpFrameDrawer = new FrameDrawer(mpMap);
-
 	//Initialize the Tracking thread
 	//(it will live in the main thread of execution, the one that called this constructor)
-	mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer,
+	mpTracker = new Tracking(this, mpVocabulary,
 							 mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
 
 	//Initialize the Local Mapping thread and launch
@@ -108,7 +84,6 @@ cv::Mat System::TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const
 {
 	if(mSensor!=STEREO)
 	{
-		cerr << "ERROR: you called TrackStereo but input sensor was not set to STEREO." << endl;
 		exit(-1);
 	}   
 
@@ -159,7 +134,6 @@ cv::Mat System::TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const doub
 {
 	if(mSensor!=RGBD)
 	{
-		cerr << "ERROR: you called TrackRGBD but input sensor was not set to RGBD." << endl;
 		exit(-1);
 	}    
 
@@ -210,7 +184,6 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 {
 	if(mSensor!=MONOCULAR)
 	{
-		cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
 		exit(-1);
 	}
 
@@ -304,10 +277,8 @@ void System::Shutdown()
 
 void System::SaveTrajectoryTUM(const string &filename)
 {
-	cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
 	if(mSensor==MONOCULAR)
 	{
-		cerr << "ERROR: SaveTrajectoryTUM cannot be used for monocular." << endl;
 		return;
 	}
 
@@ -359,13 +330,11 @@ void System::SaveTrajectoryTUM(const string &filename)
 		f << setprecision(6) << *lT << " " <<  setprecision(9) << twc.at<float>(0) << " " << twc.at<float>(1) << " " << twc.at<float>(2) << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
 	}
 	f.close();
-	cout << endl << "trajectory saved!" << endl;
 }
 
 
 void System::SaveKeyFrameTrajectoryTUM(const string &filename)
 {
-	cout << endl << "Saving keyframe trajectory to " << filename << " ..." << endl;
 
 	vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
 	sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
@@ -396,15 +365,12 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
 	}
 
 	f.close();
-	cout << endl << "trajectory saved!" << endl;
 }
 
 void System::SaveTrajectoryKITTI(const string &filename)
 {
-	cout << endl << "Saving camera trajectory to " << filename << " ..." << endl;
 	if(mSensor==MONOCULAR)
 	{
-		cerr << "ERROR: SaveTrajectoryKITTI cannot be used for monocular." << endl;
 		return;
 	}
 
@@ -435,7 +401,6 @@ void System::SaveTrajectoryKITTI(const string &filename)
 
 		while(pKF->isBad())
 		{
-		  //  cout << "bad parent" << endl;
 			Trw = Trw*pKF->mTcp;
 			pKF = pKF->GetParent();
 		}
@@ -451,7 +416,6 @@ void System::SaveTrajectoryKITTI(const string &filename)
 			 Rwc.at<float>(2,0) << " " << Rwc.at<float>(2,1)  << " " << Rwc.at<float>(2,2) << " "  << twc.at<float>(2) << endl;
 	}
 	f.close();
-	cout << endl << "trajectory saved!" << endl;
 }
 
 int System::GetTrackingState()

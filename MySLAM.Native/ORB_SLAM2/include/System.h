@@ -27,7 +27,6 @@
 #include<opencv2/core/core.hpp>
 
 #include "Tracking.h"
-#include "FrameDrawer.h"
 #include "Map.h"
 #include "LocalMapping.h"
 #include "LoopClosing.h"
@@ -37,7 +36,6 @@
 namespace ORB_SLAM2
 {
 
-class FrameDrawer;
 class Map;
 class Tracking;
 class LocalMapping;
@@ -144,8 +142,6 @@ private:
     // Loop Closer. It searches loops with every new keyframe. If there is a loop it performs
     // a pose graph optimization and full bundle adjustment (in a new thread) afterwards.
     LoopClosing* mpLoopCloser;
-
-    FrameDrawer* mpFrameDrawer;
 
     // System threads: Local Mapping, Loop Closing, Viewer.
     // The Tracking thread "lives" in the main execution thread that creates the System object.

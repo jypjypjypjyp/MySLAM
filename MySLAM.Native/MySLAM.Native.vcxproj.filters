@@ -517,7 +517,6 @@
     <ClInclude Include="OpenCV\include\opencv2\videostab.hpp" />
     <ClInclude Include="ORB_SLAM2\include\Converter.h" />
     <ClInclude Include="ORB_SLAM2\include\Frame.h" />
-    <ClInclude Include="ORB_SLAM2\include\FrameDrawer.h" />
     <ClInclude Include="ORB_SLAM2\include\Initializer.h" />
     <ClInclude Include="ORB_SLAM2\include\KeyFrame.h" />
     <ClInclude Include="ORB_SLAM2\include\KeyFrameDatabase.h" />
@@ -657,7 +656,6 @@
     <ClCompile Include="MySLAM_Native.cpp" />
     <ClCompile Include="ORB_SLAM2\src\Converter.cc" />
     <ClCompile Include="ORB_SLAM2\src\Frame.cc" />
-    <ClCompile Include="ORB_SLAM2\src\FrameDrawer.cc" />
     <ClCompile Include="ORB_SLAM2\src\Initializer.cc" />
     <ClCompile Include="ORB_SLAM2\src\KeyFrame.cc" />
     <ClCompile Include="ORB_SLAM2\src\KeyFrameDatabase.cc" />

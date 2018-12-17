@@ -1358,7 +1358,6 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
 
 	if(m_k<0 || m_k>20 || m_L<1 || m_L>10 || n1<0 || n1>5 || n2<0 || n2>3)
 	{
-		std::cerr << "Vocabulary loading failure: This is not a correct text file!" << endl;
 	return false;
 	}
 	

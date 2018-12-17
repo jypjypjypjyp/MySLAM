@@ -109,8 +109,6 @@ namespace g2o {
         
           ~CreatorInformation()
           {
-            std::cout << "Deleting " << (void*) creator << std::endl;
-            
             delete creator;
           }
       };
@@ -133,17 +131,11 @@ namespace g2o {
     public:
       RegisterTypeProxy(const std::string& name) : _name(name)
       {
-#ifdef G2O_DEBUG_FACTORY
-        std::cout << __FUNCTION__ << ": Registering " << _name << " of type " << typeid(T).name() << std::endl;
-#endif
         Factory::instance()->registerType(_name, new HyperGraphElementCreator<T>());
       }
 
       ~RegisterTypeProxy()
       {
-#ifdef G2O_DEBUG_FACTORY
-        std::cout << __FUNCTION__ << ": Unregistering " << _name << " of type " << typeid(T).name() << std::endl;
-#endif
         Factory::instance()->unregisterType(_name);
       }
 

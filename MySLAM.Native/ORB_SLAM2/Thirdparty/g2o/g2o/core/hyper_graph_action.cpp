@@ -209,7 +209,6 @@ namespace g2o {
 
     // Delete any empty action collections
     for (list<HyperGraphElementActionCollection*>::iterator itc = collectionDeleteList.begin(); itc != collectionDeleteList.end(); ++itc) {
-      //cout << "Deleting collection " << (*itc)->name() << endl;
       _actionMap.erase((*itc)->name());
     }
 

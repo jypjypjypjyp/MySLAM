@@ -93,8 +93,6 @@ void BaseBinaryEdge<D, E, VertexXiType, VertexXjType>::constructQuadraticForm()
       Eigen::Vector3d rho;
       this->robustKernel()->robustify(error, rho);
       InformationType weightedOmega = this->robustInformation(rho);
-      //std::cout << PVAR(rho.transpose()) << std::endl;
-      //std::cout << PVAR(weightedOmega) << std::endl;
 
       omega_r *= rho[1];
       if (fromNotFixed) {
