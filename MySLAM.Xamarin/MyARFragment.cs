@@ -68,12 +68,10 @@ namespace MySLAM.Xamarin
             base.OnResume();
             if (!OpenCVLoader.InitDebug())
             {
-                Log.Debug("OpenCV4Android", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
                 OpenCVLoader.InitAsync(OpenCVLoader.OpencvVersion300, Activity, this);
             }
             else
             {
-                Log.Debug("OpenCV4Android", "OpenCV library found inside package. Using it!");
                 OnManagerConnected(LoaderCallbackInterface.Success);
             }
         }

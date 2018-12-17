@@ -39,7 +39,7 @@
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <AndroidSupportedAbis>armeabi-v7a;x86</AndroidSupportedAbis>
+    <AndroidSupportedAbis>arm64-v8a</AndroidSupportedAbis>
     <Debugger>Native</Debugger>
     <EnableProguard>false</EnableProguard>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
