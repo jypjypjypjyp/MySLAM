@@ -10,7 +10,6 @@
 		android:layout_height="match_parent"
 		android:layout_gravity="center"
 		android:id="@+id/ar_view"
-		opencv:show_fps="true"
 		opencv:camera_id="any"/>
     <android.opengl.GLSurfaceView
         android:layout_width="match_parent"

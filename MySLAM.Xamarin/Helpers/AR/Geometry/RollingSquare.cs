@@ -23,13 +23,13 @@ namespace MySLAM.Xamarin.Helpers.AR
 
         private float[] _MMat = new float[16];
         private float[] _MVPMat = new float[16];
-        protected override float[] MVPMat(float[] VPMat)
+        protected override float[] UpdateMVPMat(float[] VPMat)
         {
             if (startTime == default(long))
                 startTime = DateTime.Now.ToFileTimeUtc();
             var dt = DateTime.Now.ToFileTimeUtc() - startTime;
             Matrix.SetIdentityM(_MMat, 0);
-            Matrix.TranslateM(_MMat, 0, x += (x < -x0 || x > x0) ? s *= -1 : s, 0, 0);
+            Matrix.TranslateM(_MMat, 0, x += (x < -x0 || x > x0) ? s *= -1 : s, 0, -5);
             Matrix.RotateM(_MMat, 0, 360 * dt / _T, 0, 1, 0);
             Matrix.MultiplyMM(_MVPMat, 0, VPMat, 0, _MMat, 0);
             return _MVPMat;

@@ -77,11 +77,11 @@ namespace MySLAM.Xamarin.Helpers.AR
         {
             if (vertexHandle == 0)
                 InitHandles();
-            GLES30.GlUniformMatrix4fv(_MVPHandle, 1, false, MVPMat(VPMat), 0);
+            GLES30.GlUniformMatrix4fv(_MVPHandle, 1, false, UpdateMVPMat(VPMat), 0);
             GLES30.GlDrawElements(GLES30.GlTriangles, DrawOrder.Length,
                 GLES30.GlUnsignedShort, drawListBuffer);
         }
 
-        protected virtual float[] MVPMat(float[] VPMat) => VPMat;
+        protected virtual float[] UpdateMVPMat(float[] VPMat) => VPMat;
     }
 }

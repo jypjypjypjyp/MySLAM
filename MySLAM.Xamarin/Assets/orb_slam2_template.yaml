@@ -17,7 +17,7 @@ Camera.p2: 0.000000
 Camera.k3: 0.000000
 
 # Camera frames per second 
-Camera.fps: 10.0
+Camera.fps: 8.0
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -27,13 +27,13 @@ Camera.RGB: 1
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 100
+ORBextractor.nFeatures: 1000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
-ORBextractor.scaleFactor: 1.2
+ORBextractor.scaleFactor: 1.4
 
 # ORB Extractor: Ner r: Ner of levels in the scale pyramid	
-ORBextractor.nLevels: 8
+ORBextractor.nLevels: 4
 
 # ORB Extractor: Fast threshold
 # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.

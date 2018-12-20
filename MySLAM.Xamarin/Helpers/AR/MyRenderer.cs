@@ -7,22 +7,21 @@ using System.Threading.Tasks;
 
 namespace MySLAM.Xamarin.Helpers.AR
 {
-    public abstract class MyRenderer : Java.Lang.Object, GLSurfaceView.IRenderer
+    public class MyRenderer : Java.Lang.Object, GLSurfaceView.IRenderer
     {
         private Semaphore dictLock = new Semaphore(0, 1);
         private Dictionary<string, GLEntity> entityDict = new Dictionary<string, GLEntity>();
 
         private float[] _VPMat = new float[16];
         private float[] _PMat = new float[16];
-        private float[] _VMat = new float[16];
+        public float[] VMat = new float[16];
 
         #region IRenderer
         public void OnDrawFrame(IGL10 gl)
         {
+            if (entityDict.Count == 0) return;
             GLES30.GlClear(GLES30.GlColorBufferBit | GLES30.GlDepthBufferBit);
-            VMat(_VMat);
-            Matrix.MultiplyMM(_VPMat, 0, _PMat, 0, _VMat, 0);
-
+            Matrix.MultiplyMM(_VPMat, 0, _PMat, 0, VMat, 0);
             dictLock.WaitOne();
             foreach (var e in entityDict)
                 e.Value.Draw((float[])_VPMat.Clone());
@@ -53,23 +52,6 @@ namespace MySLAM.Xamarin.Helpers.AR
                 action(entityDict);
                 dictLock.Release();
             });
-        }
-
-        protected virtual void VMat(float[] vMat) { }
-    }
-
-    public sealed class MyARRenderer : MyRenderer
-    {
-        //private long startTime;
-        //private readonly int _Ts = 10;
-
-        protected override void VMat(float[] vMat)
-        {
-            Matrix.SetLookAtM(vMat, 0, 0f, 0f, 5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-            //if (startTime == default(long))
-            //    startTime = DateTime.Now.ToFileTimeUtc();
-            //var dt = DateTime.Now.ToFileTimeUtc() - startTime;
-
         }
     }
 }

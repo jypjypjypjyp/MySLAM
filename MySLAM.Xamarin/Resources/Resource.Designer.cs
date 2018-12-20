@@ -2730,14 +2730,14 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f0800c9
 			public const int mode_calibrate = 2131230921;
 			
-			// aapt resource value: 0x7f0800c7
-			public const int model_ball = 2131230919;
-			
 			// aapt resource value: 0x7f0800c8
-			public const int model_download1 = 2131230920;
+			public const int model_download = 2131230920;
 			
 			// aapt resource value: 0x7f0800c6
 			public const int model_group = 2131230918;
+			
+			// aapt resource value: 0x7f0800c7
+			public const int model_square = 2131230919;
 			
 			// aapt resource value: 0x7f080028
 			public const int multiply = 2131230760;
@@ -3422,11 +3422,11 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f090036
 			public const int action_calibrate = 2131296310;
 			
-			// aapt resource value: 0x7f090047
-			public const int add_corners = 2131296327;
+			// aapt resource value: 0x7f090048
+			public const int add_corners = 2131296328;
 			
-			// aapt resource value: 0x7f090040
-			public const int add_model = 2131296320;
+			// aapt resource value: 0x7f09003f
+			public const int add_model = 2131296319;
 			
 			// aapt resource value: 0x7f090027
 			public const int app_name = 2131296295;
@@ -3467,8 +3467,8 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f090042
 			public const int download = 2131296322;
 			
-			// aapt resource value: 0x7f090041
-			public const int earth = 2131296321;
+			// aapt resource value: 0x7f090040
+			public const int earth = 2131296320;
 			
 			// aapt resource value: 0x7f090034
 			public const int error = 2131296308;
@@ -3485,8 +3485,8 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f09002c
 			public const int frag_settings = 2131296300;
 			
-			// aapt resource value: 0x7f090045
-			public const int loading_voc = 2131296325;
+			// aapt resource value: 0x7f090046
+			public const int loading_voc = 2131296326;
 			
 			// aapt resource value: 0x7f09003c
 			public const int more_samples = 2131296316;
@@ -3497,14 +3497,14 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f090029
 			public const int navigation_drawer_open = 2131296297;
 			
-			// aapt resource value: 0x7f090046
-			public const int not_calibrate = 2131296326;
+			// aapt resource value: 0x7f090047
+			public const int not_calibrate = 2131296327;
 			
 			// aapt resource value: 0x7f090032
 			public const int ok = 2131296306;
 			
-			// aapt resource value: 0x7f09003e
-			public const int original = 2131296318;
+			// aapt resource value: 0x7f09003d
+			public const int original = 2131296317;
 			
 			// aapt resource value: 0x7f090021
 			public const int password_toggle_content_description = 2131296289;
@@ -3524,14 +3524,14 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f090035
 			public const int permission_failed = 2131296309;
 			
-			// aapt resource value: 0x7f09003d
-			public const int please_wait = 2131296317;
+			// aapt resource value: 0x7f090044
+			public const int please_wait = 2131296324;
 			
 			// aapt resource value: 0x7f090039
 			public const int preview_mode = 2131296313;
 			
-			// aapt resource value: 0x7f090044
-			public const int progress = 2131296324;
+			// aapt resource value: 0x7f090045
+			public const int progress = 2131296325;
 			
 			// aapt resource value: 0x7f090028
 			public const int repos_address = 2131296296;
@@ -3539,11 +3539,14 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f090011
 			public const int search_menu_title = 2131296273;
 			
+			// aapt resource value: 0x7f090041
+			public const int square = 2131296321;
+			
 			// aapt resource value: 0x7f090026
 			public const int status_bar_notification_info_overflow = 2131296294;
 			
-			// aapt resource value: 0x7f09003f
-			public const int undistorted = 2131296319;
+			// aapt resource value: 0x7f09003e
+			public const int undistorted = 2131296318;
 			
 			// aapt resource value: 0x7f090037
 			public const int undistortion = 2131296311;

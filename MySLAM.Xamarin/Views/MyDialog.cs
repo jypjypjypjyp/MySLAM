@@ -8,11 +8,12 @@ namespace MySLAM.Xamarin.Views
 
     public enum DialogType
     {
-        Confirmation, Error, Progress
+        Confirmation, Error, Progress, ProgressHorizontal
     }
 
     public class MyDialog : DialogFragment
     {
+        public delegate void ProgressChanged(int progress);
         public EventHandler<DialogClickEventArgs> PositiveHandler { get; set; }
         public EventHandler<DialogClickEventArgs> NegativeHandler { get; set; }
 
@@ -23,34 +24,49 @@ namespace MySLAM.Xamarin.Views
         {
             this.type = type;
             this.message = message;
-            
         }
 
         public override Dialog OnCreateDialog(Bundle savedInstanceState)
         {
+            Dialog dialog = null;
             switch (type)
             {
                 case DialogType.Confirmation:
-                    return new AlertDialog.Builder(Activity)
+                    dialog = new AlertDialog.Builder(Activity)
                             .SetMessage(message)
                             .SetPositiveButton(Resource.String.ok, PositiveHandler)
                             .SetNegativeButton(Resource.String.cancel, NegativeHandler)
                             .Create();
+                    break;
                 case DialogType.Error:
-                    return new AlertDialog.Builder(Activity)
+                    dialog = new AlertDialog.Builder(Activity)
                             .SetMessage(message)
                             .SetPositiveButton(Resource.String.ok, PositiveHandler)
                             .Create();
+                    break;
                 case DialogType.Progress:
-                    var dialog = new ProgressDialog(Activity);
+                    dialog = new ProgressDialog(Activity);
                     dialog.SetTitle(Resource.String.progress);
-                    dialog.SetMessage(message);
-                    dialog.SetCancelable(false);
-                    dialog.Indeterminate = true;
+                    dialog.SetCancelable(true);
+                    dialog.SetCanceledOnTouchOutside(false);
+                    ((ProgressDialog)dialog).SetMessage(message);
                     return dialog;
-                default:
-                    return base.OnCreateDialog(savedInstanceState);
+                case DialogType.ProgressHorizontal:
+                    dialog = new ProgressDialog(Activity);
+                    dialog.SetTitle(Resource.String.progress);
+                    dialog.SetCancelable(true);
+                    dialog.SetCanceledOnTouchOutside(false);
+                    ((ProgressDialog)dialog).SetMessage(message);
+                    ((ProgressDialog)dialog).SetProgressStyle(ProgressDialogStyle.Horizontal);
+                    break;
             }
+            return dialog;
+        }
+
+        public override void OnCancel(IDialogInterface dialog)
+        {
+            NegativeHandler(null, null);
+            base.OnCancel(dialog);
         }
     }
 }

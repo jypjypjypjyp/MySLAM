@@ -21,7 +21,7 @@ namespace MySLAM.Xamarin.Helpers
     public interface IMyCallback
     {
         MyCameraHelper Outer { get; set; }
-        event MyCameraHelper.Callback Callback;
+        MyCameraHelper.Callback Callback { get; set; }
     }
 
     public static class AppSetting
@@ -79,7 +79,7 @@ namespace MySLAM.Xamarin.Helpers
             {
                 Outer = this
             };
-            instance.Callback += callback;
+            instance.Callback = callback;
             return instance;
         }
 
@@ -114,16 +114,16 @@ namespace MySLAM.Xamarin.Helpers
                 CameraLock.Release();
             }
         }
-        
+
         public void TryGetCalibration(string cameraId, out float[] intrinsic, out float[] distortion)
         {
             intrinsic = null; distortion = null;
             if ((int)Build.VERSION.SdkInt >= 23)
             {
                 var characteristics = Manager.GetCameraCharacteristics(cameraId);
-                intrinsic = 
+                intrinsic =
                     (float[])characteristics.Get(CameraCharacteristics.LensIntrinsicCalibration);
-                distortion = 
+                distortion =
                     (float[])characteristics.Get(CameraCharacteristics.LensRadialDistortion);
             }
         }
@@ -131,7 +131,7 @@ namespace MySLAM.Xamarin.Helpers
         public class MyStateCallback : CameraDevice.StateCallback, IMyCallback
         {
             public MyCameraHelper Outer { get; set; }
-            public event Callback Callback;
+            public Callback Callback { get; set; }
 
             public override void OnDisconnected(CameraDevice camera)
             {
@@ -154,7 +154,7 @@ namespace MySLAM.Xamarin.Helpers
         public class MySessionCallback : CameraCaptureSession.StateCallback, IMyCallback
         {
             public MyCameraHelper Outer { get; set; }
-            public event Callback Callback;
+            public Callback Callback { get; set; }
 
             public override void OnConfigureFailed(CameraCaptureSession session)
             {
@@ -179,7 +179,7 @@ namespace MySLAM.Xamarin.Helpers
             private int frames = 0;
             private long lastUpdate = 0;
             public MyCameraHelper Outer { get; set; }
-            public event Callback Callback;
+            public Callback Callback { get; set; }
 
             public override void OnCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result)
             {

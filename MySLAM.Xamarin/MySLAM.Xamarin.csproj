@@ -40,9 +40,10 @@
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidSupportedAbis>arm64-v8a</AndroidSupportedAbis>
-    <Debugger>Native</Debugger>
+    <Debugger>Xamarin</Debugger>
     <EnableProguard>false</EnableProguard>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -65,13 +66,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\AR\Geometry\RollingSquare.cs" />
+    <Compile Include="Helpers\AR\Geometry\StillSquare.cs" />
     <Compile Include="Helpers\AR\GLEntity.cs" />
     <Compile Include="Helpers\AR\MyRenderer.cs" />
     <Compile Include="Helpers\AR\Shader.cs" />
     <Compile Include="Helpers\Calibrator\CameraCalibrator.cs" />
     <Compile Include="Helpers\Calibrator\FrameRender.cs" />
     <Compile Include="Helpers\Extension.cs" />
-    <Compile Include="Helpers\MyCalibratorHelper.cs" />
+    <Compile Include="Helpers\MyARHelper.cs" />
     <Compile Include="Helpers\MyIMUHelper.cs" />
     <Compile Include="MyARFragment.cs" />
     <Compile Include="Helpers\HelperManager.cs" />
@@ -185,9 +187,6 @@
       <Project>{1e6b84b3-34ef-4633-83e0-7bc23132dc51}</Project>
       <Name>OpenCVAndroid</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\ORBvoc.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

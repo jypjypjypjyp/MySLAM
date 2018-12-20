@@ -99,7 +99,8 @@ public:
     cv::Mat UnprojectStereo(const int &i);
 
 public:
-    // Vocabulary used for relocalization.
+	
+	// Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary;
 
     // Feature extractor. The right is used only in the stereo case.

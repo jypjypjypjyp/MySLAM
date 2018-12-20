@@ -32,11 +32,9 @@
 #include"Optimizer.h"
 #include"PnPsolver.h"
 
-#include<iostream>
-
 #include<mutex>
 
-#include <unistd.h>
+#include<unistd.h>
 
 
 using namespace std;

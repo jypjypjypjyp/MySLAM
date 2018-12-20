@@ -1,8 +1,6 @@
-﻿using Android.Util;
-using Org.Opencv.Calib3d;
+﻿using Org.Opencv.Calib3d;
 using Org.Opencv.Core;
 using Org.Opencv.Imgproc;
-using System;
 using System.Collections.Generic;
 using Size = Org.Opencv.Core.Size;
 
@@ -10,8 +8,6 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
 {
     public class CameraCalibrator
     {
-        private const string TAG = "MySLAM::CameraCalibrator";
-        public double AvgReprojectionError { get; private set; }
         public bool IsCalibrated { get; set; }
         public Mat CameraMatrix { get; set; }
         public Mat DistortionCoefficients { get; set; }
@@ -43,7 +39,6 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
             Mat.Eye(3, 3, CvType.Cv64fc1).CopyTo(CameraMatrix);
             CameraMatrix.Put(0, 0, 1.0);
             Mat.Zeros(5, 1, CvType.Cv64fc1).CopyTo(DistortionCoefficients);
-            Log.Info(TAG, "Instantiated new " + GetType().ToString());
             cornersSize = (int)(patternSize.Width * patternSize.Height);
         }
 
@@ -73,11 +68,6 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
 
             IsCalibrated = Core.CheckRange(CameraMatrix)
                     && Core.CheckRange(DistortionCoefficients);
-
-            AvgReprojectionError = ComputeReprojectionErrors(objectPoints, rvecs, tvecs, reprojectionErrors);
-            Log.Info(TAG, string.Format("Average re-projection error: %f", AvgReprojectionError));
-            Log.Info(TAG, "Camera matrix: " + CameraMatrix.Dump());
-            Log.Info(TAG, "Distortion coefficients: " + DistortionCoefficients.Dump());
         }
 
         public void ClearCorners()
@@ -103,34 +93,6 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
             }
             corners.Create(cornersSize, 1, CvType.Cv32fc3);
             corners.Put(0, 0, positions);
-        }
-
-        private double ComputeReprojectionErrors(List<Mat> objectPoints,
-                List<Mat> rvecs, List<Mat> tvecs, Mat perViewErrors)
-        {
-            var cornersProjected = new MatOfPoint2f();
-            double totalError = 0;
-            double error;
-            float[] viewErrors = new float[objectPoints.Count];
-
-            var distortionCoefficients = new MatOfDouble(DistortionCoefficients);
-            int totalPoints = 0;
-            for (int i = 0; i < objectPoints.Count; i++)
-            {
-                var points = new MatOfPoint3f(objectPoints[i]);
-                Calib3d.ProjectPoints(points, rvecs[i], tvecs[i],
-                        CameraMatrix, distortionCoefficients, cornersProjected);
-                error = Core.Norm(cornersBuffer[i], cornersProjected, Core.NormL2);
-
-                int n = objectPoints[i].Rows();
-                viewErrors[i] = (float)Math.Sqrt(error * error / n);
-                totalError += error * error;
-                totalPoints += n;
-            }
-            perViewErrors.Create(objectPoints.Count, 1, CvType.Cv32fc1);
-            perViewErrors.Put(0, 0, viewErrors);
-
-            return Math.Sqrt(totalError / totalPoints);
         }
 
         private void FindPattern(Mat grayFrame)

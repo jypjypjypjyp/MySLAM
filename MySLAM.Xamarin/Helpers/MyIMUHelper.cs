@@ -10,7 +10,7 @@ namespace MySLAM.Xamarin.Helpers
     public class MyIMUHelper : Java.Lang.Object, ISensorEventListener
     {
         public delegate void Callback(string data);
-        public event Callback ProcessSensorData;
+        public Callback ProcessSensorData;
 
         private readonly Activity owner;
 
@@ -37,7 +37,7 @@ namespace MySLAM.Xamarin.Helpers
             sensorManager.RegisterListener(this, gyro, (SensorDelay)AppSetting.IMUFreq, handler);
             if (callback != null)
             {
-                ProcessSensorData += callback;
+                ProcessSensorData = callback;
             }
         }
 

@@ -85,7 +85,7 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     if(mvKeys.empty())
         return;
 
-    UndistortKeyPoints();
+	UndistortKeyPoints();
 
     ComputeStereoMatches();
 
@@ -140,7 +140,7 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     if(mvKeys.empty())
         return;
 
-    UndistortKeyPoints();
+	UndistortKeyPoints();
 
     ComputeStereoFromRGBD(imDepth);
 
@@ -195,7 +195,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     if(mvKeys.empty())
         return;
 
-    UndistortKeyPoints();
+	UndistortKeyPoints();
 
     // Set no stereo information
     mvuRight = vector<float>(N,-1);
