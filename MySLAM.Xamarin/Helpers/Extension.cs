@@ -1,5 +1,7 @@
 ﻿using Android.Graphics;
 using System.IO;
+using System.Linq;
+using Matrix = Android.Opengl.Matrix;
 
 namespace MySLAM.Xamarin.Helpers
 {
@@ -15,6 +17,27 @@ namespace MySLAM.Xamarin.Helpers
         public static string RootPath;
     }
 
+    public static class MatExtension
+    {
+        private static float[] _CV2Gl =
+            {
+                1,0,0,0,
+                0,-1,0,0,
+                0,0,-1,0,
+                0,0,0,1
+            };
+        private static float scale = 1f;
+        public static void ConvertToGL(float[] pose, float[] VMat)
+        {
+            if (pose == null || pose.Length != 16 || VMat == null)
+                return;
+            pose[3] *= scale;
+            pose[7] *= scale;
+            pose[11] *= scale;
+            Matrix.MultiplyMM(VMat, 0, pose, 0, _CV2Gl, 0);
+            Matrix.TransposeM(VMat, 0, (float[])VMat.Clone(), 0);
+        }
+    }
 
     public static class YamlExtension
     {

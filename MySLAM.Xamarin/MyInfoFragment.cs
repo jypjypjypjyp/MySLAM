@@ -14,7 +14,7 @@ namespace MySLAM.Xamarin
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.info_fragment, container, false);
+            return inflater.Inflate(Resource.Layout.info_frag, container, false);
         }
     }
 }

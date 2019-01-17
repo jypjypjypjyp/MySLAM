@@ -12,12 +12,13 @@
 typedef void(*ProgressChangedCallback)(int progress);
 extern ProgressChangedCallback gProgressChangedCallback;
 
-extern "C" JNIEXPORT void JNICALL MySLAM_Native_RegisterProgressChangedCallback(ProgressChangedCallback callback);
-extern "C" JNIEXPORT void JNICALL MySLAM_Native_UnRegisterProgressChangedCallback();
+extern "C" JNIEXPORT void JNICALL RegisterProgressChangedCallback(ProgressChangedCallback callback);
+extern "C" JNIEXPORT void JNICALL UnRegisterProgressChangedCallback();
 
-extern "C" JNIEXPORT void JNICALL MySLAM_Native_InitSystem();
+extern "C" JNIEXPORT void JNICALL InitSystem();
 
-extern "C" JNIEXPORT int JNICALL MySLAM_Native_GetPose(long long mataddress, long long timestamp, float* out);
+extern "C" JNIEXPORT int JNICALL UpdateTracking(long long mataddress, long long timestamp);
+extern "C" JNIEXPORT void JNICALL EstimatePose(float* data, int n, long long timestamp, float* pose);
 
-extern "C" JNIEXPORT void JNICALL MySLAM_Native_ReleaseMap();
+extern "C" JNIEXPORT void JNICALL ReleaseMap();
 

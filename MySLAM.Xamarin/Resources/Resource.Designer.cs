@@ -3156,7 +3156,7 @@ namespace MySLAM.Xamarin
 			public const int app_bar_main = 2130968603;
 			
 			// aapt resource value: 0x7f04001c
-			public const int ar_fragment = 2130968604;
+			public const int ar_frag = 2130968604;
 			
 			// aapt resource value: 0x7f04001d
 			public const int design_bottom_navigation_item = 2130968605;
@@ -3201,7 +3201,7 @@ namespace MySLAM.Xamarin
 			public const int design_text_input_password_icon = 2130968618;
 			
 			// aapt resource value: 0x7f04002b
-			public const int info_fragment = 2130968619;
+			public const int info_frag = 2130968619;
 			
 			// aapt resource value: 0x7f04002c
 			public const int nav_header_main = 2130968620;
@@ -3252,7 +3252,7 @@ namespace MySLAM.Xamarin
 			public const int notification_template_part_time = 2130968635;
 			
 			// aapt resource value: 0x7f04003c
-			public const int recorder_fragment = 2130968636;
+			public const int recorder_frag = 2130968636;
 			
 			// aapt resource value: 0x7f04003d
 			public const int select_dialog_item_material = 2130968637;

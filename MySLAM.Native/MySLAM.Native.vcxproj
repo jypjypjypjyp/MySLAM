@@ -160,7 +160,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)ORB_SLAM2;$(ProjectDir)ORB_SLAM2\include;$(ProjectDir)OpenCV\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)IMU;$(ProjectDir)ORB_SLAM2;$(ProjectDir)ORB_SLAM2\include;$(ProjectDir)OpenCV\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CppLanguageStandard>c++11</CppLanguageStandard>
@@ -505,6 +505,9 @@
     <ClInclude Include="Eigen\src\SVD\SVDBase.h" />
     <ClInclude Include="Eigen\src\SVD\UpperBidiagonalization.h" />
     <ClInclude Include="Eigen\src\UmfPackSupport\UmfPackSupport.h" />
+    <ClInclude Include="IMU\IMUData.h" />
+    <ClInclude Include="IMU\SimpleEstimator.h" />
+    <ClInclude Include="IMU\SimpleIMUFrame.h" />
     <ClInclude Include="MySLAM_Native.h" />
     <ClInclude Include="OpenCV\include\opencv2\calib3d.hpp" />
     <ClInclude Include="OpenCV\include\opencv2\calib3d\calib3d.hpp" />
@@ -836,6 +839,9 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="IMU\IMUData.cpp" />
+    <ClCompile Include="IMU\SimpleEstimator.cpp" />
+    <ClCompile Include="IMU\SimpleIMUFrame.cpp" />
     <ClCompile Include="MySLAM_Native.cpp" />
     <ClCompile Include="ORB_SLAM2\src\Converter.cc" />
     <ClCompile Include="ORB_SLAM2\src\Frame.cc" />

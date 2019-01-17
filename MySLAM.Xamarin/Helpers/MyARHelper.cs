@@ -28,7 +28,7 @@ namespace MySLAM.Xamarin.Helpers
         {
             this.owner = owner;
             CameraCalibrator = new CameraCalibrator(width, height);
-            if (CheckSLAMFile(progressChanged))
+            if (CheckFile(progressChanged))
             {
                 CameraCalibrator.IsCalibrated = true;
                 FrameRender = new PreviewFrameRender();
@@ -36,7 +36,7 @@ namespace MySLAM.Xamarin.Helpers
             else FrameRender = new CalibrationFrameRender(CameraCalibrator);
         }
 
-        private bool CheckSLAMFile(Views.MyDialog.ProgressChanged progressChanged)
+        private bool CheckFile(Views.MyDialog.ProgressChanged progressChanged)
         {
             if (!File.Exists(AppConst.RootPath + "ORBvoc.bin"))
             {
@@ -63,8 +63,7 @@ namespace MySLAM.Xamarin.Helpers
             var mode = typeof(T);
             if (FrameRender.GetType() == mode) return;
 
-            if (FrameRender is ARFrameRender)
-                ((ARFrameRender)FrameRender).Release();
+            (FrameRender as ARFrameRender)?.Dispose();
 
             if (mode == typeof(CalibrationFrameRender))
                 FrameRender = new CalibrationFrameRender(CameraCalibrator);

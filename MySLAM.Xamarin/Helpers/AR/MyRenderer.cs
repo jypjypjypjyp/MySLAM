@@ -14,14 +14,14 @@ namespace MySLAM.Xamarin.Helpers.AR
 
         private float[] _VPMat = new float[16];
         private float[] _PMat = new float[16];
-        public float[] VMat = new float[16];
+        protected volatile float[] _VMat = new float[16];
 
         #region IRenderer
         public void OnDrawFrame(IGL10 gl)
         {
             if (entityDict.Count == 0) return;
             GLES30.GlClear(GLES30.GlColorBufferBit | GLES30.GlDepthBufferBit);
-            Matrix.MultiplyMM(_VPMat, 0, _PMat, 0, VMat, 0);
+            Matrix.MultiplyMM(_VPMat, 0, _PMat, 0, _VMat, 0);
             dictLock.WaitOne();
             foreach (var e in entityDict)
                 e.Value.Draw((float[])_VPMat.Clone());
@@ -53,5 +53,10 @@ namespace MySLAM.Xamarin.Helpers.AR
                 dictLock.Release();
             });
         }
+    }
+
+    public class MyARRenderer : MyRenderer
+    {
+        public float[] VMat { get => _VMat; }
     }
 }

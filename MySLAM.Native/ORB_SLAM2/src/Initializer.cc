@@ -39,6 +39,9 @@ Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iteration
 	mSigma = sigma;
 	mSigma2 = sigma*sigma;
 	mMaxIterations = iterations;
+
+	// Todo: notify App to refresh IMU data
+
 }
 
 bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,

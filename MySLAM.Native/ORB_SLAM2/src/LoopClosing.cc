@@ -404,7 +404,8 @@ void LoopClosing::CorrectLoop()
 {
     // Send a stop signal to Local Mapping
     // Avoid new keyframes are inserted while correcting the loop
-    mpLocalMapper->RequestStop();
+	if(!mpLocalMapper->isStopped())
+		mpLocalMapper->RequestStop();
 
     // If a Global Bundle Adjustment is running, abort it
     if(isRunningGBA())
@@ -657,7 +658,8 @@ void LoopClosing::RunGlobalBundleAdjustment(unsigned long nLoopKF)
 
         if(!mbStopGBA)
         {
-            mpLocalMapper->RequestStop();
+			if (!mpLocalMapper->isStopped())
+				mpLocalMapper->RequestStop();
             // Wait until Local Mapping has effectively stopped
 
             while(!mpLocalMapper->isStopped() && !mpLocalMapper->isFinished())

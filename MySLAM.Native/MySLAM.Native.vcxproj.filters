@@ -651,6 +651,9 @@
     <ClInclude Include="Eigen\src\QR\ColPivHouseholderQR_MKL.h" />
     <ClInclude Include="Eigen\src\QR\HouseholderQR_MKL.h" />
     <ClInclude Include="Eigen\src\SVD\JacobiSVD_MKL.h" />
+    <ClInclude Include="IMU\SimpleIMUFrame.h" />
+    <ClInclude Include="IMU\SimpleEstimator.h" />
+    <ClInclude Include="IMU\IMUData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MySLAM_Native.cpp" />
@@ -708,6 +711,9 @@
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_sba.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.cpp" />
+    <ClCompile Include="IMU\SimpleEstimator.cpp" />
+    <ClCompile Include="IMU\IMUData.cpp" />
+    <ClCompile Include="IMU\SimpleIMUFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Eigen\Cholesky" />

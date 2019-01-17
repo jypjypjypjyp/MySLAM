@@ -5,6 +5,7 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using MySLAM.Xamarin.Helpers;
+using MySLAM.Xamarin.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,8 +17,8 @@ namespace MySLAM.Xamarin
 
     public class MyRecorderFragment : Fragment
     {
-        public FrameLayout PreviewLayout { get; set; }
-        public TextureView PreviewView { get; set; }
+        private FrameLayout PreviewLayout;
+        private TextureView PreviewView;
         private Button markButton;
         private Button recordButton;
         private TextView fpsTextView;
@@ -39,7 +40,7 @@ namespace MySLAM.Xamarin
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.recorder_fragment, container, false);
+            return inflater.Inflate(Resource.Layout.recorder_frag, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
@@ -146,36 +147,29 @@ namespace MySLAM.Xamarin
                 imageSize = sizeCollection.Aggregate(
                     (a1, a2) => a1.Area() < a2.Area() ? a1 : a2);
             }
-            // Update View
+
             if (PreviewView != null)
             {
                 PreviewLayout.RemoveView(PreviewView);
             }
-
             PreviewView = new TextureView(Activity);
-            //Rotate the view
-            //var matrix = new Matrix();
-            //var viewRect = new RectF(0, 0, viewWidth, viewHeight);
-            //var bufferRect = new RectF(0, 0, mPreviewSize.Height, mPreviewSize.Width);
-            //float centerX = viewRect.CenterX();
-            //float centerY = viewRect.CenterY();
-            //if ((int)SurfaceOrientation.Rotation90 == rotation || (int)SurfaceOrientation.Rotation270 == rotation)
-            //{
-            //    bufferRect.Offset(centerX - bufferRect.CenterX(), centerY - bufferRect.CenterY());
-            //    matrix.SetRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.Fill);
-            //    float scale = Math.Max((float)viewHeight / mPreviewSize.Height, (float)viewWidth / mPreviewSize.Width);
-            //    matrix.PostScale(scale, scale, centerX, centerY);
-            //    matrix.PostRotate(90 * (rotation - 2), centerX, centerY);
-            //}
-            //PreviewView.
             PreviewLayout.AddView(PreviewView,
                 new FrameLayout.LayoutParams(imageSize.Width, imageSize.Height, GravityFlags.Center));
-
             PreviewView.SurfaceTextureAvailable +=
                 (object sender, TextureView.SurfaceTextureAvailableEventArgs e) =>
                 {
                     CreateSession();
                 };
+            // Set PreviewView Transform
+            var matrix = new Matrix();
+            var viewRect = new RectF(0, 0, imageSize.Width, imageSize.Height); // TextureView size
+            var bufferRect = new RectF(0, 0, imageSize.Height, imageSize.Width); // Camera output size
+            float centerX = viewRect.CenterX();
+            float centerY = viewRect.CenterY();
+            bufferRect.Offset(centerX - bufferRect.CenterX(), centerY - bufferRect.CenterY());
+            matrix.SetRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.Fill);
+            matrix.PostRotate(270, centerX, centerY);
+            PreviewView.SetTransform(matrix);
         }
 
         public void CreateSession()
@@ -254,7 +248,7 @@ namespace MySLAM.Xamarin
                 }
             }, (timestamp, PreviewView.Bitmap));
         }
-        
+
         public void ProcessIMUData(string data)
         {
             imuDataString += data + "\n";

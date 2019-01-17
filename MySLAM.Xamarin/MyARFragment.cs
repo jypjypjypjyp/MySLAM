@@ -26,7 +26,7 @@ namespace MySLAM.Xamarin
 
         public MyARHelper ARHelper { get; set; }
 
-        private MyRenderer renderer;
+        private MyARRenderer renderer;
         private TextView textView;
 
         public override void OnCreate(Bundle savedInstanceState)
@@ -35,7 +35,7 @@ namespace MySLAM.Xamarin
         }
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.ar_fragment, container, false);
+            return inflater.Inflate(Resource.Layout.ar_frag, container, false);
         }
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
@@ -55,7 +55,7 @@ namespace MySLAM.Xamarin
             GLSurfaceView.SetEGLContextClientVersion(3);
             GLSurfaceView.SetEGLConfigChooser(8, 8, 8, 8, 16, 0); //Set Transparent
             GLSurfaceView.Holder.SetFormat(Android.Graphics.Format.Translucent);
-            renderer = new MyRenderer();
+            renderer = new MyARRenderer();
             GLSurfaceView.SetRenderer(renderer);
             GLSurfaceView.RenderMode = Rendermode.Continuously;
             GLSurfaceView.SetZOrderOnTop(true);
@@ -84,7 +84,7 @@ namespace MySLAM.Xamarin
         }
         public override void OnDestroy()
         {
-            (ARHelper?.FrameRender as ARFrameRender)?.Release();
+            (ARHelper?.FrameRender as ARFrameRender)?.Dispose();
             base.OnDestroy();
         }
 
@@ -145,12 +145,32 @@ namespace MySLAM.Xamarin
                 a =>
             Activity.RunOnUiThread(
                 () => ((ProgressDialog)dialogFragment.Dialog).Progress = a));
-            await Task.Run(() => ARHelper.ChangeRenderMode<ARFrameRender>());
-            ((ARFrameRender)ARHelper.FrameRender).UpdatePose = UpdatePose;
-            UnRegisterProgressChangedCallback();
+            await Task.Run(() =>
+            {
+                ARHelper.ChangeRenderMode<ARFrameRender>();
+                ((ARFrameRender)ARHelper.FrameRender).Perpare(renderer.VMat);
+                //NeedToRemove: temp code
+                ARFrameRender.Update += Update;
+                UnRegisterProgressChangedCallback();
+            });
             dialogFragment.Dismiss();
-            //Pass VMat ref of GLES's renderer to ARFrameRender
-            ((ARFrameRender)ARHelper.FrameRender).Pose = renderer.VMat;
+        }
+
+        //NeedToRemove: temp code
+        private void Update(float[] fs)
+        {
+            string s = "";
+            int i = 0;
+            foreach(var f in fs)
+            {
+                s += f.ToString("F")+" ";
+                i++;
+                if (i % 4 == 0) s += "\n";
+            }
+            Activity.RunOnUiThread(() =>
+            {
+                textView.Text = s;
+            });
         }
 
         private void Calibrate()
@@ -287,9 +307,9 @@ namespace MySLAM.Xamarin
         #endregion
 
         #region Native
-        [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_RegisterProgressChangedCallback")]
+        [DllImport("MySLAM_Native", EntryPoint = "RegisterProgressChangedCallback")]
         private static extern void RegisterProgressChangedCallback(MyDialog.ProgressChanged callback);
-        [DllImport("MySLAM_Native", EntryPoint = "MySLAM_Native_UnRegisterProgressChangedCallback")]
+        [DllImport("MySLAM_Native", EntryPoint = "UnRegisterProgressChangedCallback")]
         private static extern void UnRegisterProgressChangedCallback();
         #endregion
     }
