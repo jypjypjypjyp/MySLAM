@@ -47,7 +47,7 @@ namespace MySLAM.Xamarin.Helpers
                         {
                             progressChanged((int)e.BytesReceived * 100 / TOTAL_VOC_SIZE);
                         };
-                webClient.DownloadFileTaskAsync(new Uri("http://139.199.37.234:2018/ORBvoc.bin"), "/storage/emulated/0/MySLAM/ORBvoc.bin")
+                webClient.DownloadFileTaskAsync(new Uri("https://raw.githubusercontent.com/jypjypjypjyp/MySLAM/master/Data/ORBvoc.bin"), "/storage/emulated/0/MySLAM/ORBvoc.bin")
                     .Wait();
             }
             if (File.Exists(AppConst.RootPath + "orb_slam2.yaml"))
@@ -94,6 +94,7 @@ namespace MySLAM.Xamarin.Helpers
 
         public static void RemoveCache()
         {
+            //TODO: Get Path by Environment
             File.Delete("/storage/emulated/0/MySLAM/ORBvoc.bin");
         }
     }
