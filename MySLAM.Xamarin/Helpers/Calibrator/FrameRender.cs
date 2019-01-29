@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Threading;
 
 namespace MySLAM.Xamarin.Helpers.Calibrator
 {
@@ -28,7 +27,7 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
     public class ARFrameRender : FrameRender, IDisposable
     {
         public delegate void Callback(float[] a);
-        public static event Callback Update = delegate{};
+        public static event Callback Update = delegate { };
 
         public enum TrackingState
         {
@@ -94,8 +93,7 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
             var rgbMat = inputFrame.Rgba();
             // Uniform timestamp by IMU
             long timestamp = HelperManager.IMUHelper.Timestamp;
-            if (timestamp == default(long))
-                goto Finish;
+            if (timestamp == 0) goto Finish;
             // State Machine Control
             switch (State)
             {
@@ -116,6 +114,18 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
                 case TrackingState.Running:
                     goto Estimate;
             }
+        Estimate:
+            float[] data;
+            int n;
+            lock (_IMUData)
+            {
+                if ((n = _IMUData.Count) > 1) goto Finish;
+                data = _IMUData.Aggregate((cat, next) => cat.Concat(next).ToArray());
+                _IMUData.Clear();
+            }
+            EstimatePose(data, n, timestamp, pose);
+            Update(pose);
+            goto Finish;
         ORB_SLAM2:
             long matAddr = rgbMat.NativeObjAddr;
             Task.Run(
@@ -124,17 +134,7 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
                     State = UpdateTracking(matAddr, timestamp);
                 });
             State = TrackingState.Running;
-        Estimate:
-            float[] data;
-            int n;
-            lock (_IMUData)
-            {
-                data = _IMUData.Aggregate((cat, next) => cat.Concat(next).ToArray());
-                n = _IMUData.Count;
-                _IMUData.Clear();
-            }
-            EstimatePose(data, n, timestamp , pose);
-            Update(pose);
+            goto Estimate;
         Finish:
             MatExtension.ConvertToGL(pose, _VMat);
             return rgbMat;

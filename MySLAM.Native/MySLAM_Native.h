@@ -8,6 +8,7 @@
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "MySLAM_Native", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "MySLAM_Native", __VA_ARGS__))
+#define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, "MySLAM_Native", __VA_ARGS__))
 
 typedef void(*ProgressChangedCallback)(int progress);
 extern ProgressChangedCallback gProgressChangedCallback;

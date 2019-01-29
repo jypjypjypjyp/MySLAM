@@ -24,13 +24,13 @@ IMUData* IMUData::Decode(float * raw)
 
 	cv::Vec3f acc;
 	acc[0] = raw[3];
-	acc[0] = raw[7];
-	acc[0] = raw[11];
+	acc[1] = raw[7];
+	acc[2] = raw[11];
 
 	long long timestamp;
-	long long r1 = *(reinterpret_cast<int*>(raw+12));
+	long long r1 = *(reinterpret_cast<unsigned int*>(raw+12));
 	long long r2 = *(reinterpret_cast<int*>(raw+13));
-	timestamp = (r1 << 32) + r2;
+	timestamp = (r2 << 32) + r1;
 
 	return new IMUData(R,timestamp,acc);
 }

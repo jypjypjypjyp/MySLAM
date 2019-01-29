@@ -1,9 +1,13 @@
 #include "SimpleEstimator.h"
 #include <algorithm>
 
+//NeedToBeRemoved
+#include <sstream>
+
+
 namespace IMU
 {
-SimpleEstimator::SimpleEstimator(ORB_SLAM2::System *system)
+SimpleEstimator::SimpleEstimator(ORB_SLAM2::System* system)
 	:mSystemPtr(system),
 	mTrackState(NotReady),
 	mTrackPose(cv::Mat::zeros(4, 4, CV_32F)),
@@ -27,7 +31,7 @@ SimpleEstimator::~SimpleEstimator()
 	}
 }
 
-void SimpleEstimator::TrackMonocular(cv::Mat & im, long long timestamp)
+void SimpleEstimator::TrackMonocular(cv::Mat& im, long long timestamp)
 {
 	// Save pervious state
 	long long pervT = mTrackT;
@@ -36,22 +40,44 @@ void SimpleEstimator::TrackMonocular(cv::Mat & im, long long timestamp)
 	// Track
 	auto tempMat = mSystemPtr->TrackMonocular(im, static_cast<double>(timestamp));
 	{
+		//Log
+		LOGE("Finish TrackMonocular");
 		unique_lock<mutex> lock(sTrackMutex);
 		mTrackPose = tempMat;
 		mTrackState = static_cast<eTrackingState>(mSystemPtr->GetTrackingState());
-		mTrackT = timestamp;
 		if (mTrackState == On)
 		{
+			mTrackT = timestamp;
 			if ((prevState == On || prevState == Steady))
 				mTrackState = Steady;
 			if (prevState == NotInitialized)
 			{
-				SimpleIMUFrame temp(pervT);
-				auto prevF = std::lower_bound(std::begin(mIMUFrameV), std::end(mIMUFrameV), &temp, SimpleIMUFrame::Compare);
-				(*prevF)->mR.copyTo(mTranformR(cv::Rect(0, 0, 3, 3)));
+				auto initF = FindFrame(mTrackT);
+				(*initF)->mR.copyTo(mTranformR(cv::Rect(0, 0, 3, 3)));
+				//Log : mTranformR
+				stringstream ss;
+				string s;
+				ss << mTranformR;
+				ss >> s;
+				ss.flush();
+				LOGE(s.c_str());
 			}
 			mTrackPose = mTranformR * mTrackPose;
+			//Log : mTrackPose
+			std::stringstream ss;
+			string s;
+			ss << mTrackPose;
+			ss >> s;
+			ss.flush();
+			LOGE(s.c_str());
 		}
+		// Log : Track state
+		std::stringstream ss;
+		string s;
+		ss << "Track state : " << mTrackState;
+		ss >> s;
+		ss.flush();
+		LOGE(s.c_str());
 		// Update Δx1, Δx2, Δt1, Δt2
 		if (mTrackState == Steady)
 		{
@@ -89,12 +115,12 @@ void SimpleEstimator::ComputeScaleAndV(long long timestamp)
 		cFrame = mIMUFrameV[i];
 		if (cFrame->mTimestamp > t2)
 		{
-			d2 += cFrame->mDisplacement + dv * (float)(cFrame->mTimestamp - prevT);
+			d2 += cFrame->mDisplacement + dv * (float)(cFrame->mTimestamp - prevT) * 1e-9;
 			dv += cFrame->mDVelocity;
 		}
 		else if (cFrame->mTimestamp > t1)
 		{
-			d1 += cFrame->mDisplacement + dv * (float)(cFrame->mTimestamp - prevT);
+			d1 += cFrame->mDisplacement + dv * (float)(cFrame->mTimestamp - prevT) * 1e-9;
 			dv += cFrame->mDVelocity;
 		}
 		else
@@ -108,10 +134,26 @@ void SimpleEstimator::ComputeScaleAndV(long long timestamp)
 	mScale = (-dt2 * d1[0] + dt1 * d2[0]) / (-dt2 * dx1[0] + dt1 * dx2[0]);
 	cv::Vec3f v0 = (mScale * dx1 - d1) / (float)dt1;
 	mEstimatedV0 = v0 + dv;
+	// Log : mScale
+	stringstream ss;
+	string s;
+	ss << "mScale : " << mScale << "\n";
+	ss << "v0 : " << v0 << "\n";
+	ss << "mEstimatedV0 : " << mEstimatedV0 << "\n";
+	ss >> s;
+	ss.flush();
+	LOGE(s.c_str());
+}
+
+std::vector<SimpleIMUFrame*>::iterator SimpleEstimator::FindFrame(long long timestamp)
+{
+	SimpleIMUFrame temp(timestamp);
+	return std::lower_bound(std::begin(mIMUFrameV), std::end(mIMUFrameV), &temp, SimpleIMUFrame::Compare);
 }
 
 cv::Mat SimpleEstimator::Estimate(long long timestamp)
 {
+	// Make Sure mIMUDataQ.size() greater than 1
 	// Integrate
 	cv::Vec3f dv;
 	long long curTimestamp = mIMUDataQ.front()->mTimestamp;
@@ -120,10 +162,12 @@ cv::Mat SimpleEstimator::Estimate(long long timestamp)
 	cv::Vec3f displacement;
 	delete mIMUDataQ.front();
 	mIMUDataQ.pop();
-	while ((nextTimestamp = mIMUDataQ.front()->mTimestamp) <= timestamp)
+	double dt;
+	while ((nextTimestamp = mIMUDataQ.front()->mTimestamp) < timestamp)
 	{
-		dv += (curAcc + mIMUDataQ.front()->mAcceleration) / 2;
-		displacement += dv * (int)(nextTimestamp - curTimestamp);
+		dt = (int)(nextTimestamp - curTimestamp) * 1e-9;
+		dv += ((curAcc + mIMUDataQ.front()->mAcceleration) / 2) * dt;
+		displacement += dv * dt;
 		curAcc = mIMUDataQ.front()->mAcceleration;
 		curTimestamp = nextTimestamp;
 		delete mIMUDataQ.front();
@@ -132,23 +176,18 @@ cv::Mat SimpleEstimator::Estimate(long long timestamp)
 	{
 		std::unique_lock<mutex> lock(sTrackMutex);
 		mIMUFrameV.push_back(new SimpleIMUFrame(mIMUDataQ.front()->mR, timestamp, displacement, dv));
-		if (mTrackT == 0)
-		{
-			return cv::Mat();
-		}
-		else
+		if (mTrackState > NotInitialized)
 		{
 			cv::Mat estimatedPose = cv::Mat::eye(4, 4, CV_32F);
 			mIMUDataQ.back()->mR.copyTo(estimatedPose(cv::Rect(0, 0, 3, 3)));
 			// Estimate
 			cv::Vec3f velocity = mEstimatedV0;
 			cv::Vec3f position(mTrackPose(cv::Rect(3, 0, 1, 3)));
-			SimpleIMUFrame temp(mTrackT);
-			auto iter = std::lower_bound(std::begin(mIMUFrameV), std::end(mIMUFrameV), &temp, SimpleIMUFrame::Compare);
+			auto iter = FindFrame(mTrackT);
 			long long pervT = mTrackT;
 			while (++iter != mIMUFrameV.end())
 			{
-				position += velocity * (float)((*iter)->mTimestamp - pervT) + (*iter)->mDisplacement;
+				position += velocity * (((*iter)->mTimestamp - pervT) * 1e-9) + (*iter)->mDisplacement;
 				velocity += (*iter)->mDVelocity;
 				pervT = (*iter)->mTimestamp;
 			}
@@ -156,6 +195,10 @@ cv::Mat SimpleEstimator::Estimate(long long timestamp)
 			position *= mScale;
 			cv::Mat(position).copyTo(estimatedPose(cv::Rect(3, 0, 1, 3)));
 			return estimatedPose;
+		}
+		else
+		{
+			return cv::Mat();
 		}
 	}
 }

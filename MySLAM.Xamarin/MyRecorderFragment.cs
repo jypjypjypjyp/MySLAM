@@ -5,7 +5,6 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using MySLAM.Xamarin.Helpers;
-using MySLAM.Xamarin.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;

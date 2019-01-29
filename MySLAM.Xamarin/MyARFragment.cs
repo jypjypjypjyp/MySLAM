@@ -149,14 +149,14 @@ namespace MySLAM.Xamarin
             {
                 ARHelper.ChangeRenderMode<ARFrameRender>();
                 ((ARFrameRender)ARHelper.FrameRender).Perpare(renderer.VMat);
-                //NeedToRemove: temp code
+                //NeedToBeRemoved: temp code
                 ARFrameRender.Update += Update;
                 UnRegisterProgressChangedCallback();
             });
             dialogFragment.Dismiss();
         }
 
-        //NeedToRemove: temp code
+        //NeedToBeRemoved: temp code
         private void Update(float[] fs)
         {
             string s = "";

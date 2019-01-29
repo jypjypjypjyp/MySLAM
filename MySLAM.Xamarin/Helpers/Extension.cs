@@ -1,6 +1,5 @@
 ﻿using Android.Graphics;
 using System.IO;
-using System.Linq;
 using Matrix = Android.Opengl.Matrix;
 
 namespace MySLAM.Xamarin.Helpers

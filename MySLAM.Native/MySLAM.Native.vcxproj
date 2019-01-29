@@ -54,6 +54,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <AndroidAPILevel>android-21</AndroidAPILevel>
+    <UseOfStl>gnustl_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -145,7 +146,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)ORB_SLAM2;$(ProjectDir)ORB_SLAM2\include;$(ProjectDir)OpenCV\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)IMU;$(ProjectDir)ORB_SLAM2;$(ProjectDir)ORB_SLAM2\include;$(ProjectDir)OpenCV\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CppLanguageStandard>c++11</CppLanguageStandard>

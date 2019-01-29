@@ -34,6 +34,7 @@ public:
 	float mScale;
 private:
 	void ComputeScaleAndV(long long timestamp);
+	std::vector<SimpleIMUFrame*>::iterator FindFrame(long long timestamp);
 private:
 	ORB_SLAM2::System *mSystemPtr;
 	cv::Mat mTrackPose;

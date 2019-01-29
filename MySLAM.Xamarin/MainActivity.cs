@@ -42,6 +42,7 @@ namespace MySLAM.Xamarin
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
+            
             var toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
 

@@ -4,10 +4,9 @@
 #include "IMUData.h"
 
 //Gobal Varible
-ORB_SLAM2::System *gSystem;
-IMU::SimpleEstimator *gIMUEstimator;
+ORB_SLAM2::System* gSystem;
+IMU::SimpleEstimator* gIMUEstimator;
 ProgressChangedCallback gProgressChangedCallback = nullptr;
-float gScale;
 
 void RegisterProgressChangedCallback(ProgressChangedCallback callback)
 {
@@ -38,7 +37,7 @@ void InitSystem()
 int UpdateTracking(long long mataddress, long long timestamp)
 {
 	if (gSystem == nullptr) return false;
-	cv::Mat *imgMat = (cv::Mat*)mataddress;
+	cv::Mat * imgMat = (cv::Mat*)mataddress;
 	// Track Monocular
 	gIMUEstimator->TrackMonocular(*imgMat, timestamp);
 	return gIMUEstimator->mTrackState;
@@ -47,12 +46,17 @@ int UpdateTracking(long long mataddress, long long timestamp)
 void EstimatePose(float* data, int n, long long timestamp, float* pose)
 {
 	// Input imu data.
-	float temp[16];
 	for (int i = 0; i < n; i++)
 	{
-		std::copy(data + i * 16, data + (i + 1) * 16, temp);
-		gIMUEstimator->mIMUDataQ.push(IMU::IMUData::Decode(temp));
+		gIMUEstimator->mIMUDataQ.push(IMU::IMUData::Decode(data + i * 16));
 	}
+	//Log : input data amount
+	stringstream ss;
+	string s;
+	ss << "gIMUEstimator->mIMUDataQ's size : " << gIMUEstimator->mIMUDataQ.size();
+	ss >> s;
+	ss.flush();
+	LOGE(s.c_str());
 	cv::Mat poseMat = gIMUEstimator->Estimate(timestamp);
 	if (poseMat.rows == 4 && poseMat.cols == 4)
 	{
@@ -66,9 +70,11 @@ void ReleaseMap()
 	{
 		gSystem->Shutdown();
 		delete gSystem;
+		gSystem = nullptr;
 	}
 	if (gIMUEstimator != nullptr)
 	{
 		delete gIMUEstimator;
+		gIMUEstimator = nullptr;
 	}
 }
