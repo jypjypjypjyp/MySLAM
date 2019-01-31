@@ -50,13 +50,6 @@ void EstimatePose(float* data, int n, long long timestamp, float* pose)
 	{
 		gIMUEstimator->mIMUDataQ.push(IMU::IMUData::Decode(data + i * 16));
 	}
-	//Log : input data amount
-	stringstream ss;
-	string s;
-	ss << "gIMUEstimator->mIMUDataQ's size : " << gIMUEstimator->mIMUDataQ.size();
-	ss >> s;
-	ss.flush();
-	LOGE(s.c_str());
 	cv::Mat poseMat = gIMUEstimator->Estimate(timestamp);
 	if (poseMat.rows == 4 && poseMat.cols == 4)
 	{

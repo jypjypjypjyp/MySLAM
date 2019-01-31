@@ -119,7 +119,7 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
             int n;
             lock (_IMUData)
             {
-                if ((n = _IMUData.Count) > 1) goto Finish;
+                if ((n = _IMUData.Count) <= 1) goto Finish;
                 data = _IMUData.Aggregate((cat, next) => cat.Concat(next).ToArray());
                 _IMUData.Clear();
             }
