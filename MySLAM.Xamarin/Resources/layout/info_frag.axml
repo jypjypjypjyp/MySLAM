@@ -9,7 +9,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="210dp"/>
 	<TextView
-		android:text="1.00000"
+		android:text="0.001"
 		android:textSize="30dp"
 		android:gravity="center_horizontal"
 		android:layout_width="match_parent"

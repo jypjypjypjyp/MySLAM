@@ -1,5 +1,6 @@
 ﻿using Android.Graphics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Matrix = Android.Opengl.Matrix;
 
 namespace MySLAM.Xamarin.Helpers
@@ -65,7 +66,12 @@ namespace MySLAM.Xamarin.Helpers
             return false;
         }
 
+        public static bool WriteIMUSettings(string file, Org.Opencv.Core.Mat covar, Org.Opencv.Core.Mat mean)
+        {
+            return _WriteIMUSettings(file, covar.NativeObjAddr, mean.NativeObjAddr);
+        }
         public static string Edit(this string s, string key, string value)
+
         {
             int index;
             if ((index = s.IndexOf(key)) != -1)
@@ -78,6 +84,11 @@ namespace MySLAM.Xamarin.Helpers
             else
                 return null;
         }
+
+        #region Native
+        [DllImport("MySLAM_Native", EntryPoint = "WriteIMUSettings")]
+        private static extern bool _WriteIMUSettings(string file, long mataddress1, long mataddress2);
+        #endregion
     }
 
     public static class BitmapExtension

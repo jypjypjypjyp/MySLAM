@@ -1,6 +1,6 @@
 ﻿using Android.Opengl;
 
-namespace MySLAM.Xamarin.Helpers.AR
+namespace MySLAM.Xamarin.Helpers.OpenGL
 {
     public class Shader
     {

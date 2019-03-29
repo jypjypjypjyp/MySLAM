@@ -437,4 +437,9 @@ vector<cv::KeyPoint> System::GetTrackedKeyPointsUn()
 	return mTrackedKeyPointsUn;
 }
 
+Tracking* System::GetTraker()
+{
+	return mpTracker;
+}
+
 } //namespace ORB_SLAM

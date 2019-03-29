@@ -18,12 +18,13 @@ enum eTrackingState
 	NotInitialized = 1,
 	On = 2,
 	Steady = 4,
+	OK = 5,
 	Lost = 3
 };
 class SimpleEstimator
 {
 public:
-	SimpleEstimator(ORB_SLAM2::System *system);
+	SimpleEstimator(ORB_SLAM2::System* system, const std::string& strSettingsFile);
 	~SimpleEstimator();
 	cv::Mat Estimate(long long timestamp);
 	void TrackMonocular(cv::Mat& im, long long timestamp);
@@ -31,19 +32,23 @@ public:
 	eTrackingState mTrackState;
 	std::vector<SimpleIMUFrame*> mIMUFrameV;
 	std::queue<IMUData*> mIMUDataQ;
-	float mScale;
 private:
-	void ComputeScaleAndV(long long timestamp);
+	void TryUpdateParams(long long timestamp);
+	void UpdateEstimateV0(long long start, long long end);
 	std::vector<SimpleIMUFrame*>::iterator FindFrame(long long timestamp);
 private:
-	ORB_SLAM2::System *mSystemPtr;
+	ORB_SLAM2::System* mSystemPtr;
+	cv::Mat mIMUCovar;
+	cv::Vec3f mIMUMean;
+	cv::Mat X, K, P;
 	cv::Mat mTrackPose;
+	float mScale;
 	cv::Vec3f mEstimatedV0;
 	long long mTrackT;
 	cv::Vec3f dx1, dx2;
-	long long dt1, dt2;
+	long long dts1, dts2;
 	cv::Mat mTranformR;
-	std::mutex sTrackMutex;
+	std::mutex mTrackMutex;
 };
 }
 

@@ -1,7 +1,7 @@
 ﻿using Android.Opengl;
 using System;
 
-namespace MySLAM.Xamarin.Helpers.AR
+namespace MySLAM.Xamarin.Helpers.OpenGL
 {
     public class RollingSquare : GLSimpleEntity
     {

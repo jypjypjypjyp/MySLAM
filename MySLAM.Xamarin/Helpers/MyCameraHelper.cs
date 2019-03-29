@@ -50,7 +50,7 @@ namespace MySLAM.Xamarin.Helpers
     {
         public delegate void Callback(int i = 0);
 
-        public Semaphore CameraLock = new Semaphore(1, 1);
+        public SemaphoreSlim CameraLock = new SemaphoreSlim(1);
         public CameraState State { get; set; }
         public CameraManager Manager { get; set; }
         public CameraDevice CameraDevice { get; set; }
@@ -93,7 +93,7 @@ namespace MySLAM.Xamarin.Helpers
                 {
                     return;
                 }
-                CameraLock.WaitOne();
+                CameraLock.WaitAsync();
                 HelperManager.CameraHelper.State = CameraState.Ready;
                 HelperManager.CameraHelper.Manager.OpenCamera(
                     cameraId,

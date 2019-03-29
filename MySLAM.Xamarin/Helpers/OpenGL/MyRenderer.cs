@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MySLAM.Xamarin.Helpers.AR
+namespace MySLAM.Xamarin.Helpers.OpenGL
 {
     public class MyRenderer : Java.Lang.Object, GLSurfaceView.IRenderer
     {

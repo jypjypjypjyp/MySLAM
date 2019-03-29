@@ -12,14 +12,18 @@ namespace MySLAM.Xamarin.Helpers
 {
     public class MyIMUHelper : Java.Lang.Object, ISensorEventListener
     {
-        public delegate void Callback1(string data);
-        public delegate void Callback2(float[] data);
-        public event Callback1 ProcessSensorData1;
-        public event Callback2 ProcessSensorData2;
+        public delegate void Callback(object data);
+        public event Callback ProcessSensorData;
         public long Timestamp;
-        public int Mode { get; private set; }
+
+        public enum ModeType
+        {
+            Close, Record, AR, Calibrate
+        }
+        public ModeType Mode { get; private set; }
 
         private SensorManager sensorManager;
+        private Sensor linearAccel;
         private Sensor accel;
         private Sensor gyro;
         private Sensor grav;
@@ -33,48 +37,47 @@ namespace MySLAM.Xamarin.Helpers
         public MyIMUHelper(Activity owner)
         {
             sensorManager = (SensorManager)owner.GetSystemService(Context.SensorService);
-            accel = sensorManager.GetDefaultSensor(SensorType.LinearAcceleration);
+            linearAccel = sensorManager.GetDefaultSensor(SensorType.LinearAcceleration);
+            accel = sensorManager.GetDefaultSensor(SensorType.Accelerometer);
             gyro = sensorManager.GetDefaultSensor(SensorType.Gyroscope);
             grav = sensorManager.GetDefaultSensor(SensorType.Gravity);
             magnet = sensorManager.GetDefaultSensor(SensorType.MagneticField);
-            Mode = 0;
+            Mode = ModeType.Close;
         }
 
         private void Register(Handler handler = null)
         {
             Timestamp = 0;
-            var sensorRate = (SensorDelay)AppSetting.IMUFreq;
+            SensorDelay sensorRate = (SensorDelay)AppSetting.IMUFreq;
             switch (Mode)
             {
-                case 1:
+                case ModeType.Record:
+                    sensorManager.RegisterListener(this, accel, sensorRate, handler);
                     sensorManager.RegisterListener(this, gyro, sensorRate, handler);
-                    goto default;
-                case 2:
+                    break;
+                case ModeType.AR:
+                    sensorManager.RegisterListener(this, linearAccel, sensorRate, handler);
                     sensorManager.RegisterListener(this, grav, sensorRate, handler);
                     sensorManager.RegisterListener(this, magnet, sensorRate, handler);
-                    goto default;
-                default:
-                    sensorManager.RegisterListener(this, accel, sensorRate, handler);
+                    break;
+                case ModeType.Calibrate:
+                    sensorManager.RegisterListener(this, grav, sensorRate, handler);
+                    sensorManager.RegisterListener(this, linearAccel, sensorRate, handler);
+                    sensorManager.RegisterListener(this, magnet, sensorRate, handler);
                     break;
             }
         }
-        public void Register(Callback1 callback, Handler handler = null)
+        public void Register(ModeType mode, Callback callback, Handler handler = null)
         {
-            if (Mode != 0) return; else Mode = 1;
+            if (Mode != ModeType.Close) return; else Mode = mode;
             Register(handler);
-            ProcessSensorData1 = callback;
-        }
-        public void Register(Callback2 callback, Handler handler = null)
-        {
-            if (Mode != 0) return; else Mode = 2;
-            Register(handler);
-            ProcessSensorData2 = callback;
+            ProcessSensorData = callback;
         }
         public void UnRegister()
         {
-            if (Mode == 0) return;
+            if (Mode == ModeType.Close) return;
             sensorManager.UnregisterListener(this);
-            Mode = 0;
+            Mode = ModeType.Close;
             accelData = gyroData = gravData = magnetData = null;
         }
 
@@ -82,56 +85,69 @@ namespace MySLAM.Xamarin.Helpers
         public void OnSensorChanged(SensorEvent e)
         {
             long timestamp;
-            lock (this)
+            switch (e.Sensor.Type)
             {
-                switch (e.Sensor.Type)
+                case SensorType.LinearAcceleration:
+                case SensorType.Accelerometer:
+                    timestamp = e.Timestamp;
+                    accelData = e.Values;
+                    break;
+                case SensorType.Gyroscope:
+                    gyroData = e.Values;
+                    return;
+                case SensorType.Gravity:
+                    gravData = e.Values;
+                    return;
+                case SensorType.MagneticField:
+                    magnetData = e.Values;
+                    return;
+                default:
+                    return;
+            }
+            switch (Mode)
+            {
+                case ModeType.Close:
+                    break;
+                case ModeType.Record:
+                    ProcessSensorData((timestamp, accelData));
+                    break;
+                case ModeType.AR when gravData != null && magnetData != null:
                 {
-                    case SensorType.LinearAcceleration:
-                        timestamp = e.Timestamp;
-                        accelData = e.Values;
-                        break;
-                    case SensorType.Gyroscope:
-                        gyroData = e.Values;
-                        return;
-                    case SensorType.Gravity:
-                        gravData = e.Values;
-                        return;
-                    case SensorType.MagneticField:
-                        magnetData = e.Values;
-                        return;
-                    default:
-                        return;
-                }
-            }
-            if (Mode == 1 && gyroData != null)
-            {
-                string data = timestamp + "," + accelData[0] + "," + accelData[1] + "," + accelData[2] + ","
-                            + gyroData[0] + "," + gyroData[1] + "," + gyroData[2];
-                ProcessSensorData1(data);
-            }
-            if (Mode == 2 && gravData != null && magnetData != null)
-            {
-                // Change the device relative acceleration values to earth relative values
-                // X axis -> East
-                // Y axis -> North Pole
-                // Z axis -> Sky
-                float[] RT = new float[16],
-                        T = new float[4];
-                SensorManager.GetRotationMatrix(RT, null, gravData.ToArray(), magnetData.ToArray());
+                    float[] RT = new float[16],
+                                    T = new float[4],
+                                    A = accelData.Append(0).ToArray();
+                    SensorManager.GetRotationMatrix(RT, null, gravData.ToArray(), magnetData.ToArray());
 
-                float[] inv = new float[16];
-                //OpenGL Matrix based on Columns
-                Matrix.InvertM(inv, 0, RT, 0);
-                Matrix.MultiplyMV(T, 0, inv, 0, accelData.Append(0).ToArray(), 0);
-                RT[3] = T[0];
-                RT[7] = T[1];
-                RT[11] = T[2];
-                byte[] raw = BitConverter.GetBytes(timestamp);
-                RT[12] = BitConverter.ToSingle(raw, 0);
-                RT[13] = BitConverter.ToSingle(raw, 4);
-                ProcessSensorData2(RT);
-                Timestamp = timestamp;
+                    float[] inv = new float[16];
+                    //OpenGL Matrix based on Columns
+                    Matrix.InvertM(inv, 0, RT, 0);
+                    Matrix.MultiplyMV(T, 0, inv, 0, A, 0);
+                    RT[3] = T[0];
+                    RT[7] = T[1];
+                    RT[11] = T[2];
+                    byte[] raw = BitConverter.GetBytes(timestamp);
+                    RT[12] = BitConverter.ToSingle(raw, 0);
+                    RT[13] = BitConverter.ToSingle(raw, 4);
+                    ProcessSensorData(RT);
+                    break;
+                }
+                case ModeType.Calibrate when gravData != null && magnetData != null:
+                {
+                    float[] RT = new float[16],
+                            T = new float[4],
+                            A = accelData.Append(0).ToArray();
+                    SensorManager.GetRotationMatrix(RT, null, gravData.ToArray(), magnetData.ToArray());
+                    float[] inv = new float[16];
+                    //OpenGL Matrix based on Columns
+                    Matrix.InvertM(inv, 0, RT, 0);
+                    Matrix.MultiplyMV(T, 0, inv, 0, A, 0);
+                    ProcessSensorData(T.Take(3).ToArray());
+                    break;
+                }
+                default:
+                    break;
             }
+            Timestamp = timestamp;
         }
     }
 }

@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Linq;
+using MySLAM.Xamarin.Helpers.Calibrator;
 
-namespace MySLAM.Xamarin.Helpers.Calibrator
+namespace MySLAM.Xamarin.Helpers
 {
     public abstract class FrameRender
     {
@@ -24,7 +25,82 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
         }
     }
 
-    public class ARFrameRender : FrameRender, IDisposable
+    public class AR1FrameRender : FrameRender, IDisposable
+    {
+        public enum TrackingState
+        {
+            NotReady = -1,
+            NoImagesYet = 0,
+            NotInitialized = 1,
+            On = 2,
+            Lost = 3
+        }
+        public TrackingState State { get; set; }
+
+        public delegate void CallBack(float[] pose);
+        public static event CallBack Update = delegate { };
+
+        private readonly DateTime fromSystemInit;
+        public float[] Pose;
+
+        public AR1FrameRender()
+        {
+            InitSystem(AppConst.RootPath);
+            fromSystemInit = DateTime.Now;
+        }
+
+        #region IDispose
+        private bool isDisposed = false;
+        public void Dispose()
+        {
+            if (!isDisposed)
+            {
+                State = TrackingState.NotReady;
+                HelperManager.IMUHelper.UnRegister();
+                ReleaseMap();
+                isDisposed = true;
+            }
+        }
+        #endregion
+
+        public override Mat Render(CameraBridgeViewBase.ICvCameraViewFrame inputFrame)
+        {
+            var rgbaFrame = inputFrame.Rgba();
+
+            State = GetPose(rgbaFrame.NativeObjAddr,
+                        (long)(DateTime.Now - fromSystemInit).TotalMilliseconds * 1000,
+                        Pose);
+            switch (State)
+            {
+                case TrackingState.NotReady:
+                    break;
+                case TrackingState.NoImagesYet:
+                    break;
+                case TrackingState.NotInitialized:
+                    break;
+                case TrackingState.On:
+                    Update(Pose);
+                    break;
+                case TrackingState.Lost:
+                    break;
+                default:
+                    break;
+            }
+            return rgbaFrame;
+        }
+
+        #region Native
+        [DllImport("MySLAM_Native", EntryPoint = "InitSystem1")]
+        private static extern void InitSystem(string rootPath);
+        [DllImport("MySLAM_Native", EntryPoint = "GetPose")]
+        private static extern TrackingState GetPose(long mataddress, long timestamp, [In, Out] float[] pose);
+        [DllImport("MySLAM_Native", EntryPoint = "ReleaseMap")]
+        private static extern void ReleaseMap();
+        #endregion
+    }
+
+
+    public class AR2FrameRender : FrameRender, IDisposable
     {
         public delegate void Callback(float[] a);
         public static event Callback Update = delegate { };
@@ -49,22 +125,22 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
         private float[] pose = new float[16];
         private List<float[]> _IMUData = new List<float[]>();
 
-        public ARFrameRender()
+        public AR2FrameRender()
         {
             State = TrackingState.NotReady;
         }
         public void Perpare(float[] vmat)
         {
-            InitSystem();
+            InitSystem(AppConst.RootPath);
             imuThread = new HandlerThread("IMU Handler Thread");
             imuThread.Start();
             imuHandler = new Handler(imuThread.Looper);
-            HelperManager.IMUHelper.Register(
-                (float[] data) =>
+            HelperManager.IMUHelper.Register(MyIMUHelper.ModeType.AR,
+                (object data) =>
                 {
                     lock (_IMUData)
                     {
-                        _IMUData.Add(data);
+                        _IMUData.Add((float[])data);
                     }
                 }, imuHandler);
             _VMat = vmat;
@@ -114,7 +190,7 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
                 case TrackingState.Running:
                     goto Estimate;
             }
-        Estimate:
+            Estimate:
             float[] data;
             int n;
             lock (_IMUData)
@@ -126,7 +202,7 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
             EstimatePose(data, n, timestamp, pose);
             Update(pose);
             goto Finish;
-        ORB_SLAM2:
+            ORB_SLAM2:
             long matAddr = rgbMat.NativeObjAddr;
             Task.Run(
                 () =>
@@ -135,14 +211,14 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
                 });
             State = TrackingState.Running;
             goto Estimate;
-        Finish:
+            Finish:
             MatExtension.ConvertToGL(pose, _VMat);
             return rgbMat;
         }
 
         #region Native
-        [DllImport("MySLAM_Native", EntryPoint = "InitSystem")]
-        private static extern void InitSystem();
+        [DllImport("MySLAM_Native", EntryPoint = "InitSystem2")]
+        private static extern void InitSystem(string rootPath);
         [DllImport("MySLAM_Native", EntryPoint = "UpdateTracking")]
         private static extern TrackingState UpdateTracking(long mataddress, long timestamp);
         [DllImport("MySLAM_Native", EntryPoint = "EstimatePose")]

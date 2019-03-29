@@ -35,13 +35,15 @@
   <string name="earth">Earth</string>
   <string name="square">Square</string>
   <string name="download">Download</string>
-  <string name="ar">AR</string>
+  <string name="ar_1">AR</string>
+  <string name="ar_2">AR+IMU</string>
   
   <!--AR UI-->
   <string name="please_wait">Please, wait...</string>
   <string name="progress">Progressing...</string>
   <string name="loading_voc">Loading Vocabulary...</string>
   <string name="not_calibrate">Please calibrate first!</string>
+  <string name="imu_calibrate_tips">Please put your phone still, then click the button!</string>
   <string name="add_corners">Add Corners</string>
 
 

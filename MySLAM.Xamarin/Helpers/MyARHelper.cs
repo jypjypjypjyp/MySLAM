@@ -14,8 +14,17 @@ namespace MySLAM.Xamarin.Helpers
 
         public FrameRender FrameRender { get; set; }
         public CameraCalibrator CameraCalibrator { get; set; }
+        public IMUCalibrator IMUCalibrator { get; set; }
 
         private readonly Activity owner;
+
+        public bool IsCalibrated
+        {
+            get
+            {
+                return CameraCalibrator.IsCalibrated && IMUCalibrator.IsCalibrated;
+            }
+        }
 
         public static Task<MyARHelper> AsyncBuilder(Activity owner, int width, int height,
                                                             Views.MyDialog.ProgressChanged progressChanged = null)
@@ -27,10 +36,12 @@ namespace MySLAM.Xamarin.Helpers
                                     Views.MyDialog.ProgressChanged progressChanged)
         {
             this.owner = owner;
+            IMUCalibrator = new IMUCalibrator();
             CameraCalibrator = new CameraCalibrator(width, height);
             if (CheckFile(progressChanged))
             {
                 CameraCalibrator.IsCalibrated = true;
+                IMUCalibrator.IsCalibrated = true;
                 FrameRender = new PreviewFrameRender();
             }
             else FrameRender = new CalibrationFrameRender(CameraCalibrator);
@@ -47,10 +58,9 @@ namespace MySLAM.Xamarin.Helpers
                         {
                             progressChanged((int)e.BytesReceived * 100 / TOTAL_VOC_SIZE);
                         };
-                webClient.DownloadFileTaskAsync(new Uri("https://raw.githubusercontent.com/jypjypjypjyp/MySLAM/master/Data/ORBvoc.bin"), "/storage/emulated/0/MySLAM/ORBvoc.bin")
-                    .Wait();
+                webClient.DownloadFileTaskAsync(new Uri("http://39.97.38.181:2018/ORBvoc.bin"), AppConst.RootPath + "ORBvoc.bin").Wait();
             }
-            if (File.Exists(AppConst.RootPath + "orb_slam2.yaml"))
+            if (File.Exists(AppConst.RootPath + "orb_slam2.yaml") && File.Exists(AppConst.RootPath + "imu.yaml"))
             {
                 return true;
             }
@@ -63,39 +73,45 @@ namespace MySLAM.Xamarin.Helpers
             var mode = typeof(T);
             if (FrameRender.GetType() == mode) return;
 
-            (FrameRender as ARFrameRender)?.Dispose();
+            (FrameRender as AR2FrameRender)?.Dispose();
+            (FrameRender as AR1FrameRender)?.Dispose();
 
             if (mode == typeof(CalibrationFrameRender))
                 FrameRender = new CalibrationFrameRender(CameraCalibrator);
-            else if (mode == typeof(ARFrameRender))
-                FrameRender = new ARFrameRender();
+            else if (mode == typeof(AR2FrameRender))
+                FrameRender = new AR2FrameRender();
+            else if (mode == typeof(AR1FrameRender))
+                FrameRender = new AR1FrameRender();
             else FrameRender = new PreviewFrameRender();
         }
 
-        public void Save(Mat cameraMatrix)
+        public void Save(Mat cameraMat, Mat imuMat)
         {
             if (!File.Exists(AppConst.RootPath + "orb_slam2.yaml"))
-            {
-                owner.Assets.Open("orb_slam2_template.yaml")
-                            .CopyWholeFile(File.Create(AppConst.RootPath + "orb_slam2.yaml"));
-            }
-            double[] cameraMatrixArray = new double[3 * 3];
-            cameraMatrix.Get(0, 0, cameraMatrixArray);
+                owner.Assets.Open("settings_template.yaml")
+                            .CopyWholeFile(File.OpenWrite(AppConst.RootPath + "orb_slam2.yaml"));
+            double[] cameraMatrArray = new double[3 * 3];
+            cameraMat.Get(0, 0, cameraMatrArray);
 
             string readAll = File.ReadAllText(AppConst.RootPath + "orb_slam2.yaml");
 
-            readAll = readAll.Edit("Camera.fx", cameraMatrixArray[0].ToString())
-                            .Edit("Camera.fy", cameraMatrixArray[4].ToString())
-                            .Edit("Camera.cx", cameraMatrixArray[2].ToString())
-                            .Edit("Camera.cy", cameraMatrixArray[5].ToString());
+            readAll = readAll.Edit("Camera.fx", cameraMatrArray[0].ToString())
+                            .Edit("Camera.fy", cameraMatrArray[4].ToString())
+                            .Edit("Camera.cx", cameraMatrArray[2].ToString())
+                            .Edit("Camera.cy", cameraMatrArray[5].ToString());
 
             File.WriteAllText(AppConst.RootPath + "orb_slam2.yaml", readAll);
+
+            string file = AppConst.RootPath + "imu.yaml";
+
+            // cv::FileStorage have some defects. It's difficult to use.
+            File.Create(file);
+            YamlExtension.WriteIMUSettings(file, imuMat.RowRange(0, 3), imuMat.RowRange(3, 4));
         }
 
         public static void RemoveCache()
         {
-            //TODO: Get Path by Environment
-            File.Delete("/storage/emulated/0/MySLAM/ORBvoc.bin");
+            File.Delete(AppConst.RootPath + "ORBvoc.bin");
         }
     }
 }

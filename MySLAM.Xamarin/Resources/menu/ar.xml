@@ -27,8 +27,10 @@
           <item android:id="@+id/render_none"
                 android:title="@string/original"
                 android:checked="true" />
-          <item android:id="@+id/render_ar"
-                android:title="@string/ar" />
+          <item android:id="@+id/render_ar_1"
+                android:title="@string/ar_1" />
+          <item android:id="@+id/render_ar_2"
+                android:title="@string/ar_2" />
         </group>
       </menu>
     </item>

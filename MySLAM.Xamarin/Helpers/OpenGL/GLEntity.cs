@@ -1,7 +1,7 @@
 ﻿using Android.Opengl;
 using Java.Nio;
 
-namespace MySLAM.Xamarin.Helpers.AR
+namespace MySLAM.Xamarin.Helpers.OpenGL
 {
     public abstract class GLEntity
     {

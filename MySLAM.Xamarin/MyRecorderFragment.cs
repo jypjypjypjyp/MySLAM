@@ -74,7 +74,7 @@ namespace MySLAM.Xamarin
                     "#timestamp,omega_x,omega_y,omega_z,alpha_x,alpha_y,alpha_z");
                 PreviewView.SurfaceTextureUpdated += ProcessFrame;
                 HelperManager.CameraHelper.State = CameraState.Record;
-                HelperManager.IMUHelper.Register(ProcessIMUData, imuHandler);
+                HelperManager.IMUHelper.Register(MyIMUHelper.ModeType.Record, ProcessIMUData, imuHandler);
             }
             else
             {
@@ -248,9 +248,10 @@ namespace MySLAM.Xamarin
             }, (timestamp, PreviewView.Bitmap));
         }
 
-        public void ProcessIMUData(string data)
+        public void ProcessIMUData(object data)
         {
-            imuDataString += data + "\n";
+            (long,IList<float>) record = ((long, IList<float>))data;
+            imuDataString += record.Item1+","+string.Join(',',record.Item2) + "\n";
             if (imuDataString.Length > 1e4)
             {
                 File.AppendAllText(path + "imu0.csv", imuDataString);

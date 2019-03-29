@@ -6,13 +6,14 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using MySLAM.Xamarin.Helpers;
-using MySLAM.Xamarin.Helpers.AR;
+using MySLAM.Xamarin.Helpers.OpenGL;
 using MySLAM.Xamarin.Helpers.Calibrator;
 using MySLAM.Xamarin.Views;
 using Org.Opencv.Android;
 using Org.Opencv.Core;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace MySLAM.Xamarin
 {
@@ -84,7 +85,7 @@ namespace MySLAM.Xamarin
         }
         public override void OnDestroy()
         {
-            (ARHelper?.FrameRender as ARFrameRender)?.Dispose();
+            (ARHelper?.FrameRender as AR2FrameRender)?.Dispose();
             base.OnDestroy();
         }
 
@@ -98,10 +99,10 @@ namespace MySLAM.Xamarin
             if (ARHelper == null)
                 return;
             menu.SetGroupVisible(Resource.Id.mode_ar, false);
-            if (ARHelper.CameraCalibrator.IsCalibrated)
+            if (ARHelper.IsCalibrated)
             {
                 menu.FindItem(Resource.Id.action_change_mode).SetVisible(true);
-                if (ARHelper.FrameRender is ARFrameRender)
+                if (ARHelper.FrameRender is AR2FrameRender || ARHelper.FrameRender is AR1FrameRender)
                 {
                     menu.SetGroupVisible(Resource.Id.mode_ar, true);
                 }
@@ -118,8 +119,12 @@ namespace MySLAM.Xamarin
                 case Resource.Id.action_calibrate:
                     Calibrate();
                     break;
-                case Resource.Id.render_ar:
-                    StartAR();
+                case Resource.Id.render_ar_1:
+                    StartAR_1();
+                    item.SetChecked(true);
+                    break;
+                case Resource.Id.render_ar_2:
+                    StartAR_2();
                     item.SetChecked(true);
                     break;
                 case Resource.Id.render_none:
@@ -137,7 +142,7 @@ namespace MySLAM.Xamarin
         }
         #endregion
 
-        private async void StartAR()
+        private async void StartAR_1()
         {
             var dialogFragment = new MyDialog(DialogType.ProgressHorizontal, Resources.GetString(Resource.String.loading_voc));
             dialogFragment.Show(FragmentManager, "Progress Dialog");
@@ -147,10 +152,27 @@ namespace MySLAM.Xamarin
                 () => ((ProgressDialog)dialogFragment.Dialog).Progress = a));
             await Task.Run(() =>
             {
-                ARHelper.ChangeRenderMode<ARFrameRender>();
-                ((ARFrameRender)ARHelper.FrameRender).Perpare(renderer.VMat);
+                ARHelper.ChangeRenderMode<AR1FrameRender>();
                 //NeedToBeRemoved: temp code
-                ARFrameRender.Update += Update;
+                AR1FrameRender.Update += Update;
+                UnRegisterProgressChangedCallback();
+                //Pass VMat ref of GLES's renderer to ARFrameRender
+                ((AR1FrameRender)ARHelper.FrameRender).Pose = renderer.VMat;
+            });
+            dialogFragment.Dismiss();
+        }
+        private async void StartAR_2()
+        {
+            var dialogFragment = new MyDialog(DialogType.ProgressHorizontal, Resources.GetString(Resource.String.loading_voc));
+            dialogFragment.Show(FragmentManager, "Progress Dialog");
+            RegisterProgressChangedCallback(
+                a => Activity.RunOnUiThread(() => ((ProgressDialog)dialogFragment.Dialog).Progress = a));
+            await Task.Run(() =>
+            {
+                ARHelper.ChangeRenderMode<AR2FrameRender>();
+                ((AR2FrameRender)ARHelper.FrameRender).Perpare(renderer.VMat);
+                //NeedToBeRemoved: temp code
+                AR2FrameRender.Update += Update;
                 UnRegisterProgressChangedCallback();
             });
             dialogFragment.Dismiss();
@@ -161,9 +183,9 @@ namespace MySLAM.Xamarin
         {
             string s = "";
             int i = 0;
-            foreach(var f in fs)
+            foreach (var f in fs)
             {
-                s += f.ToString("F")+" ";
+                s += f.ToString("F") + " ";
                 i++;
                 if (i % 4 == 0) s += "\n";
             }
@@ -175,7 +197,7 @@ namespace MySLAM.Xamarin
 
         private void Calibrate()
         {
-            if (ARHelper.CameraCalibrator.IsCalibrated)
+            if (ARHelper.IsCalibrated)
             {
                 new MyDialog(DialogType.Error, Resources.GetString(Resource.String.not_calibrate))
                 {
@@ -193,44 +215,48 @@ namespace MySLAM.Xamarin
                 Toast.MakeText(Activity, Resource.String.more_samples, ToastLength.Short).Show();
                 return;
             }
-            //Perpare Progress Dialog
+            //UIThread
             ARHelper.ChangeRenderMode<PreviewFrameRender>();
             var dialogFragment = new MyDialog(DialogType.Progress, Resources.GetString(Resource.String.please_wait));
             dialogFragment.Show(FragmentManager, "Progress Dialog");
-
+            //non-UIThread
             Task.Run(() => ARHelper.CameraCalibrator.Calibrate())
-                .ContinueWith(t =>
+                .ContinueWith(t1 =>
                 {
+                    //UIThread
                     dialogFragment.Dismiss();
                     ARHelper.CameraCalibrator.ClearCorners();
                     string resultMessage = "";
                     if (ARHelper.CameraCalibrator.IsCalibrated)
                     {
-                        resultMessage = Resources.GetString(Resource.String.calibration_successful);
-                        ARHelper.Save(ARHelper.CameraCalibrator.CameraMatrix);
-                        ARHelper.CameraCalibrator.IsCalibrated = true;
+                        new MyDialog(DialogType.Error, Resources.GetString(Resource.String.imu_calibrate_tips))
+                        {
+                            PositiveHandler = (o, e) =>
+                            {
+                                //UIThread
+                                ((Dialog)o).Dismiss();
+                                ARHelper.IMUCalibrator.IsCalibrated = true;
+                                dialogFragment = new MyDialog(DialogType.Progress, Resources.GetString(Resource.String.please_wait));
+                                dialogFragment.Show(FragmentManager, "Progress Dialog");
+                                Task.Run(() => ARHelper.IMUCalibrator.Calibrate())
+                                    .ContinueWith(t2 =>
+                                    {
+                                        //UIThread
+                                        dialogFragment.Dismiss();
+                                        if (ARHelper.IMUCalibrator.IsCalibrated)
+                                        {
+                                            Toast.MakeText(Activity, Resources.GetString(Resource.String.calibration_successful), ToastLength.Long).Show();
+                                            ARHelper.Save(ARHelper.CameraCalibrator.CameraMatrix, ARHelper.IMUCalibrator.IMUMatrix);
+                                        }
+                                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
+                        }.Show(FragmentManager, null);
                     }
                     else
                     {
-                        resultMessage = Resources.GetString(Resource.String.calibration_unsuccessful);
+                        Toast.MakeText(Activity, Resources.GetString(Resource.String.calibration_unsuccessful), ToastLength.Long).Show();
                     }
-                    Toast.MakeText(Activity, resultMessage, ToastLength.Long).Show();
                 }, TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        public void UpdatePose(float[] pose)
-        {
-            string text = "";
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    text += pose[4 * i + j].ToString("F") + " ";
-                }
-                text += '\n';
-            }
-            Activity.RunOnUiThread(() => textView.Text = text);
-
         }
 
         private void OnClick(object sender, System.EventArgs e)
@@ -257,7 +283,11 @@ namespace MySLAM.Xamarin
                 //Creating a calibratorHelper may take long time. So I make it async, and add a progress dialog.
                 var dialogFragment = new MyDialog(DialogType.ProgressHorizontal, Resources.GetString(Resource.String.please_wait));
                 dialogFragment.Show(FragmentManager, "Progress Dialog");
-                dialogFragment.NegativeHandler = (o, e) => MyARHelper.RemoveCache();
+                dialogFragment.NegativeHandler = (o, e) =>
+                {
+                    MyARHelper.RemoveCache();
+                    ((MainActivity)Activity).CurFragment = new MyInfoFragment();
+                };
                 ARHelper = await MyARHelper.AsyncBuilder(Activity, width, height,
                 (i) =>
                 {
@@ -268,7 +298,7 @@ namespace MySLAM.Xamarin
                 });
                 dialogFragment.Dismiss();
 
-                if (!ARHelper.CameraCalibrator.IsCalibrated)
+                if (!ARHelper.IsCalibrated)
                 {
                     new MyDialog(DialogType.Error, Resources.GetString(Resource.String.not_calibrate))
                     {
@@ -294,7 +324,7 @@ namespace MySLAM.Xamarin
             {
                 case LoaderCallbackInterface.Success:
                     Log.Info("OpenCV4Android", "OpenCV loaded successfully");
-                    HelperManager.CameraHelper.CameraLock.WaitOne();
+                    HelperManager.CameraHelper.CameraLock.WaitAsync();
                     CameraView.EnableView();
                     break;
                 default:
