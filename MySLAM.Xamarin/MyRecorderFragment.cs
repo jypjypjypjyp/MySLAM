@@ -216,6 +216,8 @@ namespace MySLAM.Xamarin
             long timestamp = e.Surface.Timestamp;
             if (curTimestamp >= timestamp) return;
             curTimestamp = timestamp;
+            var bitmap = PreviewView.Bitmap;
+            bitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, PreviewView.GetTransform(null), true);
             ThreadPool.QueueUserWorkItem((o) =>
             {
                 (long timestamp, Bitmap bitmap) state = ((long, Bitmap))o;
@@ -245,13 +247,13 @@ namespace MySLAM.Xamarin
                 {
                     file?.Close();
                 }
-            }, (timestamp, PreviewView.Bitmap));
+            }, (timestamp, bitmap));
         }
 
         public void ProcessIMUData(object data)
         {
-            (long,IList<float>) record = ((long, IList<float>))data;
-            imuDataString += record.Item1+","+string.Join(',',record.Item2) + "\n";
+            (long, IList<float>) record = ((long, IList<float>))data;
+            imuDataString += record.Item1 + "," + string.Join(',', record.Item2) + "\n";
             if (imuDataString.Length > 1e4)
             {
                 File.AppendAllText(path + "imu0.csv", imuDataString);

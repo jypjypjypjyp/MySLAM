@@ -87,7 +87,7 @@ int UpdateTracking(long long mataddress, long long timestamp)
 	return 0;
 }
 
-void EstimatePose(float* data, int n, long long timestamp, float* pose)
+void EstimatePose(float* data, int n, long long timestamp, float* out)
 {
 	// Input imu data.
 	for (int i = 0; i < n; i++)
@@ -97,7 +97,17 @@ void EstimatePose(float* data, int n, long long timestamp, float* pose)
 	cv::Mat poseMat = gIMUEstimator->Estimate(timestamp);
 	if (!poseMat.empty())
 	{
-		std::copy(poseMat.begin<float>(), poseMat.end<float>(), pose);
+		poseMat = gCVToGl * poseMat;
+		cv::transpose(poseMat.clone(), poseMat);
+		for (int j = 0; j < 4; j++)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				out[i * 4 + j] = poseMat.at<float>(i, j);
+			}
+			out[12 + j] = gScale * poseMat.at<float>(3, j);
+		}
+		out[15] = 1;
 	}
 }
 

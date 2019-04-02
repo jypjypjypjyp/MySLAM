@@ -24,7 +24,7 @@ extern "C" JNIEXPORT void JNICALL InitSystem2(const char* rootpath);
 extern "C" JNIEXPORT int JNICALL GetPose(long long mataddress, long long timestamp, float* out);
 
 extern "C" JNIEXPORT int JNICALL UpdateTracking(long long mataddress, long long timestamp);
-extern "C" JNIEXPORT void JNICALL EstimatePose(float* data, int n, long long timestamp, float* pose);
+extern "C" JNIEXPORT void JNICALL EstimatePose(float* data, int n, long long timestamp, float* out);
 
 extern "C" JNIEXPORT void JNICALL ReleaseMap();
 
