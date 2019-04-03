@@ -10,8 +10,8 @@ namespace IMU
 SimpleEstimator::SimpleEstimator(ORB_SLAM2::System* system, const std::string& strSettingsFile)
 	:mSystemPtr(system),
 	mTrackState(NotReady),
-	mTrackPose(cv::Mat::zeros(4, 4, CV_32F)),
-	mTranformR(cv::Mat::zeros(4, 4, CV_32F)),
+	mTrackPose(cv::Mat::eye(4, 4, CV_32F)),
+	mTranformR(cv::Mat::eye(4, 4, CV_32F)),
 	mTrackT(0),
 	mScale(0)
 {
@@ -25,7 +25,7 @@ SimpleEstimator::SimpleEstimator(ORB_SLAM2::System* system, const std::string& s
 	temp.convertTo(mIMUCovar, CV_32F);
 	fSettings["IMUmean"] >> temp;
 	temp = temp.t();
-	temp.convertTo(mIMUMean, CV_32F);
+	temp.convertTo(mIMUBias, CV_32F);
 	fSettings.release();
 }
 
@@ -65,6 +65,7 @@ void SimpleEstimator::TrackMonocular(cv::Mat & im, long long timestamp)
 				K = P = X = cv::Mat();
 				auto initF = FindFrame(mSystemPtr->GetTraker()->mInitialFrame.mTimeStamp);
 				(*initF)->mR.copyTo(mTranformR(cv::Rect(0, 0, 3, 3)));
+				mTranformRInv = mTranformR.inv();
 			}
 			mTrackPose = mTranformR * mTrackPose;
 			if (prevState == On)
@@ -125,8 +126,8 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 	mIMUFrameV.erase(mIMUFrameV.begin(), mIMUFrameV.begin() + needToRemove + 1);
 	double dt1 = dts1 * 1e-9, dt2 = dts2 * 1e-9;
 	// Check if d1, d2 are suitable.
-	if (cv::norm(d1, 2) < 20 * 0.5 * cv::norm(mIMUMean, 2) * dt1 * dt1
-		|| cv::norm(d2, 2) < 20 * 0.5 * cv::norm(mIMUMean, 2) * dt2 * dt2)
+	if (cv::norm(d1, 2) < 20 * 0.5 * cv::norm(mIMUBias, 2) * dt1 * dt1
+		|| cv::norm(d2, 2) < 20 * 0.5 * cv::norm(mIMUBias, 2) * dt2 * dt2)
 		return;
 	cv::Vec3f A, C;
 	double B;
@@ -147,14 +148,14 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 	Z.at<float>(2, 0) = C[2];
 	if (X.empty())
 	{
-		auto s2 = C - B * mIMUMean;
+		auto s2 = C - B * mIMUBias;
 		std::vector<float> temp;
 		cv::solve(A, s2, temp, CV_SVD);
 		mScale = temp[0];
 		X = cv::Mat::zeros(4, 1, CV_32F);
-		X.at<float>(0, 0) = mIMUMean[0];
-		X.at<float>(1, 0) = mIMUMean[1];
-		X.at<float>(2, 0) = mIMUMean[2];
+		X.at<float>(0, 0) = mIMUBias[0];
+		X.at<float>(1, 0) = mIMUBias[1];
+		X.at<float>(2, 0) = mIMUBias[2];
 		X.at<float>(3, 0) = mScale;
 		// K store H temporarily
 		K = H;
@@ -177,15 +178,17 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 		P = (cv::Mat::eye(4, 4, CV_32F) - K * H) * P;
 	}
 	mScale = X.at<float>(0, 3);
-	mIMUMean = cv::Vec3f(X.col(0).rowRange(0, 3));
-	cv::Vec3f v0 = (mScale * dx1 - d1 + 0.5 * mIMUMean * dt1 * dt1) / dt1;
+	mIMUBias = cv::Vec3f(X.col(0).rowRange(0, 3));
+	cv::Vec3f v0 = (mScale * dx1 - d1 + 0.5 * mIMUBias * dt1 * dt1) / dt1;
 	mEstimatedV0 = v0 + dv1 + dv2;
 	mTrackState = OK;
 }
 
 void SimpleEstimator::UpdateEstimateV0(long long start, long long end)
 {
-	for (auto iter = FindFrame(start) + 1; (*iter)->mTimestamp <= end; iter++)
+	for (auto iter = FindFrame(start) + 1;
+		iter != mIMUFrameV.end() && (*iter)->mTimestamp <= end;
+		iter++)
 		mEstimatedV0 += (*iter)->mDVelocity;
 }
 
@@ -231,15 +234,17 @@ cv::Mat SimpleEstimator::Estimate(long long timestamp)
 			cv::Vec3f position(mTrackPose(cv::Rect(3, 0, 1, 3)));
 			auto iter = FindFrame(mTrackT);
 			long long pervT = mTrackT;
+			// Scale, now position unit is m 
+			position *= mScale;
 			while (++iter != mIMUFrameV.end())
 			{
 				position += velocity * (((*iter)->mTimestamp - pervT) * 1e-9) + (*iter)->mDisplacement;
 				velocity += (*iter)->mDVelocity;
 				pervT = (*iter)->mTimestamp;
 			}
-			// Scale
-			position *= mScale;
+			position -= 0.5 * mIMUBias * ((timestamp - mTrackT) * 1e-9) * ((timestamp - mTrackT) * 1e-9);
 			cv::Mat(position).copyTo(estimatedPose(cv::Rect(3, 0, 1, 3)));
+			estimatedPose = mTranformRInv * estimatedPose;
 			return estimatedPose;
 		}
 		else
@@ -249,4 +254,3 @@ cv::Mat SimpleEstimator::Estimate(long long timestamp)
 	}
 }
 }
-

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace MySLAM.Xamarin.Helpers
 {
-    public class MyIMUHelper : Java.Lang.Object, ISensorEventListener
+    public class MySensorHelper : Java.Lang.Object, ISensorEventListener
     {
         public delegate void Callback(object data);
         public event Callback ProcessSensorData;
@@ -28,13 +28,15 @@ namespace MySLAM.Xamarin.Helpers
         private Sensor gyro;
         private Sensor grav;
         private Sensor magnet;
+        private Sensor pressure;
 
         private IList<float> accelData;
         private IList<float> gyroData;
         private IList<float> gravData;
         private IList<float> magnetData;
+        private IList<float> pressureData;
 
-        public MyIMUHelper(Activity owner)
+        public MySensorHelper(Activity owner)
         {
             sensorManager = (SensorManager)owner.GetSystemService(Context.SensorService);
             linearAccel = sensorManager.GetDefaultSensor(SensorType.LinearAcceleration);
@@ -42,6 +44,7 @@ namespace MySLAM.Xamarin.Helpers
             gyro = sensorManager.GetDefaultSensor(SensorType.Gyroscope);
             grav = sensorManager.GetDefaultSensor(SensorType.Gravity);
             magnet = sensorManager.GetDefaultSensor(SensorType.MagneticField);
+            pressure = sensorManager.GetDefaultSensor(SensorType.Pressure);
             Mode = ModeType.Close;
         }
 
@@ -54,6 +57,7 @@ namespace MySLAM.Xamarin.Helpers
                 case ModeType.Record:
                     sensorManager.RegisterListener(this, accel, sensorRate, handler);
                     sensorManager.RegisterListener(this, gyro, sensorRate, handler);
+                    sensorManager.RegisterListener(this, pressure, sensorRate, handler);
                     break;
                 case ModeType.AR:
                     sensorManager.RegisterListener(this, linearAccel, sensorRate, handler);
@@ -101,6 +105,9 @@ namespace MySLAM.Xamarin.Helpers
                 case SensorType.MagneticField:
                     magnetData = e.Values;
                     return;
+                case SensorType.Pressure:
+                    pressureData = e.Values;
+                    return;
                 default:
                     return;
             }
@@ -108,8 +115,8 @@ namespace MySLAM.Xamarin.Helpers
             {
                 case ModeType.Close:
                     break;
-                case ModeType.Record:
-                    ProcessSensorData((timestamp, accelData));
+                case ModeType.Record when gyroData != null && pressureData != null:
+                    ProcessSensorData((timestamp, accelData, gyroData, pressureData));
                     break;
                 case ModeType.AR when gravData != null && magnetData != null:
                 {

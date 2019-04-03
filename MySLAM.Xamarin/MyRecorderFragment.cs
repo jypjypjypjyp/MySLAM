@@ -26,11 +26,13 @@ namespace MySLAM.Xamarin
         private Handler imuHandler;
         private HandlerThread imuThread;
         private CaptureRequest.Builder requestBuilder;
+        private Matrix transformMat;
 
         private string path;
-        private string imuDataString;
+        private string sensorDataString;
         private string markedTimestampList;
         private long? curTimestamp;
+        private volatile int availableProcessers = AppConst.CoreNumber;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -70,11 +72,11 @@ namespace MySLAM.Xamarin
                     + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "/";
                 Directory.CreateDirectory(path);
                 Directory.CreateDirectory(path + "cam0/");
-                File.WriteAllText(path + "imu0.csv",
-                    "#timestamp,omega_x,omega_y,omega_z,alpha_x,alpha_y,alpha_z");
+                File.WriteAllText(path + "sensor0.csv",
+                    "#timestamp,omega_x,omega_y,omega_z,alpha_x,alpha_y,alpha_z,pressure");
                 PreviewView.SurfaceTextureUpdated += ProcessFrame;
                 HelperManager.CameraHelper.State = CameraState.Record;
-                HelperManager.IMUHelper.Register(MyIMUHelper.ModeType.Record, ProcessIMUData, imuHandler);
+                HelperManager.IMUHelper.Register(MySensorHelper.ModeType.Record, ProcessSensorData, imuHandler);
             }
             else
             {
@@ -160,15 +162,15 @@ namespace MySLAM.Xamarin
                     CreateSession();
                 };
             // Set PreviewView Transform
-            var matrix = new Matrix();
+            transformMat = new Matrix();
             var viewRect = new RectF(0, 0, imageSize.Width, imageSize.Height); // TextureView size
             var bufferRect = new RectF(0, 0, imageSize.Height, imageSize.Width); // Camera output size
             float centerX = viewRect.CenterX();
             float centerY = viewRect.CenterY();
             bufferRect.Offset(centerX - bufferRect.CenterX(), centerY - bufferRect.CenterY());
-            matrix.SetRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.Fill);
-            matrix.PostRotate(270, centerX, centerY);
-            PreviewView.SetTransform(matrix);
+            transformMat.SetRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.Fill);
+            transformMat.PostRotate(270, centerX, centerY);
+            PreviewView.SetTransform(transformMat);
         }
 
         public void CreateSession()
@@ -211,16 +213,19 @@ namespace MySLAM.Xamarin
             HelperManager.CameraHelper.CloseCamera();
         }
 
+
         public void ProcessFrame(object sender, TextureView.SurfaceTextureUpdatedEventArgs e)
         {
             long timestamp = e.Surface.Timestamp;
-            if (curTimestamp >= timestamp) return;
+            // 32-bits data type's operates are atomic
+            if (availableProcessers == 0 || curTimestamp >= timestamp) return;
             curTimestamp = timestamp;
-            var bitmap = PreviewView.Bitmap;
-            bitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, PreviewView.GetTransform(null), true);
+            availableProcessers--;
             ThreadPool.QueueUserWorkItem((o) =>
             {
                 (long timestamp, Bitmap bitmap) state = ((long, Bitmap))o;
+                state.bitmap =
+                Bitmap.CreateBitmap(state.bitmap, 0, 0, state.bitmap.Width, state.bitmap.Height, transformMat, true);
                 FileStream file = null;
                 try
                 {   //Sometimes it will get a exception "win32 IO returned 997". I have no idea
@@ -246,18 +251,22 @@ namespace MySLAM.Xamarin
                 finally
                 {
                     file?.Close();
+                    availableProcessers++;
                 }
-            }, (timestamp, bitmap));
+            }, (timestamp, PreviewView.Bitmap));
         }
 
-        public void ProcessIMUData(object data)
+        public void ProcessSensorData(object data)
         {
-            (long, IList<float>) record = ((long, IList<float>))data;
-            imuDataString += record.Item1 + "," + string.Join(',', record.Item2) + "\n";
-            if (imuDataString.Length > 1e4)
+            var record = ((long, IList<float>, IList<float>, IList<float>))data;
+            sensorDataString += record.Item1 + ",";
+            sensorDataString += string.Join(',', record.Item2) + ",";
+            sensorDataString += string.Join(',', record.Item3) + ",";
+            sensorDataString += string.Join(',', record.Item4) + "\n";
+            if (sensorDataString.Length > 1e4)
             {
-                File.AppendAllText(path + "imu0.csv", imuDataString);
-                imuDataString = "";
+                File.AppendAllText(path + "sensor0.csv", sensorDataString);
+                sensorDataString = "";
             }
         }
 

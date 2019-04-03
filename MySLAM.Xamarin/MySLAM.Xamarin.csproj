@@ -70,6 +70,7 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\MyLocationHelper.cs" />
     <Compile Include="Helpers\OpenGL\Geometry\RollingSquare.cs" />
     <Compile Include="Helpers\OpenGL\Geometry\StillSquare.cs" />
     <Compile Include="Helpers\OpenGL\GLEntity.cs" />
@@ -81,7 +82,7 @@
     <Compile Include="Helpers\Calibrator\IMUCalibrator.cs" />
     <Compile Include="Helpers\MyARHelper.cs" />
     <Compile Include="Helpers\MyCameraHelper.cs" />
-    <Compile Include="Helpers\MyIMUHelper.cs" />
+    <Compile Include="Helpers\MySensorHelper.cs" />
     <Compile Include="MyARFragment.cs" />
     <Compile Include="Helpers\HelperManager.cs" />
     <Compile Include="Helpers\MyPermissionHelper.cs" />

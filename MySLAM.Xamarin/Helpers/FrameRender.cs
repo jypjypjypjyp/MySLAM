@@ -135,7 +135,7 @@ namespace MySLAM.Xamarin.Helpers
             imuThread = new HandlerThread("IMU Handler Thread");
             imuThread.Start();
             imuHandler = new Handler(imuThread.Looper);
-            HelperManager.IMUHelper.Register(MyIMUHelper.ModeType.AR,
+            HelperManager.IMUHelper.Register(MySensorHelper.ModeType.AR,
                 (object data) =>
                 {
                     lock (_IMUData)

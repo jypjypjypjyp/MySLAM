@@ -12,8 +12,10 @@ namespace MySLAM.Xamarin.Helpers
             RootPath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/MySLAM/";
             if (!Directory.Exists(RootPath))
                 Directory.CreateDirectory(RootPath);
+            CoreNumber = Java.Lang.Runtime.GetRuntime().AvailableProcessors();
         }
 
+        public static int CoreNumber;
         public static string RootPath;
     }
 

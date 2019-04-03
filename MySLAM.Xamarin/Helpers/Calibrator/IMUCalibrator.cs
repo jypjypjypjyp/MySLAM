@@ -20,7 +20,7 @@ namespace MySLAM.Xamarin.Helpers.Calibrator
         {
             List<float[]> _IMURecordList = new List<float[]>();
             ManualResetEvent finishSignal = new ManualResetEvent(false);
-            HelperManager.IMUHelper.Register(MyIMUHelper.ModeType.Calibrate,
+            HelperManager.IMUHelper.Register(MySensorHelper.ModeType.Calibrate,
                 (object data) =>
                 {
                     _IMURecordList.Add((float[])data);

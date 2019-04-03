@@ -62,7 +62,8 @@ namespace MySLAM.Xamarin
             if (!HelperManager.PermissionHelper.ConfirmPermissions(
                     new string[]{
                         Manifest.Permission.WriteExternalStorage,
-                        Manifest.Permission.Camera
+                        Manifest.Permission.Camera,
+                        Manifest.Permission.AccessFineLocation
                     }, 1))
             {
                 NavigationMenu.FindItem(Resource.Id.frag_recorder).SetEnabled(false);

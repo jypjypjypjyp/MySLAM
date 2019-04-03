@@ -39,7 +39,7 @@ private:
 private:
 	ORB_SLAM2::System* mSystemPtr;
 	cv::Mat mIMUCovar;
-	cv::Vec3f mIMUMean;
+	cv::Vec3f mIMUBias;
 	cv::Mat X, K, P;
 	cv::Mat mTrackPose;
 	float mScale;
@@ -47,7 +47,7 @@ private:
 	long long mTrackT;
 	cv::Vec3f dx1, dx2;
 	long long dts1, dts2;
-	cv::Mat mTranformR;
+	cv::Mat mTranformR,mTranformRInv;
 	std::mutex mTrackMutex;
 };
 }
