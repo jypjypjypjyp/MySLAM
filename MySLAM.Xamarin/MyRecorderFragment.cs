@@ -30,9 +30,10 @@ namespace MySLAM.Xamarin
 
         private string path;
         private string sensorDataString;
+        private string locationDataString;
         private string markedTimestampList;
         private long? curTimestamp;
-        private volatile int availableProcessers = AppConst.CoreNumber;
+        private volatile int availableProcessers = AppConst.CoreNumber * 2;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -66,17 +67,21 @@ namespace MySLAM.Xamarin
                 ((MainActivity)Activity).NavigationMenu.FindItem(Resource.Id.frag_settings).SetEnabled(false);
                 recordButton.Text = Context.Resources.GetString(Resource.String.button_stop_recording);
                 HelperManager.CameraHelper.State = CameraState.Record;
-                markedTimestampList = "";
                 path =
                     AppConst.RootPath
-                    + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "/";
+                    + DateTime.Now.ToString("yyMMddHHmmss") + "/";
                 Directory.CreateDirectory(path);
                 Directory.CreateDirectory(path + "cam0/");
                 File.WriteAllText(path + "sensor0.csv",
-                    "#timestamp,omega_x,omega_y,omega_z,alpha_x,alpha_y,alpha_z,pressure");
+                    "#timestamp,omega_x,omega_y,omega_z,alpha_x,alpha_y,alpha_z,pressure\n");
+                // GPS
+                File.WriteAllText(path + "location.csv",
+                    "#altitude,accuracy,bearing,latitude,longitude,speed,time,elapsedRealtimeNanos,provider\n");
+                sensorDataString = locationDataString = markedTimestampList = "";
                 PreviewView.SurfaceTextureUpdated += ProcessFrame;
                 HelperManager.CameraHelper.State = CameraState.Record;
-                HelperManager.IMUHelper.Register(MySensorHelper.ModeType.Record, ProcessSensorData, imuHandler);
+                HelperManager.SensorHelper.Register(MySensorHelper.ModeType.Record, ProcessSensorData, imuHandler);
+                HelperManager.LocationHelper.Start(ProcessLocationData);
             }
             else
             {
@@ -84,9 +89,11 @@ namespace MySLAM.Xamarin
                 recordButton.Text = Context.Resources.GetString(Resource.String.button_start_recording);
                 HelperManager.CameraHelper.State = CameraState.Off;
                 PreviewView.SurfaceTextureUpdated -= ProcessFrame;
-                HelperManager.IMUHelper.UnRegister();
-                File.WriteAllText(path + "marked.txt", markedTimestampList);
-                markedTimestampList = "";
+                HelperManager.SensorHelper.UnRegister();
+                HelperManager.LocationHelper.Stop();
+                File.AppendAllText(path + "sensor0.csv", sensorDataString);
+                File.AppendAllText(path + "location.csv", locationDataString);
+                File.AppendAllText(path + "marked.txt", markedTimestampList);
             }
         }
 
@@ -134,7 +141,7 @@ namespace MySLAM.Xamarin
             HelperManager.CameraHelper.OpenCamera(AppSetting.CameraId, PrepareSession);
         }
 
-        public void PrepareSession(int i = 0)
+        private void PrepareSession(int i = 0)
         {
             //Get image size
             var imageSize = AppSetting.Size;
@@ -173,7 +180,7 @@ namespace MySLAM.Xamarin
             PreviewView.SetTransform(transformMat);
         }
 
-        public void CreateSession()
+        private void CreateSession()
         {
             var previewTexture = PreviewView.SurfaceTexture;
             if (previewTexture == null)
@@ -208,17 +215,16 @@ namespace MySLAM.Xamarin
                     captureHandler);
         }
 
-        public void CloseCamera()
+        private void CloseCamera()
         {
             HelperManager.CameraHelper.CloseCamera();
         }
 
-
-        public void ProcessFrame(object sender, TextureView.SurfaceTextureUpdatedEventArgs e)
+        private void ProcessFrame(object sender, TextureView.SurfaceTextureUpdatedEventArgs e)
         {
-            long timestamp = e.Surface.Timestamp;
             // 32-bits data type's operates are atomic
-            if (availableProcessers == 0 || curTimestamp >= timestamp) return;
+            var timestamp = e.Surface.Timestamp;
+            if (curTimestamp >= timestamp || availableProcessers == 0) return;
             curTimestamp = timestamp;
             availableProcessers--;
             ThreadPool.QueueUserWorkItem((o) =>
@@ -256,17 +262,32 @@ namespace MySLAM.Xamarin
             }, (timestamp, PreviewView.Bitmap));
         }
 
-        public void ProcessSensorData(object data)
+        private void ProcessSensorData(object data)
         {
             var record = ((long, IList<float>, IList<float>, IList<float>))data;
             sensorDataString += record.Item1 + ",";
             sensorDataString += string.Join(',', record.Item2) + ",";
-            sensorDataString += string.Join(',', record.Item3) + ",";
-            sensorDataString += string.Join(',', record.Item4) + "\n";
-            if (sensorDataString.Length > 1e4)
+            sensorDataString += string.Join(',', record.Item3) + "\n";
+            //sensorDataString += string.Join(',', record.Item4) + "\n";
+            if (sensorDataString.Length > 1e5)
             {
                 File.AppendAllText(path + "sensor0.csv", sensorDataString);
                 sensorDataString = "";
+            }
+        }
+
+        private void ProcessLocationData(Android.Locations.Location data)
+        {
+            if (data == null) return;
+            locationDataString += data.Altitude + "," + data.Accuracy + ","
+                + data.Bearing + "," + data.Latitude + ","
+                + data.Longitude + "," + data.Speed + ","
+                + data.Time + "," + data.ElapsedRealtimeNanos + ","
+                + data.Provider + "\n";
+            if (locationDataString.Length > 1e4)
+            {
+                File.AppendAllText(path + "location.csv", locationDataString);
+                locationDataString = "";
             }
         }
 

@@ -1,11 +1,13 @@
 #include "MySLAM_Native.h"
 #include "System.h"
 #include "SimpleEstimator.h"
+#include "SlideWindowFilter.h"
 #include "IMUData.h"
 
 //Gobal Varible
 ORB_SLAM2::System* gSystem;
 IMU::SimpleEstimator* gIMUEstimator;
+IMU::SlideWindowFilter* gSlideWindowFilter;
 ProgressChangedCallback gProgressChangedCallback = nullptr;
 cv::Mat gCVToGl;
 float gScale;
@@ -37,7 +39,7 @@ void InitSystem1(const char* rootPath)
 	gScale = 5;
 }
 
-void InitSystem2(const char* rootPath)
+void InitSystem2(const char* rootPath, int windowSize)
 {
 	if (gSystem != nullptr)
 	{
@@ -52,6 +54,11 @@ void InitSystem2(const char* rootPath)
 		delete gIMUEstimator;
 	}
 	gIMUEstimator = new IMU::SimpleEstimator(gSystem, rootPathStr + "imu.yaml");
+	if (gSlideWindowFilter != nullptr)
+	{
+		delete gSlideWindowFilter;
+	}
+	gSlideWindowFilter = new IMU::SlideWindowFilter(windowSize);
 	LOGI("Create a System Successfully!!!");
 	// init
 	gCVToGl = cv::Mat::zeros(4, 4, CV_32F);
@@ -68,7 +75,7 @@ int GetPose(long long mataddress, long long timestamp, float* out)
 	cv::Mat * pMat = (cv::Mat*)mataddress;
 	cv::Mat posemat = gSystem->TrackMonocular(*pMat, static_cast<double>(timestamp));
 
-	if (posemat.rows > 0)
+	if (!posemat.empty())
 	{
 		posemat = gCVToGl * posemat;
 		cv::transpose(posemat.clone(), posemat);
@@ -100,7 +107,8 @@ void EstimatePose(float* data, int n, long long timestamp, float* out)
 	// Input imu data.
 	for (int i = 0; i < n; i++)
 	{
-		gIMUEstimator->mIMUDataQ.push(IMU::IMUData::Decode(data + i * 16));
+		gIMUEstimator->mIMUDataQ.push(
+			gSlideWindowFilter->Filter(IMU::IMUData::Decode(data + i * 16)));
 	}
 	cv::Mat posemat = gIMUEstimator->Estimate(timestamp);
 	if (!posemat.empty())
@@ -131,6 +139,11 @@ void ReleaseMap()
 	{
 		delete gIMUEstimator;
 		gIMUEstimator = nullptr;
+	}
+	if (gSlideWindowFilter != nullptr)
+	{
+		delete gSlideWindowFilter;
+		gSlideWindowFilter = nullptr;
 	}
 }
 

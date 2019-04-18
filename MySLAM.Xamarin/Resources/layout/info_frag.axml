@@ -8,6 +8,11 @@
 		android:layout_marginTop="10dp"
 		android:layout_width="match_parent"
 		android:layout_height="210dp"/>
+    <Button
+        android:text="Start Only IMU"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/only_imu" />
 	<TextView
 		android:text="0.001"
 		android:textSize="30dp"

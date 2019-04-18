@@ -1,7 +1,6 @@
 #ifndef IMUDATA_H
 #define IMUDATA_H
 
-#include <vector>
 #include <opencv2/core/core.hpp>
 
 namespace IMU
@@ -10,6 +9,7 @@ class IMUData
 {
 public:
 	IMUData(cv::Mat R, long long timestamp, cv::Vec3f acc);
+	IMUData();
 	~IMUData();
 	static IMUData* Decode(float* raw);
 public:

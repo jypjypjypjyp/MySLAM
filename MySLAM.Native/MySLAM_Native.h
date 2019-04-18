@@ -19,7 +19,7 @@ extern "C" JNIEXPORT void JNICALL RegisterProgressChangedCallback(ProgressChange
 extern "C" JNIEXPORT void JNICALL UnRegisterProgressChangedCallback();
 
 extern "C" JNIEXPORT void JNICALL InitSystem1(const char* rootpath);
-extern "C" JNIEXPORT void JNICALL InitSystem2(const char* rootpath);
+extern "C" JNIEXPORT void JNICALL InitSystem2(const char* rootpath, int windowSize);
 
 extern "C" JNIEXPORT int JNICALL GetPose(long long mataddress, long long timestamp, float* out);
 

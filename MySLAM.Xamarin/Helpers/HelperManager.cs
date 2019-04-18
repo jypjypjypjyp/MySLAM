@@ -11,7 +11,7 @@ namespace MySLAM.Xamarin.Helpers
                 _mainActivity = value;
                 _cameraHelper = null;
                 _permissionHelper = null;
-                _IMUHelper = null;
+                _SensorHelper = null;
                 _locationHelper = null;
             }
         }
@@ -37,15 +37,15 @@ namespace MySLAM.Xamarin.Helpers
                 return _permissionHelper;
             }
         }
-        public static MySensorHelper IMUHelper
+        public static MySensorHelper SensorHelper
         {
             get
             {
-                if(_IMUHelper == null)
+                if(_SensorHelper == null)
                 {
-                    _IMUHelper = new MySensorHelper(_mainActivity);
+                    _SensorHelper = new MySensorHelper(_mainActivity);
                 }
-                return _IMUHelper;
+                return _SensorHelper;
             }
         }
         public static MyLocationHelper LocationHelper
@@ -63,7 +63,7 @@ namespace MySLAM.Xamarin.Helpers
         public static Activity _mainActivity;
         public static MyCameraHelper _cameraHelper;
         public static MyPermissionHelper _permissionHelper;
-        public static MySensorHelper _IMUHelper;
+        public static MySensorHelper _SensorHelper;
         public static MyLocationHelper _locationHelper;
     }
 }

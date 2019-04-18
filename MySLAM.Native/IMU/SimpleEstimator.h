@@ -18,7 +18,8 @@ enum eTrackingState
 	NotInitialized = 1,
 	On = 2,
 	Steady = 4,
-	OK = 5,
+	VisualOK = 5,
+	IMUOK = 6,
 	Lost = 3
 };
 class SimpleEstimator
@@ -36,6 +37,8 @@ private:
 	void TryUpdateParams(long long timestamp);
 	void UpdateEstimateV0(long long start, long long end);
 	std::vector<SimpleIMUFrame*>::iterator FindFrame(long long timestamp);
+	static cv::Mat TcwToTwc(cv::Mat& Tcw);
+	static cv::Mat TwcToTcw(cv::Mat& Twc);
 private:
 	ORB_SLAM2::System* mSystemPtr;
 	cv::Mat mIMUCovar;
@@ -47,11 +50,10 @@ private:
 	long long mTrackT;
 	cv::Vec3f dx1, dx2;
 	long long dts1, dts2;
-	cv::Mat mTranformR,mTranformRInv;
+	cv::Mat mTranformR, mTranformRInv;
 	std::mutex mTrackMutex;
+	static cv::Mat r1, r21;
 };
 }
 
 #endif // ESTIMATOR_H
-
-

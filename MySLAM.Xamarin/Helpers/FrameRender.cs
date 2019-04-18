@@ -41,7 +41,7 @@ namespace MySLAM.Xamarin.Helpers
         public static event CallBack Update = delegate { };
 
         private readonly DateTime fromSystemInit;
-        public float[] Pose;
+        public float[] VMat;
 
         public AR1FrameRender()
         {
@@ -56,7 +56,7 @@ namespace MySLAM.Xamarin.Helpers
             if (!isDisposed)
             {
                 State = TrackingState.NotReady;
-                HelperManager.IMUHelper.UnRegister();
+                HelperManager.SensorHelper.UnRegister();
                 ReleaseMap();
                 isDisposed = true;
             }
@@ -69,7 +69,7 @@ namespace MySLAM.Xamarin.Helpers
 
             State = GetPose(rgbaFrame.NativeObjAddr,
                         (long)(DateTime.Now - fromSystemInit).TotalMilliseconds * 1000,
-                        Pose);
+                        VMat);
             switch (State)
             {
                 case TrackingState.NotReady:
@@ -79,7 +79,7 @@ namespace MySLAM.Xamarin.Helpers
                 case TrackingState.NotInitialized:
                     break;
                 case TrackingState.On:
-                    Update(Pose);
+                    Update(VMat);
                     break;
                 case TrackingState.Lost:
                     break;
@@ -122,7 +122,6 @@ namespace MySLAM.Xamarin.Helpers
         private HandlerThread imuThread;
         // Reference of VMat
         private float[] _VMat;
-        private float[] pose = new float[16];
         private List<float[]> _IMUData = new List<float[]>();
 
         public AR2FrameRender()
@@ -131,11 +130,11 @@ namespace MySLAM.Xamarin.Helpers
         }
         public void Perpare(float[] vmat)
         {
-            InitSystem(AppConst.RootPath);
+            InitSystem(AppConst.RootPath,HelperManager.SensorHelper.GetWindowSize());
             imuThread = new HandlerThread("IMU Handler Thread");
             imuThread.Start();
             imuHandler = new Handler(imuThread.Looper);
-            HelperManager.IMUHelper.Register(MySensorHelper.ModeType.AR,
+            HelperManager.SensorHelper.Register(MySensorHelper.ModeType.AR,
                 (object data) =>
                 {
                     lock (_IMUData)
@@ -157,7 +156,7 @@ namespace MySLAM.Xamarin.Helpers
                 imuThread.Join();
                 imuThread = null;
                 imuHandler = null;
-                HelperManager.IMUHelper.UnRegister();
+                HelperManager.SensorHelper.UnRegister();
                 ReleaseMap();
                 isDisposed = true;
             }
@@ -168,7 +167,7 @@ namespace MySLAM.Xamarin.Helpers
         {
             var rgbMat = inputFrame.Rgba();
             // Uniform timestamp by IMU
-            long timestamp = HelperManager.IMUHelper.Timestamp;
+            long timestamp = HelperManager.SensorHelper.Timestamp;
             if (timestamp == 0) goto Finish;
             // State Machine Control
             switch (State)
@@ -199,8 +198,8 @@ namespace MySLAM.Xamarin.Helpers
                 data = _IMUData.Aggregate((cat, next) => cat.Concat(next).ToArray());
                 _IMUData.Clear();
             }
-            EstimatePose(data, n, timestamp, pose);
-            Update(pose);
+            EstimatePose(data, n, timestamp, _VMat);
+            Update(_VMat);
             goto Finish;
             ORB_SLAM2:
             long matAddr = rgbMat.NativeObjAddr;
@@ -212,13 +211,13 @@ namespace MySLAM.Xamarin.Helpers
             State = TrackingState.Running;
             goto Estimate;
             Finish:
-            MatExtension.ConvertToGL(pose, _VMat);
+            //MatExtension.ConvertToGL(pose, _VMat);
             return rgbMat;
         }
 
         #region Native
         [DllImport("MySLAM_Native", EntryPoint = "InitSystem2")]
-        private static extern void InitSystem(string rootPath);
+        private static extern void InitSystem(string rootPath, int windowSize);
         [DllImport("MySLAM_Native", EntryPoint = "UpdateTracking")]
         private static extern TrackingState UpdateTracking(long mataddress, long timestamp);
         [DllImport("MySLAM_Native", EntryPoint = "EstimatePose")]

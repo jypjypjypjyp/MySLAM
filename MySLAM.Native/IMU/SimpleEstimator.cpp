@@ -50,13 +50,14 @@ void SimpleEstimator::TrackMonocular(cv::Mat & im, long long timestamp)
 	auto prevPose = mTrackPose;
 	auto prevState = mTrackState;
 	// Track
-	auto tempMat = mSystemPtr->TrackMonocular(im, static_cast<double>(timestamp));
+	auto Tcw = mSystemPtr->TrackMonocular(im, static_cast<double>(timestamp));
 	{
 		std::unique_lock<std::mutex> lock(mTrackMutex);
 		mTrackState = static_cast<eTrackingState>(mSystemPtr->GetTrackingState());
 		if (mTrackState == On)
 		{
-			mTrackPose = tempMat;
+			auto Twc = TcwToTwc(Tcw);
+			mTrackPose = Twc;
 			mTrackT = timestamp;
 			// Update EstimateV0: make sure estimatev0 is always the last track frame's velocity.
 			UpdateEstimateV0(pervT, mTrackT);
@@ -126,8 +127,8 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 	mIMUFrameV.erase(mIMUFrameV.begin(), mIMUFrameV.begin() + needToRemove + 1);
 	double dt1 = dts1 * 1e-9, dt2 = dts2 * 1e-9;
 	// Check if d1, d2 are suitable.
-	if (cv::norm(d1, 2) < 20 * 0.5 * cv::norm(mIMUBias, 2) * dt1 * dt1
-		|| cv::norm(d2, 2) < 20 * 0.5 * cv::norm(mIMUBias, 2) * dt2 * dt2)
+	if (cv::norm(d1, cv::NORM_L2) < 20 * 0.5 * cv::norm(mIMUBias, cv::NORM_L2) * dt1 * dt1
+		|| cv::norm(d2, cv::NORM_L2) < 20 * 0.5 * cv::norm(mIMUBias, cv::NORM_L2) * dt2 * dt2)
 		return;
 	cv::Vec3f A, C;
 	double B;
@@ -181,7 +182,7 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 	mIMUBias = cv::Vec3f(X.col(0).rowRange(0, 3));
 	cv::Vec3f v0 = (mScale * dx1 - d1 + 0.5 * mIMUBias * dt1 * dt1) / dt1;
 	mEstimatedV0 = v0 + dv1 + dv2;
-	mTrackState = OK;
+	mTrackState = VisualOK;
 }
 
 void SimpleEstimator::UpdateEstimateV0(long long start, long long end)
@@ -196,6 +197,47 @@ std::vector<SimpleIMUFrame*>::iterator SimpleEstimator::FindFrame(long long time
 {
 	SimpleIMUFrame temp(timestamp);
 	return std::lower_bound(std::begin(mIMUFrameV), std::end(mIMUFrameV), &temp, SimpleIMUFrame::Compare);
+}
+// Twc imu -> world system. Need to be rotate, because of landscape
+
+cv::Mat SimpleEstimator::r1 = []
+{
+	cv::Mat r1 = cv::Mat::zeros(3, 3, CV_32F);
+	r1.at<float>(0, 0) = 1;
+	r1.at<float>(1, 1) = -1;
+	r1.at<float>(2, 2) = -1;
+	return r1;
+}();
+cv::Mat SimpleEstimator::r21 = []
+{
+	cv::Mat r21 = cv::Mat::zeros(3, 3, CV_32F);
+	r21.at<float>(0, 1) = -1;
+	r21.at<float>(1, 0) = -1;
+	r21.at<float>(2, 2) = -1;
+	return r21;
+}();
+cv::Mat SimpleEstimator::TcwToTwc(cv::Mat & Tcw)
+{
+	cv::Mat rcw = Tcw.rowRange(0, 3).colRange(0, 3);
+	cv::Mat tcw = Tcw.rowRange(0, 3).col(3);
+	//rwc = r21.inv()*(r1.inv() * rcw).t();=> r.21.inv() = r21, r1.inv() = r1;
+	cv::Mat rwc = r1 * (r21 * rcw).t();
+	cv::Mat twc = -rcw.t() * tcw;
+	cv::Mat Twc = cv::Mat::eye(4, 4, Tcw.type());
+	rwc.copyTo(Twc.rowRange(0, 3).colRange(0, 3));
+	twc.copyTo(Twc.rowRange(0, 3).col(3));
+	return Twc;
+}
+cv::Mat SimpleEstimator::TwcToTcw(cv::Mat & Twc)
+{
+	cv::Mat rwc = Twc.rowRange(0, 3).colRange(0, 3);
+	cv::Mat twc = Twc.rowRange(0, 3).col(3);
+	cv::Mat rcw = (rwc * r21).t() * r1;
+	cv::Mat tcw = -rcw * twc;
+	cv::Mat Tcw = cv::Mat::eye(4, 4, Twc.type());
+	rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
+	tcw.copyTo(Tcw.rowRange(0, 3).col(3));
+	return Tcw;
 }
 
 cv::Mat SimpleEstimator::Estimate(long long timestamp)
@@ -225,27 +267,27 @@ cv::Mat SimpleEstimator::Estimate(long long timestamp)
 	{
 		std::unique_lock<std::mutex> lock(mTrackMutex);
 		mIMUFrameV.push_back(new SimpleIMUFrame(mIMUDataQ.front()->mR, timestamp, displacement, dv));
-		if (mTrackState == OK && !mTrackPose.empty())
+		if (mTrackState >= VisualOK && !mTrackPose.empty())
 		{
 			cv::Mat estimatedPose = cv::Mat::eye(4, 4, CV_32F);
 			mIMUDataQ.back()->mR.copyTo(estimatedPose(cv::Rect(0, 0, 3, 3)));
 			// Estimate
 			cv::Vec3f velocity = mEstimatedV0;
 			cv::Vec3f position(mTrackPose(cv::Rect(3, 0, 1, 3)));
-			auto iter = FindFrame(mTrackT);
-			long long pervT = mTrackT;
-			// Scale, now position unit is m 
-			position *= mScale;
-			while (++iter != mIMUFrameV.end())
-			{
-				position += velocity * (((*iter)->mTimestamp - pervT) * 1e-9) + (*iter)->mDisplacement;
-				velocity += (*iter)->mDVelocity;
-				pervT = (*iter)->mTimestamp;
-			}
-			position -= 0.5 * mIMUBias * ((timestamp - mTrackT) * 1e-9) * ((timestamp - mTrackT) * 1e-9);
+			//auto iter = FindFrame(mTrackT);
+			//long long pervT = mTrackT;
+			//// Scale, now position unit is m 
+			position *= 5;
+			//while (++iter != mIMUFrameV.end())
+			//{
+			//	position += velocity * (((*iter)->mTimestamp - pervT) * 1e-9) + (*iter)->mDisplacement;
+			//	velocity += (*iter)->mDVelocity;
+			//	pervT = (*iter)->mTimestamp;
+			//}
+			//position -= 0.5 * mIMUBias * ((timestamp - mTrackT) * 1e-9) * ((timestamp - mTrackT) * 1e-9);
 			cv::Mat(position).copyTo(estimatedPose(cv::Rect(3, 0, 1, 3)));
 			estimatedPose = mTranformRInv * estimatedPose;
-			return estimatedPose;
+			return TwcToTcw(estimatedPose);
 		}
 		else
 		{

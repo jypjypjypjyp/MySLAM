@@ -9,6 +9,7 @@ using Android.Runtime;
 using Android.Support.V4.Content;
 using Android.Util;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace MySLAM.Xamarin.Helpers
@@ -175,18 +176,17 @@ namespace MySLAM.Xamarin.Helpers
         }
         public class MyCaptureCallback : CameraCaptureSession.CaptureCallback, IMyCallback
         {
-            private int fps = 0;
-            private int frames = 0;
-            private long lastUpdate = 0;
+            private int fps;
+            private int frames;
+            private long lastUpdate;
             public MyCameraHelper Outer { get; set; }
             public event Callback Callback = delegate { };
-
             public override void OnCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result)
             {
                 base.OnCaptureCompleted(session, request, result);
                 frames++;
-                long timestamp = (long)result.Get(CaptureResult.SensorTimestamp);
-                if (lastUpdate == 0)
+                var timestamp = (long)result.Get(CaptureResult.SensorTimestamp);
+                if (lastUpdate == default)
                 {
                     lastUpdate = timestamp;
                 }

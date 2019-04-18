@@ -64,7 +64,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>Clang_3_8</PlatformToolset>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <UseOfStl>gnustl_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -180,9 +181,17 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)IMU;$(ProjectDir)ORB_SLAM2;$(ProjectDir)ORB_SLAM2\include;$(ProjectDir)OpenCV\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <ExceptionHandling>Enabled</ExceptionHandling>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <CppLanguageStandard>c++11</CppLanguageStandard>
     </ClCompile>
+    <Link>
+      <LibraryDependencies>m;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Eigen\src\Cholesky\LDLT.h" />
@@ -838,6 +847,7 @@
     <ClInclude Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.h" />
     <ClInclude Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="IMU\SlideWindowFilter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IMU\IMUData.cpp" />
@@ -898,6 +908,7 @@
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_sba.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.cpp" />
+    <ClCompile Include="IMU\SlideWindowFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Eigen\Array" />

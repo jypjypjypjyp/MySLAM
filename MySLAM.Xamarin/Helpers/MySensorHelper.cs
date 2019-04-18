@@ -4,9 +4,9 @@ using Android.Hardware;
 using Android.Opengl;
 using Android.OS;
 using Android.Runtime;
-using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MySLAM.Xamarin.Helpers
 {
@@ -26,12 +26,14 @@ namespace MySLAM.Xamarin.Helpers
         private Sensor linearAccel;
         private Sensor accel;
         private Sensor gyro;
+        private Sensor rotate;
         private Sensor grav;
         private Sensor magnet;
         private Sensor pressure;
 
         private IList<float> accelData;
         private IList<float> gyroData;
+        private IList<float> rotateData;
         private IList<float> gravData;
         private IList<float> magnetData;
         private IList<float> pressureData;
@@ -42,6 +44,7 @@ namespace MySLAM.Xamarin.Helpers
             linearAccel = sensorManager.GetDefaultSensor(SensorType.LinearAcceleration);
             accel = sensorManager.GetDefaultSensor(SensorType.Accelerometer);
             gyro = sensorManager.GetDefaultSensor(SensorType.Gyroscope);
+            rotate = sensorManager.GetDefaultSensor(SensorType.RotationVector);
             grav = sensorManager.GetDefaultSensor(SensorType.Gravity);
             magnet = sensorManager.GetDefaultSensor(SensorType.MagneticField);
             pressure = sensorManager.GetDefaultSensor(SensorType.Pressure);
@@ -61,6 +64,7 @@ namespace MySLAM.Xamarin.Helpers
                     break;
                 case ModeType.AR:
                     sensorManager.RegisterListener(this, linearAccel, sensorRate, handler);
+                    sensorManager.RegisterListener(this, rotate, sensorRate, handler);
                     sensorManager.RegisterListener(this, grav, sensorRate, handler);
                     sensorManager.RegisterListener(this, magnet, sensorRate, handler);
                     break;
@@ -99,6 +103,9 @@ namespace MySLAM.Xamarin.Helpers
                 case SensorType.Gyroscope:
                     gyroData = e.Values;
                     return;
+                case SensorType.RotationVector:
+                    rotateData = e.Values;
+                    return;
                 case SensorType.Gravity:
                     gravData = e.Values;
                     return;
@@ -116,14 +123,15 @@ namespace MySLAM.Xamarin.Helpers
                 case ModeType.Close:
                     break;
                 case ModeType.Record when gyroData != null && pressureData != null:
-                    ProcessSensorData((timestamp, accelData, gyroData, pressureData));
+                    ProcessSensorData((timestamp, gyroData, accelData, pressureData));
                     break;
-                case ModeType.AR when gravData != null && magnetData != null:
+                case ModeType.AR when rotateData != null:
                 {
+                    
                     float[] RT = new float[16],
                                     T = new float[4],
                                     A = accelData.Append(0).ToArray();
-                    SensorManager.GetRotationMatrix(RT, null, gravData.ToArray(), magnetData.ToArray());
+                    SensorManager.GetRotationMatrixFromVector(RT, rotateData.ToArray());
 
                     float[] inv = new float[16];
                     //OpenGL Matrix based on Columns
@@ -155,6 +163,23 @@ namespace MySLAM.Xamarin.Helpers
                     break;
             }
             Timestamp = timestamp;
+        }
+
+        public int GetWindowSize()
+        {
+            switch ((SensorDelay)AppSetting.IMUFreq)
+            {
+                case SensorDelay.Fastest:
+                    return 20;
+                case SensorDelay.Game:
+                    return 5;
+                case SensorDelay.Normal:
+                    return 2;
+                case SensorDelay.Ui:
+                    return 1;
+                default:
+                    return 1;
+            }
         }
     }
 }

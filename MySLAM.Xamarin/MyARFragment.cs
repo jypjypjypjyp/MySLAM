@@ -14,6 +14,7 @@ using Org.Opencv.Core;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Threading;
+using Android.Hardware;
 
 namespace MySLAM.Xamarin
 {
@@ -134,7 +135,8 @@ namespace MySLAM.Xamarin
                 case Resource.Id.model_square:
                     renderer.ManageEntitys((e) =>
                     {
-                        e["still square 1"] = new StillSquare(1.5f);
+                        e["still square 1"] = new StillSquare(5f);
+
                     });
                     break;
             }
@@ -157,7 +159,7 @@ namespace MySLAM.Xamarin
                 AR1FrameRender.Update += Update;
                 UnRegisterProgressChangedCallback();
                 //Pass VMat ref of GLES's renderer to ARFrameRender
-                ((AR1FrameRender)ARHelper.FrameRender).Pose = renderer.VMat;
+                ((AR1FrameRender)ARHelper.FrameRender).VMat = renderer.VMat;
             });
             dialogFragment.Dismiss();
         }
