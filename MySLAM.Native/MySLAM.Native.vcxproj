@@ -846,8 +846,8 @@
     <ClInclude Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_sba.h" />
     <ClInclude Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.h" />
     <ClInclude Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="IMU\SlideWindowFilter.h" />
+    <ClInclude Include="IMU\IMUSlideWindowFilter.h" />
+    <ClInclude Include="IMU\PoseSlideWindowFilter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IMU\IMUData.cpp" />
@@ -908,7 +908,8 @@
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_sba.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_seven_dof_expmap.cpp" />
     <ClCompile Include="ORB_SLAM2\Thirdparty\g2o\g2o\types\types_six_dof_expmap.cpp" />
-    <ClCompile Include="IMU\SlideWindowFilter.cpp" />
+    <ClCompile Include="IMU\IMUSlideWindowFilter.cpp" />
+    <ClCompile Include="IMU\PoseSlideWindowFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Eigen\Array" />

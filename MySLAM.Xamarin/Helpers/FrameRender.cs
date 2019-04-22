@@ -1,12 +1,10 @@
 ﻿using Android.OS;
-using Org.Opencv.Android;
-using Org.Opencv.Core;
+using MySLAM.Xamarin.Helpers.Calibrator;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Linq;
-using MySLAM.Xamarin.Helpers.Calibrator;
 
 namespace MySLAM.Xamarin.Helpers
 {
@@ -98,8 +96,7 @@ namespace MySLAM.Xamarin.Helpers
         private static extern void ReleaseMap();
         #endregion
     }
-
-
+    
     public class AR2FrameRender : FrameRender, IDisposable
     {
         public delegate void Callback(float[] a);
@@ -114,7 +111,9 @@ namespace MySLAM.Xamarin.Helpers
             On = 2,
             Lost = 3,
             Steady = 4,
-            Running = 5
+            VisualOK = 5,
+            IMUOK = 6,
+            Running = 7
         }
         public volatile TrackingState State;
 
@@ -130,7 +129,7 @@ namespace MySLAM.Xamarin.Helpers
         }
         public void Perpare(float[] vmat)
         {
-            InitSystem(AppConst.RootPath,HelperManager.SensorHelper.GetWindowSize());
+            InitSystem(AppConst.RootPath, HelperManager.SensorHelper.GetWindowSize());
             imuThread = new HandlerThread("IMU Handler Thread");
             imuThread.Start();
             imuHandler = new Handler(imuThread.Looper);
@@ -172,24 +171,21 @@ namespace MySLAM.Xamarin.Helpers
             // State Machine Control
             switch (State)
             {
-                case TrackingState.Ready:
-                    goto ORB_SLAM2;
                 case TrackingState.NotReady:
                     goto Finish;
+                case TrackingState.Ready:
                 case TrackingState.NoImagesYet:
-                    goto ORB_SLAM2;
                 case TrackingState.NotInitialized:
-                    goto ORB_SLAM2;
                 case TrackingState.On:
-                    goto ORB_SLAM2;
                 case TrackingState.Lost:
-                    goto ORB_SLAM2;
                 case TrackingState.Steady:
+                case TrackingState.VisualOK:
+                case TrackingState.IMUOK:
                     goto ORB_SLAM2;
                 case TrackingState.Running:
                     goto Estimate;
             }
-            Estimate:
+        Estimate:
             float[] data;
             int n;
             lock (_IMUData)
@@ -201,7 +197,7 @@ namespace MySLAM.Xamarin.Helpers
             EstimatePose(data, n, timestamp, _VMat);
             Update(_VMat);
             goto Finish;
-            ORB_SLAM2:
+        ORB_SLAM2:
             long matAddr = rgbMat.NativeObjAddr;
             Task.Run(
                 () =>
@@ -210,8 +206,7 @@ namespace MySLAM.Xamarin.Helpers
                 });
             State = TrackingState.Running;
             goto Estimate;
-            Finish:
-            //MatExtension.ConvertToGL(pose, _VMat);
+        Finish:
             return rgbMat;
         }
 

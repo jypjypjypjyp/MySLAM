@@ -170,9 +170,9 @@ namespace MySLAM.Xamarin.Helpers
             switch ((SensorDelay)AppSetting.IMUFreq)
             {
                 case SensorDelay.Fastest:
-                    return 20;
-                case SensorDelay.Game:
                     return 5;
+                case SensorDelay.Game:
+                    return 3;
                 case SensorDelay.Normal:
                     return 2;
                 case SensorDelay.Ui:

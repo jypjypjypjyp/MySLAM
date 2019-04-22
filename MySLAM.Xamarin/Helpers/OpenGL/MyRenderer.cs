@@ -31,7 +31,7 @@ namespace MySLAM.Xamarin.Helpers.OpenGL
         {
             GLES30.GlViewport(0, 0, width, height);
             float ratio = (float)width / height;
-            Matrix.FrustumM(_PMat, 0, -ratio, ratio, -1, 1, 3, 10);
+            Matrix.FrustumM(_PMat, 0, -ratio, ratio, -1, 1, 2, 10);
         }
         public void OnSurfaceCreated(IGL10 gl, Javax.Microedition.Khronos.Egl.EGLConfig config)
         {

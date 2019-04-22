@@ -52,6 +52,7 @@ namespace MySLAM.Xamarin.Helpers
                 case LocationState.Available:
                     this.action = action;
                     locationManager.RequestLocationUpdates(LocationManager.GpsProvider, 100, 1f, this);
+                    State = LocationState.On;
                     return true;
                 case LocationState.On:
                     return true;

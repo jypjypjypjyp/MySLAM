@@ -41,7 +41,7 @@
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidEnableSGenConcurrent>false</AndroidEnableSGenConcurrent>
     <AndroidSupportedAbis>arm64-v8a</AndroidSupportedAbis>
-    <Debugger>Native</Debugger>
+    <Debugger>Xamarin</Debugger>
     <EnableProguard>false</EnableProguard>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>CS0618</NoWarn>

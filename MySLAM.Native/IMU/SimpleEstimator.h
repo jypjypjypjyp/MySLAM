@@ -6,6 +6,7 @@
 #include <queue>
 #include <utility>
 #include "System.h"
+#include "PoseSlideWindowFilter.h"
 #include "SimpleIMUFrame.h"
 #include "IMUData.h"
 
@@ -17,15 +18,15 @@ enum eTrackingState
 	NoImagesYet = 0,
 	NotInitialized = 1,
 	On = 2,
+	Lost = 3,
 	Steady = 4,
 	VisualOK = 5,
-	IMUOK = 6,
-	Lost = 3
+	IMUOK = 6
 };
 class SimpleEstimator
 {
 public:
-	SimpleEstimator(ORB_SLAM2::System* system, const std::string& strSettingsFile);
+	SimpleEstimator(ORB_SLAM2::System* system,PoseSlideWindowFilter* pswf, const std::string& strSettingsFile);
 	~SimpleEstimator();
 	cv::Mat Estimate(long long timestamp);
 	void TrackMonocular(cv::Mat& im, long long timestamp);
@@ -41,9 +42,10 @@ private:
 	static cv::Mat TwcToTcw(cv::Mat& Twc);
 private:
 	ORB_SLAM2::System* mSystemPtr;
+	PoseSlideWindowFilter* mPoseSlideWindowFilterPtr;
 	cv::Mat mIMUCovar;
 	cv::Vec3f mIMUBias;
-	cv::Mat X, K, P;
+	cv::Mat X, K，P, H, Z;
 	cv::Mat mTrackPose;
 	float mScale;
 	cv::Vec3f mEstimatedV0;
@@ -52,7 +54,8 @@ private:
 	long long dts1, dts2;
 	cv::Mat mTranformR, mTranformRInv;
 	std::mutex mTrackMutex;
-	static cv::Mat r1, r21;
+	static cv::Mat r1, r2, r3, r4;
+	cv::Vec3f vv;
 };
 }
 

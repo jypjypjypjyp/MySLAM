@@ -135,8 +135,7 @@ namespace MySLAM.Xamarin
                 case Resource.Id.model_square:
                     renderer.ManageEntitys((e) =>
                     {
-                        e["still square 1"] = new StillSquare(5f);
-
+                        e["still square 1"] = new StillSquare(3f);
                     });
                     break;
             }

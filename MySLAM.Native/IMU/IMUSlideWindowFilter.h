@@ -1,16 +1,16 @@
-#ifndef SLIDEWINDOWFILTER_H
-#define SLIDEWINDOWFILTER_H
+#ifndef IMUSLIDEWINDOWFILTER_H
+#define IMUSLIDEWINDOWFILTER_H
 
 #include "IMUData.h"
 #include <queue>
 
 namespace IMU
 {
-class SlideWindowFilter
+class IMUSlideWindowFilter
 {
 public:
-	SlideWindowFilter(int windowSize);
-	~SlideWindowFilter();
+	IMUSlideWindowFilter(int windowSize);
+	~IMUSlideWindowFilter();
 	IMUData* Filter(IMUData * input);
 private:
 	IMUData mWindowSum;
@@ -20,4 +20,4 @@ private:
 };
 }
 
-#endif // SLIDEWINDOWFILTER_H
+#endif // IMUSLIDEWINDOWFILTER_H

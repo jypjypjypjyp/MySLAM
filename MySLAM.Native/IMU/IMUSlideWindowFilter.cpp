@@ -1,15 +1,16 @@
-#include "SlideWindowFilter.h"
+#include "IMUSlideWindowFilter.h"
+#include <cmath>
 
 namespace IMU
 {
-SlideWindowFilter::SlideWindowFilter(int windowSize)
+IMUSlideWindowFilter::IMUSlideWindowFilter(int windowSize)
 {
 	mWindowSize = windowSize;
 	mCurWindoSize = 0;
 	mWindowSum = IMUData();
 }
 
-SlideWindowFilter::~SlideWindowFilter()
+IMUSlideWindowFilter::~IMUSlideWindowFilter()
 {
 	while (!mWindow.empty())
 	{
@@ -18,7 +19,7 @@ SlideWindowFilter::~SlideWindowFilter()
 	}
 }
 
-IMUData * SlideWindowFilter::Filter(IMUData * input)
+IMUData * IMUSlideWindowFilter::Filter(IMUData * input)
 {
 	// Slide Window 
 	if (mCurWindoSize < mWindowSize)
@@ -33,17 +34,16 @@ IMUData * SlideWindowFilter::Filter(IMUData * input)
 		mWindowSum.mAcceleration -= temp->mAcceleration;
 		delete temp;
 	}
+	if (std::abs(input->mAcceleration[0]) < 0.3 &&
+		std::abs(input->mAcceleration[1]) < 0.3 &&
+		std::abs(input->mAcceleration[2]) < 0.3)
+		input->mAcceleration = cv::Vec3f(0, 0, 0);
 	mWindow.push(input);
 	mWindowSum.mR += input->mR;
 	mWindowSum.mAcceleration += input->mAcceleration;
-	float a = input->mR.at<float>(0, 0);
-	float b = mWindowSum.mR.at<float>(0,0);
-	cv::Mat bb = mWindowSum.mR / mCurWindoSize;
-	float c = bb.at<float>(0, 0);
-	auto result = new IMUData(mWindowSum.mR / mCurWindoSize,
+	return new IMUData(mWindowSum.mR / mCurWindoSize,
 		input->mTimestamp,
 		mWindowSum.mAcceleration / mCurWindoSize);
-	return result;
 }
 
 }

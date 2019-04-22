@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="pch.h" />
     <ClInclude Include="MySLAM_Native.h" />
     <ClInclude Include="Eigen\src\Cholesky\LDLT.h" />
     <ClInclude Include="Eigen\src\Cholesky\LLT.h" />
@@ -654,7 +653,8 @@
     <ClInclude Include="IMU\SimpleIMUFrame.h" />
     <ClInclude Include="IMU\SimpleEstimator.h" />
     <ClInclude Include="IMU\IMUData.h" />
-    <ClInclude Include="IMU\SlideWindowFilter.h" />
+    <ClInclude Include="IMU\IMUSlideWindowFilter.h" />
+    <ClInclude Include="IMU\PoseSlideWindowFilter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MySLAM_Native.cpp" />
@@ -715,7 +715,8 @@
     <ClCompile Include="IMU\SimpleEstimator.cpp" />
     <ClCompile Include="IMU\IMUData.cpp" />
     <ClCompile Include="IMU\SimpleIMUFrame.cpp" />
-    <ClCompile Include="IMU\SlideWindowFilter.cpp" />
+    <ClCompile Include="IMU\IMUSlideWindowFilter.cpp" />
+    <ClCompile Include="IMU\PoseSlideWindowFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Eigen\Cholesky" />

@@ -1,13 +1,15 @@
 #include "MySLAM_Native.h"
 #include "System.h"
 #include "SimpleEstimator.h"
-#include "SlideWindowFilter.h"
+#include "IMUSlideWindowFilter.h"
+#include "PoseSlideWindowFilter.h"
 #include "IMUData.h"
 
 //Gobal Varible
 ORB_SLAM2::System* gSystem;
 IMU::SimpleEstimator* gIMUEstimator;
-IMU::SlideWindowFilter* gSlideWindowFilter;
+IMU::IMUSlideWindowFilter* gIMUSlideWindowFilter;
+IMU::PoseSlideWindowFilter* gPoseSlideWindowFilter;
 ProgressChangedCallback gProgressChangedCallback = nullptr;
 cv::Mat gCVToGl;
 float gScale;
@@ -38,7 +40,6 @@ void InitSystem1(const char* rootPath)
 	gCVToGl.at<float>(3, 3) = 1.0f;
 	gScale = 5;
 }
-
 void InitSystem2(const char* rootPath, int windowSize)
 {
 	if (gSystem != nullptr)
@@ -47,18 +48,23 @@ void InitSystem2(const char* rootPath, int windowSize)
 	}
 	string rootPathStr(rootPath);
 	gSystem = new ORB_SLAM2::System(rootPathStr + "ORBvoc.bin", rootPathStr + "orb_slam2.yaml", ORB_SLAM2::System::MONOCULAR);
+	if (gIMUSlideWindowFilter != nullptr)
+	{
+		delete gIMUSlideWindowFilter;
+	}
+	gIMUSlideWindowFilter = new IMU::IMUSlideWindowFilter(windowSize);
+	if (gPoseSlideWindowFilter != nullptr)
+	{
+		delete gPoseSlideWindowFilter;
+	}
+	gPoseSlideWindowFilter = new IMU::PoseSlideWindowFilter(windowSize);
 	// LocalizationMode is inefficient
 	//gSystem->ActivateLocalizationMode();
 	if (gIMUEstimator != nullptr)
 	{
 		delete gIMUEstimator;
 	}
-	gIMUEstimator = new IMU::SimpleEstimator(gSystem, rootPathStr + "imu.yaml");
-	if (gSlideWindowFilter != nullptr)
-	{
-		delete gSlideWindowFilter;
-	}
-	gSlideWindowFilter = new IMU::SlideWindowFilter(windowSize);
+	gIMUEstimator = new IMU::SimpleEstimator(gSystem, gPoseSlideWindowFilter, rootPathStr + "imu.yaml");
 	LOGI("Create a System Successfully!!!");
 	// init
 	gCVToGl = cv::Mat::zeros(4, 4, CV_32F);
@@ -99,7 +105,6 @@ int UpdateTracking(long long mataddress, long long timestamp)
 	// Track Monocular
 	gIMUEstimator->TrackMonocular(*imgMat, timestamp);
 	return gIMUEstimator->mTrackState;
-	return 0;
 }
 
 void EstimatePose(float* data, int n, long long timestamp, float* out)
@@ -108,7 +113,7 @@ void EstimatePose(float* data, int n, long long timestamp, float* out)
 	for (int i = 0; i < n; i++)
 	{
 		gIMUEstimator->mIMUDataQ.push(
-			gSlideWindowFilter->Filter(IMU::IMUData::Decode(data + i * 16)));
+			gIMUSlideWindowFilter->Filter(IMU::IMUData::Decode(data + i * 16)));
 	}
 	cv::Mat posemat = gIMUEstimator->Estimate(timestamp);
 	if (!posemat.empty())
@@ -140,10 +145,15 @@ void ReleaseMap()
 		delete gIMUEstimator;
 		gIMUEstimator = nullptr;
 	}
-	if (gSlideWindowFilter != nullptr)
+	if (gIMUSlideWindowFilter != nullptr)
 	{
-		delete gSlideWindowFilter;
-		gSlideWindowFilter = nullptr;
+		delete gIMUSlideWindowFilter;
+		gIMUSlideWindowFilter = nullptr;
+	}
+	if (gPoseSlideWindowFilter != nullptr)
+	{
+		delete gPoseSlideWindowFilter;
+		gPoseSlideWindowFilter = nullptr;
 	}
 }
 
