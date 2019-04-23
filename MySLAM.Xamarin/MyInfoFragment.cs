@@ -1,8 +1,10 @@
 ﻿using Android.App;
+using Android.Opengl;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
 using MySLAM.Xamarin.Helpers;
+using MySLAM.Xamarin.Helpers.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,10 +13,9 @@ namespace MySLAM.Xamarin
 {
     public class MyInfoFragment : Fragment
     {
-        Button onlyIMUBtn;
-        bool isRecording;
-        string path;
-        string sensorDataString;
+        public GLSurfaceView GLSurfaceView;
+        private MyARRenderer renderer;
+
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -28,46 +29,26 @@ namespace MySLAM.Xamarin
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            onlyIMUBtn = view.FindViewById<Button>(Resource.Id.only_imu);
-            onlyIMUBtn.Click += OnlyIMUBtn_Click;
-        }
+            //OpenGL 
+            GLSurfaceView = view.FindViewById<GLSurfaceView>(Resource.Id.info_gl_view);
+            GLSurfaceView.SetEGLContextClientVersion(3);
+            GLSurfaceView.SetEGLConfigChooser(8, 8, 8, 8, 16, 0); //Set Transparent
+            GLSurfaceView.Holder.SetFormat(Android.Graphics.Format.Translucent);
+            renderer = new MyARRenderer();
+            float[] a = renderer.VMat;
+            var b =new float[16] { 1,0,0,0,
+                            0,-1,0,0,
+                            0,0,-1,0,
+                            0,0,0,1};
+            b.CopyTo(a,0);
+            GLSurfaceView.SetRenderer(renderer);
+            GLSurfaceView.RenderMode = Rendermode.Continuously;
+            GLSurfaceView.SetZOrderOnTop(true);
 
-        private void OnlyIMUBtn_Click(object sender, System.EventArgs e)
-        {
-            if (isRecording)
+            renderer.ManageEntitys((e) =>
             {
-                onlyIMUBtn.Text = "Start Only IMU";
-                HelperManager.SensorHelper.UnRegister();
-                File.WriteAllText(path + "sensor0.csv", sensorDataString);
-                isRecording = false;
-            }
-            else
-            {
-                onlyIMUBtn.Text = "Stop Only IMU";
-                path =
-                    AppConst.RootPath
-                    + DateTime.Now.ToString("yyMMddHHmmss") + "/";
-                Directory.CreateDirectory(path);
-                File.AppendAllText(path + "sensor0.csv",
-                    "#timestamp,omega_x,omega_y,omega_z,alpha_x,alpha_y,alpha_z,pressure");
-                sensorDataString = "";
-                HelperManager.SensorHelper.Register(MySensorHelper.ModeType.Record, ProcessSensorData);
-                isRecording = true;
-            }
-        }
-
-        private void ProcessSensorData(object data)
-        {
-            var record = ((long, IList<float>, IList<float>, IList<float>))data;
-            sensorDataString += record.Item1 + ",";
-            sensorDataString += string.Join(',', record.Item2) + ",";
-            sensorDataString += string.Join(',', record.Item3) + "\n";
-            //sensorDataString += string.Join(',', record.Item4) + "\n";
-            if (sensorDataString.Length > 1e5)
-            {
-                File.AppendAllText(path + "sensor0.csv", sensorDataString);
-                sensorDataString = "";
-            }
+                e["Earth"] = new Earth(3f);
+            });
         }
     }
 }

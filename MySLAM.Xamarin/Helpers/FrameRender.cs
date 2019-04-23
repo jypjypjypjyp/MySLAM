@@ -1,5 +1,7 @@
 ﻿using Android.OS;
 using MySLAM.Xamarin.Helpers.Calibrator;
+using Org.Opencv.Android;
+using Org.Opencv.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,7 +98,7 @@ namespace MySLAM.Xamarin.Helpers
         private static extern void ReleaseMap();
         #endregion
     }
-    
+
     public class AR2FrameRender : FrameRender, IDisposable
     {
         public delegate void Callback(float[] a);

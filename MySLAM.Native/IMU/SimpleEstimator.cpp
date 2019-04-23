@@ -151,6 +151,10 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 		cv::Mat x;
 		cv::solve(h, z, x, CV_SVD);
 		float s = x.at<float>(0, 0);
+		std::stringstream ss;
+		ss << "s:" << s << std::endl;
+		ss << "i:" << H.rows << std::endl;
+		LOGE(ss.str().c_str());
 		// Filter out abnormal value
 		if (s<0 || s>0.1)
 			return;
@@ -287,20 +291,23 @@ cv::Mat SimpleEstimator::Estimate(long long timestamp)
 			long long pervT = mTrackT;
 			// Scale, now position unit is m 
 			position *= mScale;
-			cv::Vec3f displacement;
-			while (++iter != mIMUFrameV.end())
+			if (cv::norm(dx2, cv::NORM_L2) > 0.05)
 			{
-				displacement += velocity * (((*iter)->mTimestamp - pervT) * 1e-9) + (*iter)->mDisplacement;
-				velocity += (*iter)->mDVelocity;
-				pervT = (*iter)->mTimestamp;
+				cv::Vec3f displacement;
+				while (++iter != mIMUFrameV.end())
+				{
+					displacement += velocity * (((*iter)->mTimestamp - pervT) * 1e-9) + (*iter)->mDisplacement;
+					velocity += (*iter)->mDVelocity;
+					pervT = (*iter)->mTimestamp;
+				}
+				float k = 0.8 * cv::norm(dx2, cv::NORM_L2)*(timestamp - mTrackT) / (float)dts2;
+				if (cv::norm(displacement, cv::NORM_L2) > k * mScale)
+				{
+					displacement /= cv::norm(displacement, cv::NORM_L2);
+					displacement *= k * mScale;
+				}
+				position += displacement;
 			}
-			float k = cv::norm(dx2, cv::NORM_L2)*(timestamp - mTrackT) / (float)dts2;
-			if (cv::norm(displacement, cv::NORM_L2) > k * mScale)
-			{
-				displacement /= cv::norm(displacement, cv::NORM_L2);
-				displacement *= k * mScale;
-			}
-			position += displacement;
 			position = mPoseSlideWindowFilterPtr->Filter(position);
 			cv::Mat(position).copyTo(estimatedPose(cv::Rect(3, 0, 1, 3)));
 			estimatedPose = mTranformRInv * estimatedPose;

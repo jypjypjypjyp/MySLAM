@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.572
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCVAndroid", "OpenCVAndroid\OpenCVAndroid.csproj", "{1E6B84B3-34EF-4633-83E0-7BC23132DC51}"
 EndProject
@@ -24,6 +24,7 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1E6B84B3-34EF-4633-83E0-7BC23132DC51}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{1E6B84B3-34EF-4633-83E0-7BC23132DC51}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{1E6B84B3-34EF-4633-83E0-7BC23132DC51}.Debug|ARM.ActiveCfg = Debug|Any CPU
 		{1E6B84B3-34EF-4633-83E0-7BC23132DC51}.Debug|ARM.Build.0 = Debug|Any CPU
 		{1E6B84B3-34EF-4633-83E0-7BC23132DC51}.Debug|ARM64.ActiveCfg = Debug|Any CPU

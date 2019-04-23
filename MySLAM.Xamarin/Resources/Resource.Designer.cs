@@ -2685,6 +2685,9 @@ namespace MySLAM.Xamarin
 			// aapt resource value: 0x7f0800b4
 			public const int info = 2131230900;
 			
+			// aapt resource value: 0x7f0800a4
+			public const int info_gl_view = 2131230884;
+			
 			// aapt resource value: 0x7f080059
 			public const int italic = 2131230809;
 			
@@ -2765,9 +2768,6 @@ namespace MySLAM.Xamarin
 			
 			// aapt resource value: 0x7f0800af
 			public const int notification_main_column_container = 2131230895;
-			
-			// aapt resource value: 0x7f0800a4
-			public const int only_imu = 2131230884;
 			
 			// aapt resource value: 0x7f08004c
 			public const int parallax = 2131230796;
@@ -3323,7 +3323,10 @@ namespace MySLAM.Xamarin
 			public const int ic_launcher_round = 2130903042;
 			
 			// aapt resource value: 0x7f030003
-			public const int myslam_info = 2130903043;
+			public const int logo = 2130903043;
+			
+			// aapt resource value: 0x7f030004
+			public const int myslam_info = 2130903044;
 			
 			static Mipmap()
 			{

@@ -14,6 +14,7 @@ namespace MySLAM.Xamarin.Helpers
                 _SensorHelper = null;
                 _locationHelper = null;
             }
+            get => _mainActivity;
         }
         public static MyCameraHelper CameraHelper
         {

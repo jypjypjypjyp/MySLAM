@@ -38,8 +38,9 @@ namespace MySLAM.Xamarin.Helpers.OpenGL
             GLES30.GlClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             GLES30.GlEnable(GLES20.GlDepthTest);
             GLES30.GlEnable(GLES20.GlCullFaceMode);
-
-            Shader.Instance.UseProgram();
+            // Init shader program
+            SimpleShader.Instance.UseProgram();
+            BallShader.Instance.UseProgram();
             dictLock.Release();
         }
         #endregion

@@ -76,11 +76,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\MyLocationHelper.cs" />
+    <Compile Include="Helpers\OpenGL\Geometry\Earth.cs" />
+    <Compile Include="Helpers\OpenGL\Geometry\GLEarth.cs" />
     <Compile Include="Helpers\OpenGL\Geometry\RollingSquare.cs" />
     <Compile Include="Helpers\OpenGL\Geometry\StillSquare.cs" />
     <Compile Include="Helpers\OpenGL\GLEntity.cs" />
     <Compile Include="Helpers\OpenGL\MyRenderer.cs" />
-    <Compile Include="Helpers\OpenGL\Shader.cs" />
     <Compile Include="Helpers\Calibrator\CameraCalibrator.cs" />
     <Compile Include="Helpers\FrameRender.cs" />
     <Compile Include="Helpers\Extension.cs" />
@@ -88,6 +89,12 @@
     <Compile Include="Helpers\MyARHelper.cs" />
     <Compile Include="Helpers\MyCameraHelper.cs" />
     <Compile Include="Helpers\MySensorHelper.cs" />
+    <Compile Include="Helpers\OpenGL\Geometry\GLSimpleEntity.cs" />
+    <Compile Include="Helpers\OpenGL\Shader\BallShader.cs" />
+    <Compile Include="Helpers\OpenGL\Shader\Shader.cs" />
+    <Compile Include="Helpers\OpenGL\Shader\SimpleShader.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MyARFragment.cs" />
     <Compile Include="Helpers\HelperManager.cs" />
     <Compile Include="Helpers\MyPermissionHelper.cs" />
@@ -101,6 +108,8 @@
     <Compile Include="Views\MyDialog.cs" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidAsset Include="Assets\ball_shader_fragment.glsl" />
+    <AndroidAsset Include="Assets\ball_shader_vertex.glsl" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
@@ -209,6 +218,9 @@
     <AndroidAsset Include="Assets\settings_template.yaml">
       <SubType>Designer</SubType>
     </AndroidAsset>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-hdpi\logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
