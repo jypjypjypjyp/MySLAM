@@ -129,10 +129,6 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 	}
 	mIMUFrameV.erase(mIMUFrameV.begin(), mIMUFrameV.begin() + needToRemove + 1);
 	double dt1 = dts1 * 1e-9, dt2 = dts2 * 1e-9;
-	//// Check if d1, d2 are suitable.
-	//if (cv::norm(d1, cv::NORM_L2) < 20 * 0.5 * cv::norm(mIMUBias, cv::NORM_L2) * dt1 * dt1
-	//	|| cv::norm(d2, cv::NORM_L2) < 20 * 0.5 * cv::norm(mIMUBias, cv::NORM_L2) * dt2 * dt2)
-	//	return;
 	cv::Vec3f A, C;
 	double B;
 	A = dx1 * dt2 - dx2 * dt1;
@@ -160,7 +156,7 @@ void SimpleEstimator::TryUpdateParams(long long timestamp)
 			return;
 		H.push_back(h);
 		Z.push_back(z);
-		if (H.rows / 3 >= 100)
+		if (H.rows / 3 >= 60)
 		{
 			cv::solve(H, Z, X, CV_SVD);
 			mScale = X.at<float>(0, 0);

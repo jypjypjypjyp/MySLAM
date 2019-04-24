@@ -135,7 +135,29 @@ namespace MySLAM.Xamarin
                 case Resource.Id.model_square:
                     renderer.ManageEntitys((e) =>
                     {
+                        e.Clear();
+                        e["square"] = new StillSquare(3f);
+                    });
+                    break;
+                case Resource.Id.model_earth:
+                    renderer.ManageEntitys((e) =>
+                    {
+                        e.Clear();
                         e["earth"] = new Earth(3f);
+                    });
+                    break;
+                case Resource.Id.model_mars:
+                    renderer.ManageEntitys((e) =>
+                    {
+                        e.Clear();
+                        e["mars"] = new Mars(3f);
+                    });
+                    break;
+                case Resource.Id.model_moon:
+                    renderer.ManageEntitys((e) =>
+                    {
+                        e.Clear();
+                        e["moon"] = new Moon(3f);
                     });
                     break;
             }

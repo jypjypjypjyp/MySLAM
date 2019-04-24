@@ -20,7 +20,6 @@
   <string name="error">Error</string>
   <string name="permission_failed">Get permission Failed!!</string>
 
-
   <!--AR Menu-->
   <string name="action_calibrate">Calibrate</string>
   <string name="undistortion">Undistortion</string>
@@ -32,11 +31,15 @@
   <string name="original">Original</string>
   <string name="undistorted">Undistorted</string>
   <string name="add_model">Add Model</string>
-  <string name="earth">Earth</string>
-  <string name="square">Square</string>
-  <string name="download">Download</string>
   <string name="ar_1">AR</string>
   <string name="ar_2">AR+IMU</string>
+  
+  <!--Model-->
+  <string name="earth">Earth</string>
+  <string name="moon">Moon</string>
+  <string name="Mars">Mars</string>
+  <string name="square">Square</string>
+  <string name="download">Download</string>
   
   <!--AR UI-->
   <string name="please_wait">Please, wait...</string>
@@ -45,7 +48,5 @@
   <string name="not_calibrate">Please calibrate first!</string>
   <string name="imu_calibrate_tips">Please put your phone still, then click the button!</string>
   <string name="add_corners">Add Corners</string>
-
-
 
 </resources>

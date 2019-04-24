@@ -8,6 +8,12 @@
                 android:showAsAction="always">
           <item android:id="@+id/model_square"
                 android:title="@string/square"/>
+          <item android:id="@+id/model_earth"
+                android:title="@string/earth"/>
+          <item android:id="@+id/model_moon"
+                android:title="@string/moon"/>
+          <item android:id="@+id/model_mars"
+                android:title="@string/mars"/>
           <item android:id="@+id/model_download"
                 android:title="@string/download" />
         </group>

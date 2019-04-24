@@ -57,7 +57,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
     <AndroidManagedSymbols>true</AndroidManagedSymbols>
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
@@ -77,7 +77,9 @@
   <ItemGroup>
     <Compile Include="Helpers\MyLocationHelper.cs" />
     <Compile Include="Helpers\OpenGL\Geometry\Earth.cs" />
-    <Compile Include="Helpers\OpenGL\Geometry\GLEarth.cs" />
+    <Compile Include="Helpers\OpenGL\Geometry\GLBall.cs" />
+    <Compile Include="Helpers\OpenGL\Geometry\Mars.cs" />
+    <Compile Include="Helpers\OpenGL\Geometry\Moon.cs" />
     <Compile Include="Helpers\OpenGL\Geometry\RollingSquare.cs" />
     <Compile Include="Helpers\OpenGL\Geometry\StillSquare.cs" />
     <Compile Include="Helpers\OpenGL\GLEntity.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="Helpers\OpenGL\Shader\SimpleShader.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Helpers\OpenGL\TextureLoader.cs" />
     <Compile Include="MyARFragment.cs" />
     <Compile Include="Helpers\HelperManager.cs" />
     <Compile Include="Helpers\MyPermissionHelper.cs" />
@@ -112,7 +115,6 @@
     <AndroidAsset Include="Assets\ball_shader_vertex.glsl" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
-    <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\activity_main.axml">
@@ -219,8 +221,15 @@
       <SubType>Designer</SubType>
     </AndroidAsset>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <AndroidResource Include="Resources\mipmap-hdpi\logo.png" />
+    <AndroidAsset Include="Assets\Texture\earth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\Texture\mars.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\Texture\moon.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

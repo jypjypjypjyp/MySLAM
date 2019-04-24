@@ -2,10 +2,10 @@
 
 namespace MySLAM.Xamarin.Helpers.OpenGL
 {
-    public class Earth : GLBall
+    public class Moon : GLBall
     {
         private readonly float z;
-        public Earth(float z) : base(0.5f, 5, "earth.png")
+        public Moon(float z) : base(0.8f, 5, "moon.jpg")
         {
             this.z = z;
         }
