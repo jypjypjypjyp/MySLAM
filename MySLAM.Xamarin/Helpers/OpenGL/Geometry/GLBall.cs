@@ -134,7 +134,6 @@ namespace MySLAM.Xamarin.Helpers.OpenGL
                     .Order(ByteOrder.NativeOrder())
                     .AsFloatBuffer();
             textureBuffer.Put(textures);
-            // 设置buffer，从第一个坐标开始读
             textureBuffer.Position(0);
        }
 
@@ -142,11 +141,11 @@ namespace MySLAM.Xamarin.Helpers.OpenGL
         {
             aTextureCoordHandle = GLES30.GlGetAttribLocation(Program, "a_TextureCoordinates");
             uTextureUnitHandle = GLES30.GlGetAttribLocation(Program, "u_TextureUnit");
-            textureHandle = TextureLoader.LoadTexture(name, false);
+            textureHandle = TextureLoader.LoadTexture(Name, false);
             // Set the active texture unit to texture unit 0.
             GLES30.GlActiveTexture(GLES30.GlTexture0);
             // Bind the texture to this unit.
-            GLES30.GlBindTexture(GLES30.GlTexture2d, textureHandle);
+            //GLES30.GlBindTexture(GLES30.GlTexture2d, textureHandle);
             // Tell the texture uniform sampler to use this texture in the shader by
             // telling it to read from texture unit 0.
             GLES30.GlUniform1i(uTextureUnitHandle, 0);

@@ -1,31 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:opencv="http://schemas.android.com/apk/res-auto"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <ImageView
-            android:src="@mipmap/myslam_info"
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"/>
-        <TextView
-            android:text="0.999"
-            android:textSize="30dp"
-            android:gravity="center_horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
-    
-    <android.opengl.GLSurfaceView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/info_gl_view"/>
-</FrameLayout>
+	<ImageView
+		android:src="@mipmap/myslam_info"
+		android:layout_centerInParent="true"
+		android:gravity="center_vertical"
+		android:layout_width="match_parent"
+		android:layout_height="150dp"/>
+	<TextView
+		android:text="1.0.0"
+		android:textSize="30dp"
+		android:gravity="center_horizontal"
+		android:layout_alignParentBottom="true"
+		android:layout_marginBottom="10dp"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/textView1" />
+</RelativeLayout>

@@ -1,0 +1,52 @@
+<resources>
+  <string name="app_name">MySLAM.夏雨</string>
+  <string name="repos_address">https://github.com/jypjypjypjyp/MySLAM.Xamarin</string>
+  
+  <string name="navigation_drawer_open">打开导航</string>
+  <string name="navigation_drawer_close">关闭导航</string>
+
+  <string name="frag_info">首页</string>
+  <string name="frag_settings">设置</string>
+  <string name="frag_recorder">采集器</string>
+  <string name="frag_ar">AR</string>
+  
+  <string name="button_mark">标记!!!</string>
+  <string name="button_start_recording">开始记录</string>
+  <string name="button_stop_recording">停止记录</string>
+  
+  <!--Dialog-->
+  <string name="ok">确定</string>
+  <string name="cancel">取消</string>
+  <string name="error">错误</string>
+  <string name="permission_failed">获取权限失败!!</string>
+
+  <!--AR Menu-->
+  <string name="action_calibrate">校准</string>
+  <string name="undistortion">去畸变模式</string>
+  <string name="comparison">比较模式</string>
+  <string name="preview_mode">预览模式</string>
+  <string name="calibration_successful">校准成功!</string>
+  <string name="calibration_unsuccessful">校准失败，请重试</string>
+  <string name="more_samples">请抓取更多记录</string>
+  <string name="original">原始图像</string>
+  <string name="undistorted">去畸变图像</string>
+  <string name="add_model">添加模型</string>
+  <string name="ar_1">AR</string>
+  <string name="ar_2">AR+IMU</string>
+  
+  <!--Model-->
+  <string name="earth">地球</string>
+  <string name="moon">月球</string>
+  <string name="mars">火星</string>
+  <string name="square">正方形</string>
+  <string name="download">更多</string>
+  
+  <!--AR UI-->
+  <string name="please_wait">请等待...</string>
+  <string name="progress">处理中...</string>
+  <string name="loading_voc">加载词典...</string>
+  <string name="not_calibrate">请先校准!</string>
+  <string name="imu_calibrate_tips">请静止手机，然后点击确认按钮!</string>
+  <string name="add_corners">添加角点</string>
+
+</resources>

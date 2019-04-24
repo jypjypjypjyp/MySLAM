@@ -221,7 +221,12 @@
       <SubType>Designer</SubType>
     </AndroidAsset>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\values-zh\strings.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\Texture\earth.png" />
   </ItemGroup>

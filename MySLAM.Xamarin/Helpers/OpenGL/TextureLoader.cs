@@ -7,22 +7,26 @@ namespace MySLAM.Xamarin.Helpers.OpenGL
     {
         public static int LoadTexture(string fileName, bool isRepeat)
         {
-            
-            var bitmap = 
+
+            var bitmap =
                 BitmapFactory.DecodeStream(HelperManager.MainActivity.Assets.Open("Texture/" + fileName));
             if (bitmap == null)
                 return 0;
             // Create texture object
-            int[] textureObjectId = new int[1];
-            GLES30.GlGenTextures(1, textureObjectId, 0);
-            if (textureObjectId[0] == 0)
-                return 0;
+            int texture;
+            {
+                int[] textureArr = new int[1];
+                GLES30.GlGenTextures(1, textureArr, 0);
+                texture = textureArr[0];
+                if (texture == 0)
+                    return 0;
+            }
             // Bind texture
             var options = new BitmapFactory.Options
             {
                 InScaled = false
             };
-            GLES30.GlBindTexture(GLES30.GlTexture2d, textureObjectId[0]);//通过纹理ID进行绑定
+            GLES30.GlBindTexture(GLES30.GlTexture2d, texture);
 
             if (isRepeat)
             {
@@ -36,7 +40,7 @@ namespace MySLAM.Xamarin.Helpers.OpenGL
             GLUtils.TexImage2D(GLES30.GlTexture2d, 0, bitmap, 0);
             bitmap.Recycle();
             GLES30.GlGenerateMipmap(GLES30.GlTexture2d);
-            return textureObjectId[0];
+            return texture;
         }
     }
 }

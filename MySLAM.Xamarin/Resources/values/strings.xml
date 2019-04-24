@@ -37,7 +37,7 @@
   <!--Model-->
   <string name="earth">Earth</string>
   <string name="moon">Moon</string>
-  <string name="Mars">Mars</string>
+  <string name="mars">Mars</string>
   <string name="square">Square</string>
   <string name="download">Download</string>
   
